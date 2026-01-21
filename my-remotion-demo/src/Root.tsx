@@ -14,7 +14,7 @@ export const RemotionRoot = () => {
         <Composition
           id="RebyteIntro"
           component={RebyteIntro}
-          durationInFrames={30 * 30}
+          durationInFrames={51 * 30}
           fps={30}
           width={1280}
           height={720}
