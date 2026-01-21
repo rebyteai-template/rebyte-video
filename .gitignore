@@ -1,4 +1,31 @@
-node_modules
-.DS_Store
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
 out/
+build/
+
+# Cache
+.cache/
+*.pack
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment (keep API keys private)
+.env
+.env.local
+
+# Claude
 .claude/

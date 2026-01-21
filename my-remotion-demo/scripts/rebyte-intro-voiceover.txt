@@ -1,0 +1,15 @@
+Introducing Rebyte.
+
+Every task is a software task—whether it's building a website, cleaning data, or writing complex software.
+
+Rebyte is a generic agent that leverages code agents in the cloud to solve any kind of task.
+
+We're code agent agnostic—using state-of-the-art agents like Claude, Gemini, and Codex. No programming experience required.
+
+From deep research to multi-step workflows that take hours, not minutes.
+
+Everything runs fully in the cloud. Secure, isolated—no laptop required.
+
+Run multiple tasks concurrently without interference.
+
+Rebyte. Vibe working with skilled code agents.
