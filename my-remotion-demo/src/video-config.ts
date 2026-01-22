@@ -78,7 +78,7 @@ export const videoConfig = {
     {
       id: "07-spreadsheet",
       name: "Spreadsheet Builder",
-      script: "Say you need a spreadsheet to track your project timeline. Instead of building it manually, combine a code agent with the spreadsheet skill. The agent will write the necessary code, create the spreadsheet structure, and even fill in sample data for you. Done in seconds.",
+      script: "Tired of spreadsheets? Let the code agent help you. Equip a spreadsheet builder skill with the code agent, let it build world-class collaborative spreadsheets for you. You and the agent can collaborate on the spreadsheet together to make work done much faster than ever before.",
       frames: 503,
       duration: 16.75,
       start: 2115,
