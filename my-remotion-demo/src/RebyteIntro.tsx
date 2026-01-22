@@ -538,6 +538,7 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
     { Logo: ClaudeLogo, name: "Claude", color: "#D97706" },
     { Logo: GeminiLogo, name: "Gemini", color: "#3186FF" },
     { Logo: OpenAILogo, name: "Codex", color: "#10A37F" },
+    { Logo: OpenCodeLogo, name: "OpenCode", color: "#00cc70" },
   ];
 
   return (
@@ -599,32 +600,32 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
           }}>
             State-of-the-art Agents
           </span>
-          <div style={{ display: "flex", gap: 20 }}>
+          <div style={{ display: "flex", gap: 12 }}>
             {agents.map(({ Logo, name, color }, i) => {
-              const agentEntrance = spring({ frame: animFrame - fps * (1.5 + i * 0.2), fps, config: { damping: 12 } });
+              const agentEntrance = spring({ frame: animFrame - fps * (1.5 + i * 0.15), fps, config: { damping: 12 } });
               return (
                 <div key={name} style={{
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 6,
                   opacity: interpolate(agentEntrance, [0, 1], [0, 1]),
                   transform: `scale(${interpolate(agentEntrance, [0, 1], [0.8, 1])})`,
                 }}>
                   <div style={{
-                    width: 70,
-                    height: 70,
-                    borderRadius: 16,
+                    width: 56,
+                    height: 56,
+                    borderRadius: 14,
                     backgroundColor: "white",
-                    border: `3px solid ${color}`,
+                    border: `2px solid ${color}`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: `0 8px 20px ${color}30`,
+                    boxShadow: `0 6px 16px ${color}30`,
                   }}>
-                    <Logo size={36} />
+                    <Logo size={28} />
                   </div>
-                  <span style={{ fontFamily: "system-ui", fontSize: 12, color: "#374151", fontWeight: 500 }}>{name}</span>
+                  <span style={{ fontFamily: "system-ui", fontSize: 11, color: "#374151", fontWeight: 500 }}>{name}</span>
                 </div>
               );
             })}
@@ -1328,11 +1329,13 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
             top: 20,
             left: 20,
             padding: "10px 20px",
-            backgroundColor: "rgba(15, 23, 42, 0.95)",
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
             borderRadius: 8,
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
             opacity: interpolate(frame, [phases.combineSkill.start + fps * 0.3, phases.combineSkill.start + fps * 0.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
-            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#374151" }}>
+            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#1f2937" }}>
               Combine Agent + Skill
             </span>
           </div>
@@ -1358,10 +1361,12 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
             top: 20,
             left: 20,
             padding: "10px 20px",
-            backgroundColor: "rgba(15, 23, 42, 0.95)",
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
             borderRadius: 8,
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
           }}>
-            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#374151" }}>
+            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#1f2937" }}>
               Tell the agent what you want
             </span>
           </div>
@@ -1371,10 +1376,12 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
             left: "50%",
             transform: "translateX(-50%)",
             padding: "16px 28px",
-            backgroundColor: "rgba(15, 23, 42, 0.95)",
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
             borderRadius: 12,
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
           }}>
-            <span style={{ fontFamily: "system-ui", fontSize: 16, color: "#e2e8f0" }}>
+            <span style={{ fontFamily: "system-ui", fontSize: 16, color: "#374151" }}>
               Describe what you need in plain English...
             </span>
           </div>
@@ -1402,12 +1409,12 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
             transform: "translateX(-50%)",
             width: 500,
             padding: 24,
-            backgroundColor: "rgba(15, 23, 42, 0.98)",
+            backgroundColor: "rgba(255, 255, 255, 0.98)",
             borderRadius: 16,
-            border: "1px solid #334155",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
           }}>
-            <div style={{ fontFamily: "system-ui", fontSize: 16, color: "#374151", marginBottom: 16, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ fontFamily: "system-ui", fontSize: 16, color: "#1f2937", marginBottom: 16, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
               <span>⚙️</span>
               Agent Working...
             </div>
@@ -1424,11 +1431,11 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
                   opacity: isActive ? actionProgress : 0.3,
                 }}>
                   <span style={{ fontSize: 18 }}>{action.icon}</span>
-                  <span style={{ fontFamily: "system-ui", fontSize: 14, color: isActive ? "#e2e8f0" : "#64748b" }}>
+                  <span style={{ fontFamily: "system-ui", fontSize: 14, color: isActive ? "#1f2937" : "#9ca3af" }}>
                     {action.text}
                   </span>
                   {isActive && actionProgress >= 1 && (
-                    <span style={{ color: "#374151", marginLeft: "auto", fontSize: 16 }}>✓</span>
+                    <span style={{ color: "#10b981", marginLeft: "auto", fontSize: 16 }}>✓</span>
                   )}
                 </div>
               );
@@ -1525,11 +1532,13 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
             top: 20,
             left: 20,
             padding: "10px 20px",
-            backgroundColor: "rgba(15, 23, 42, 0.95)",
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
             borderRadius: 8,
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
             opacity: interpolate(frame, [phases.taskView.start + fps * 0.5, phases.taskView.start + fps * 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
-            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#374151" }}>
+            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#1f2937" }}>
               Using spreadsheet-builder Skill
             </span>
           </div>
@@ -1550,8 +1559,10 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
             left: "50%",
             transform: "translateX(-50%)",
             padding: "16px 32px",
-            backgroundColor: "rgba(15, 23, 42, 0.98)",
+            backgroundColor: "rgba(255, 255, 255, 0.98)",
             borderRadius: 12,
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
             display: "flex",
             alignItems: "center",
             gap: 12,
@@ -1560,11 +1571,11 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
               width: 20,
               height: 20,
               borderRadius: "50%",
-              border: "3px solid #374151",
-              borderTopColor: "transparent",
+              border: "3px solid #d1d5db",
+              borderTopColor: "#3b82f6",
               animation: "spin 1s linear infinite",
             }} />
-            <span style={{ fontFamily: "system-ui", fontSize: 16, color: "#e2e8f0" }}>
+            <span style={{ fontFamily: "system-ui", fontSize: 16, color: "#374151" }}>
               Building your spreadsheet...
             </span>
           </div>
