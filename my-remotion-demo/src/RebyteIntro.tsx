@@ -246,17 +246,16 @@ export const RebyteIntro = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
-  // Scene timings matched to voiceover (~51 seconds total)
-  // Each scene starts exactly when the previous ends - no overlap
+  // Scene timings (~60 seconds total)
+  // Detailed narrative case study approach
   const scenes = {
     problem: { start: 0, duration: fps * 7 },                    // 0-7s: The Problem
     change: { start: fps * 7, duration: fps * 6 },               // 7-13s: The Change (CodeAgent)
     mission: { start: fps * 13, duration: fps * 6 },             // 13-19s: Rebyte's Mission
-    repetitive: { start: fps * 19, duration: fps * 6 },          // 19-25s: Repetitive Tasks
-    complex: { start: fps * 25, duration: fps * 6 },             // 25-31s: Complex Tasks
-    cloud: { start: fps * 31, duration: fps * 9 },               // 31-40s: Cloud & Skills
-    examples: { start: fps * 40, duration: fps * 5 },            // 40-45s: Live Examples
-    cta: { start: fps * 45, duration: durationInFrames - fps * 45 }, // 45-51s: CTA
+    surveyCase: { start: fps * 19, duration: fps * 22 },         // 19-41s: Survey Case Study (detailed narrative)
+    cloud: { start: fps * 41, duration: fps * 9 },               // 41-50s: Cloud & Skills
+    examples: { start: fps * 50, duration: fps * 5 },            // 50-55s: Live Examples
+    cta: { start: fps * 55, duration: durationInFrames - fps * 55 }, // 55-60s: CTA
   };
 
   return (
@@ -279,33 +278,16 @@ export const RebyteIntro = () => {
         <MissionScene frame={frame - scenes.mission.start} fps={fps} sceneDuration={scenes.mission.duration} />
       </Sequence>
 
-      {/* Scene 4: Repetitive Tasks (19-25s) */}
-      <Sequence from={scenes.repetitive.start} durationInFrames={scenes.repetitive.duration}>
-        <TaskScene
-          frame={frame - scenes.repetitive.start}
+      {/* Scene 4: Survey Case Study (19-41s) */}
+      <Sequence from={scenes.surveyCase.start} durationInFrames={scenes.surveyCase.duration}>
+        <SurveyCaseScene
+          frame={frame - scenes.surveyCase.start}
           fps={fps}
-          sceneDuration={scenes.repetitive.duration}
-          src="example-crypto-analysis.png"
-          title="Repetitive Tasks"
-          subtitle="Data cleaning, spreadsheets, websites"
-          bgColor="#f1f5f9"
+          sceneDuration={scenes.surveyCase.duration}
         />
       </Sequence>
 
-      {/* Scene 5: Complex Tasks (25-31s) */}
-      <Sequence from={scenes.complex.start} durationInFrames={scenes.complex.duration}>
-        <TaskScene
-          frame={frame - scenes.complex.start}
-          fps={fps}
-          sceneDuration={scenes.complex.duration}
-          src="example-nvidia-research.png"
-          title="Complex Coding Tasks"
-          subtitle="GitHub repos, bug fixes, deployments"
-          bgColor="#e2e8f0"
-        />
-      </Sequence>
-
-      {/* Scene 6: Cloud & Skills (31-40s) */}
+      {/* Scene 5: Cloud & Skills (41-50s) */}
       <Sequence from={scenes.cloud.start} durationInFrames={scenes.cloud.duration}>
         <CloudSkillsScene frame={frame - scenes.cloud.start} fps={fps} sceneDuration={scenes.cloud.duration} />
       </Sequence>
@@ -717,7 +699,7 @@ const MissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps: numbe
   );
 };
 
-// ============ TASK SCENE (Reusable) ============
+// ============ TASK SCENE (Reusable for screenshots) ============
 const TaskScene = ({
   frame,
   fps,
@@ -787,6 +769,1126 @@ const TaskScene = ({
           </div>
         </div>
       </div>
+    </AbsoluteFill>
+  );
+};
+
+// ============ SCENE 4: SURVEY CASE STUDY (Narrative) ============
+const SurveyCaseScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  // Phase timings within the 22-second scene
+  const phases = {
+    oldWayIntro: { start: 0, end: fps * 2 },           // 0-2s: "The old way..."
+    googleSearch: { start: fps * 2, end: fps * 5 },    // 2-5s: Google search animation
+    saasProducts: { start: fps * 5, end: fps * 8 },    // 5-8s: SaaS products with pricing
+    transition: { start: fps * 8, end: fps * 10 },     // 8-10s: "There's a better way"
+    skillSelection: { start: fps * 10, end: fps * 14 }, // 10-14s: Select skill (KEY STEP!)
+    rebytePrompt: { start: fps * 14, end: fps * 17 },  // 14-17s: Type the prompt
+    agentWorking: { start: fps * 17, end: fps * 19 },  // 17-19s: Agent processing
+    result: { start: fps * 19, end: fps * 22 },        // 19-22s: Show the live form
+  };
+
+  const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  // SaaS products for the "old way"
+  const saasProducts = [
+    { name: "Typeform", price: "$25/mo", color: "#262627" },
+    { name: "SurveyMonkey", price: "$32/mo", color: "#00BF6F" },
+    { name: "Google Forms", price: "Free*", color: "#673AB7" },
+    { name: "JotForm", price: "$34/mo", color: "#FF6100" },
+  ];
+
+  // The prompt text
+  const promptText = "Build a survey for our marketing team to understand how developers use coding agents. Ask about: which tools (Claude Code, Cursor, Copilot), frequency of use, common tasks, and satisfaction rating. Make it live.";
+
+  // Agent actions
+  const agentActions = [
+    { text: "Reading form-builder skill...", icon: "📖" },
+    { text: "Creating form schema...", icon: "⚙️" },
+    { text: "Deploying to cloud...", icon: "☁️" },
+    { text: "Form is live!", icon: "✅" },
+  ];
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#f8fafc", opacity: exitOpacity }}>
+      {/* ===== PART 1: THE OLD WAY (0-8s) ===== */}
+      {frame < phases.transition.start && (
+        <AbsoluteFill>
+          {/* "The old way" title */}
+          <div style={{
+            position: "absolute",
+            top: 40,
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            opacity: interpolate(frame, [0, fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            <span style={{
+              fontFamily: "system-ui",
+              fontSize: 16,
+              color: "#9ca3af",
+              textTransform: "uppercase",
+              letterSpacing: 2,
+            }}>
+              The Old Way
+            </span>
+          </div>
+
+          {/* Google Search Box */}
+          <div style={{
+            position: "absolute",
+            top: 120,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 600,
+            opacity: interpolate(frame, [phases.googleSearch.start - fps * 0.3, phases.googleSearch.start], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            {/* Google Logo */}
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <span style={{ fontFamily: "system-ui", fontSize: 48, fontWeight: 400 }}>
+                <span style={{ color: "#4285F4" }}>G</span>
+                <span style={{ color: "#EA4335" }}>o</span>
+                <span style={{ color: "#FBBC05" }}>o</span>
+                <span style={{ color: "#4285F4" }}>g</span>
+                <span style={{ color: "#34A853" }}>l</span>
+                <span style={{ color: "#EA4335" }}>e</span>
+              </span>
+            </div>
+            {/* Search Bar */}
+            <div style={{
+              backgroundColor: "white",
+              borderRadius: 24,
+              padding: "14px 24px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              border: "1px solid #dfe1e5",
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+            }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#9aa0a6">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+              </svg>
+              <span style={{ fontFamily: "system-ui", fontSize: 16, color: "#202124" }}>
+                {"best survey builder tool".slice(0, Math.floor(interpolate(frame, [phases.googleSearch.start, phases.googleSearch.end - fps * 0.5], [0, 25], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })))}
+                <span style={{ opacity: Math.sin(frame / 4) > 0 ? 1 : 0, color: "#202124" }}>|</span>
+              </span>
+            </div>
+          </div>
+
+          {/* SaaS Products Grid */}
+          <div style={{
+            position: "absolute",
+            top: 280,
+            left: 0,
+            right: 0,
+            display: "flex",
+            justifyContent: "center",
+            gap: 24,
+            opacity: interpolate(frame, [phases.saasProducts.start, phases.saasProducts.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            {saasProducts.map((product, i) => {
+              const productDelay = phases.saasProducts.start + i * fps * 0.3;
+              const productEntrance = spring({ frame: frame - productDelay, fps, config: { damping: 12 } });
+              return (
+                <div key={product.name} style={{
+                  backgroundColor: "white",
+                  borderRadius: 16,
+                  padding: 24,
+                  width: 200,
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                  border: "1px solid #e5e7eb",
+                  opacity: interpolate(productEntrance, [0, 1], [0, 1]),
+                  transform: `translateY(${interpolate(productEntrance, [0, 1], [20, 0])}px)`,
+                }}>
+                  <div style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 12,
+                    backgroundColor: product.color,
+                    marginBottom: 16,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}>
+                    <span style={{ color: "white", fontWeight: 700, fontSize: 18 }}>{product.name[0]}</span>
+                  </div>
+                  <div style={{ fontFamily: "system-ui", fontSize: 16, fontWeight: 600, color: "#1f2937", marginBottom: 8 }}>
+                    {product.name}
+                  </div>
+                  <div style={{
+                    fontFamily: "system-ui",
+                    fontSize: 20,
+                    fontWeight: 700,
+                    color: "#ef4444",
+                  }}>
+                    {product.price}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Pain point text */}
+          <div style={{
+            position: "absolute",
+            bottom: 80,
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            opacity: interpolate(frame, [phases.saasProducts.start + fps * 1, phases.saasProducts.end], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            <p style={{
+              fontFamily: "system-ui",
+              fontSize: 20,
+              color: "#6b7280",
+            }}>
+              Sign up, learn the tool, pay monthly fees...
+            </p>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* ===== PART 2: TRANSITION (8-10s) ===== */}
+      {frame >= phases.transition.start && frame < phases.rebytePrompt.start && (
+        <AbsoluteFill style={{
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#f8fafc",
+        }}>
+          <div style={{
+            opacity: interpolate(frame, [phases.transition.start, phases.transition.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            transform: `scale(${interpolate(frame, [phases.transition.start, phases.transition.start + fps * 0.5], [0.8, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+          }}>
+            <h1 style={{
+              fontFamily: "system-ui",
+              fontSize: 48,
+              fontWeight: 700,
+              color: "#1f2937",
+              textAlign: "center",
+            }}>
+              There's a <span style={{ color: "#10b981" }}>better</span> way
+            </h1>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* ===== PART 3: THE NEW WAY - REBYTE (10-22s) ===== */}
+      {frame >= phases.skillSelection.start && (
+        <AbsoluteFill style={{ backgroundColor: "#f8fafc" }}>
+          {/* Sub-phases within the Rebyte section */}
+          {(() => {
+            const skillStart = phases.skillSelection.start;
+            // Phase 1: Show skills dialog (0-2s) - "First, select a skill"
+            const showSkillsDialog = frame >= skillStart && frame < skillStart + fps * 2;
+            // Phase 2: Show skill selected with explanation (2-4s)
+            const showSkillSelected = frame >= skillStart + fps * 2 && frame < phases.rebytePrompt.start;
+            // Phase 3: Show typing the prompt (rebytePrompt phase)
+            const showTyping = frame >= phases.rebytePrompt.start && frame < phases.agentWorking.start;
+            // Phase 4: Agent working
+            const showAgentWorking = frame >= phases.agentWorking.start && frame < phases.result.start;
+            // Phase 5: Result
+            const showResult = frame >= phases.result.start;
+
+            return (
+              <>
+                {/* Screenshot container */}
+                <div style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  opacity: interpolate(frame, [skillStart, skillStart + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+                }}>
+                  {/* Phase 1: Skills dialog - selecting a skill */}
+                  {showSkillsDialog && (
+                    <Img
+                      src={staticFile("rebyte-skill-selected.png")}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+                    />
+                  )}
+
+                  {/* Phase 2: Skill attached to input */}
+                  {showSkillSelected && (
+                    <Img
+                      src={staticFile("rebyte-input-with-skill.png")}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+                    />
+                  )}
+
+                  {/* Phase 3+: Input with typed prompt */}
+                  {(showTyping || showAgentWorking || showResult) && (
+                    <Img
+                      src={staticFile("rebyte-input-typed.png")}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+                    />
+                  )}
+                </div>
+
+                {/* Step indicator - top left */}
+                <div style={{
+                  position: "absolute",
+                  top: 20,
+                  left: 20,
+                  padding: "10px 20px",
+                  backgroundColor: "rgba(15, 23, 42, 0.95)",
+                  borderRadius: 8,
+                  opacity: interpolate(frame, [skillStart + fps * 0.3, skillStart + fps * 0.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+                }}>
+                  <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#10b981" }}>
+                    {showSkillsDialog ? "Step 1: Select a Skill" :
+                     showSkillSelected ? "Step 2: Skill Attached" :
+                     showTyping ? "Step 3: Describe Your Task" :
+                     showAgentWorking ? "Agent Applying Skill..." :
+                     "Done!"}
+                  </span>
+                </div>
+
+                {/* "With Rebyte" label - top right */}
+                <div style={{
+                  position: "absolute",
+                  top: 20,
+                  right: 20,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "8px 16px",
+                  backgroundColor: "#10b981",
+                  borderRadius: 8,
+                  opacity: interpolate(frame, [skillStart + fps * 0.3, skillStart + fps * 0.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.4)",
+                }}>
+                  <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "white" }}>With Rebyte</span>
+                </div>
+
+                {/* KEY MESSAGE: Why skills matter - shown during skill dialog phase */}
+                {showSkillsDialog && (
+                  <div style={{
+                    position: "absolute",
+                    bottom: 60,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    padding: "20px 32px",
+                    backgroundColor: "rgba(15, 23, 42, 0.98)",
+                    borderRadius: 16,
+                    border: "2px solid #10b981",
+                    maxWidth: 600,
+                    textAlign: "center",
+                    opacity: interpolate(frame, [skillStart + fps * 0.8, skillStart + fps * 1.2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+                    boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+                  }}>
+                    <div style={{ fontFamily: "system-ui", fontSize: 20, fontWeight: 700, color: "#10b981", marginBottom: 10 }}>
+                      Skills are the Secret
+                    </div>
+                    <div style={{ fontFamily: "system-ui", fontSize: 15, color: "#e2e8f0", lineHeight: 1.5 }}>
+                      A code agent alone can't reliably build forms.<br/>
+                      <span style={{ color: "#10b981", fontWeight: 600 }}>form-builder</span> skill teaches it exactly how.
+                    </div>
+                  </div>
+                )}
+
+                {/* Skill explanation - shown when skill is attached */}
+                {showSkillSelected && (
+                  <div style={{
+                    position: "absolute",
+                    bottom: 60,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    padding: "16px 28px",
+                    backgroundColor: "rgba(15, 23, 42, 0.98)",
+                    borderRadius: 12,
+                    border: "1px solid #10b981",
+                    maxWidth: 500,
+                    textAlign: "center",
+                    opacity: interpolate(frame, [skillStart + fps * 2.3, skillStart + fps * 2.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+                  }}>
+                    <div style={{ fontFamily: "system-ui", fontSize: 14, color: "#e2e8f0", lineHeight: 1.4 }}>
+                      Now the agent has <span style={{ color: "#10b981", fontWeight: 600 }}>specialized knowledge</span> for building professional, multi-step surveys
+                    </div>
+                  </div>
+                )}
+
+                {/* Typing phase indicator */}
+                {showTyping && (
+                  <div style={{
+                    position: "absolute",
+                    bottom: 60,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    padding: "12px 24px",
+                    backgroundColor: "rgba(15, 23, 42, 0.95)",
+                    borderRadius: 8,
+                    opacity: interpolate(frame, [phases.rebytePrompt.start, phases.rebytePrompt.start + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+                  }}>
+                    <span style={{ fontFamily: "system-ui", fontSize: 14, color: "#e2e8f0" }}>
+                      Just describe what you want...
+                    </span>
+                  </div>
+                )}
+
+                {/* Agent Working Panel */}
+                {showAgentWorking && (
+                  <div style={{
+                    position: "absolute",
+                    bottom: 40,
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    width: 500,
+                    padding: 24,
+                    backgroundColor: "rgba(15, 23, 42, 0.98)",
+                    borderRadius: 16,
+                    border: "1px solid #334155",
+                    boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+                    opacity: interpolate(frame, [phases.agentWorking.start, phases.agentWorking.start + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+                  }}>
+                    <div style={{ fontFamily: "system-ui", fontSize: 16, color: "#10b981", marginBottom: 16, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ display: "inline-block", animation: "spin 1s linear infinite" }}>⚙️</span>
+                      Agent Working...
+                    </div>
+                    {agentActions.map((action, i) => {
+                      const actionStart = phases.agentWorking.start + i * fps * 0.5;
+                      const isActive = frame >= actionStart;
+                      const actionProgress = interpolate(frame, [actionStart, actionStart + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+                      return (
+                        <div key={i} style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          marginBottom: 10,
+                          opacity: isActive ? actionProgress : 0.3,
+                          transform: `translateX(${isActive ? 0 : -10}px)`,
+                        }}>
+                          <span style={{ fontSize: 18 }}>{action.icon}</span>
+                          <span style={{ fontFamily: "system-ui", fontSize: 14, color: isActive ? "#e2e8f0" : "#64748b" }}>
+                            {action.text}
+                          </span>
+                          {isActive && actionProgress >= 1 && (
+                            <span style={{ color: "#10b981", marginLeft: "auto", fontSize: 16 }}>✓</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Result - Success state */}
+                {showResult && (
+                  <>
+                    {/* Success badge */}
+                    <div style={{
+                      position: "absolute",
+                      top: 80,
+                      left: "50%",
+                      transform: `translateX(-50%) scale(${interpolate(frame, [phases.result.start, phases.result.start + fps * 0.3], [0.5, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      padding: "16px 32px",
+                      backgroundColor: "#10b981",
+                      borderRadius: 50,
+                      opacity: interpolate(frame, [phases.result.start, phases.result.start + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+                      boxShadow: "0 8px 30px rgba(16, 185, 129, 0.5)",
+                    }}>
+                      <span style={{ fontSize: 24 }}>✅</span>
+                      <span style={{ fontFamily: "system-ui", fontSize: 20, fontWeight: 700, color: "white" }}>Form is Live!</span>
+                    </div>
+
+                    {/* Show the live form preview */}
+                    <div style={{
+                      position: "absolute",
+                      top: 180,
+                      left: "50%",
+                      transform: `translateX(-50%)`,
+                      width: 700,
+                      height: 450,
+                      borderRadius: 16,
+                      overflow: "hidden",
+                      boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+                      border: "3px solid #10b981",
+                      opacity: interpolate(frame, [phases.result.start + fps * 0.3, phases.result.start + fps * 0.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+                      transform: `translateX(-50%) translateY(${interpolate(frame, [phases.result.start + fps * 0.3, phases.result.start + fps * 0.6], [20, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
+                    }}>
+                      <Img
+                        src={staticFile("survey-step0-intro.png")}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    </div>
+
+                    {/* "Deployed in seconds" text */}
+                    <div style={{
+                      position: "absolute",
+                      bottom: 40,
+                      left: 0,
+                      right: 0,
+                      textAlign: "center",
+                      opacity: interpolate(frame, [phases.result.start + fps * 0.8, phases.result.start + fps * 1.1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+                    }}>
+                      <p style={{ fontFamily: "system-ui", fontSize: 18, color: "#6b7280" }}>
+                        Deployed live in seconds—no coding required
+                      </p>
+                    </div>
+                  </>
+                )}
+              </>
+            );
+          })()}
+        </AbsoluteFill>
+      )}
+    </AbsoluteFill>
+  );
+};
+
+// ============ SCENE 4 (OLD): REPETITIVE TASKS (Full-Screen Cards) ============
+const RepetitiveTasksScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const taskDuration = fps * 3.5; // 3.5 seconds per task
+
+  const tasks = [
+    {
+      title: "Deep Research",
+      icon: "🔍",
+      color: "#3b82f6",
+      prompt: "Analyze AAPL investment potential - gather SEC filings from the last 7 years, earnings transcripts, and analyst reports. Extract key revenue trends and growth metrics.",
+      result: {
+        type: "report",
+        title: "AAPL Investment Analysis",
+        items: [
+          { label: "Revenue Growth (7yr)", value: "+142%", trend: "up" },
+          { label: "Services Revenue", value: "$85.2B", trend: "up" },
+          { label: "Gross Margin", value: "44.3%", trend: "up" },
+          { label: "R&D Investment", value: "$29.9B", trend: "up" },
+        ],
+      },
+    },
+    {
+      title: "Build Spreadsheet",
+      icon: "📊",
+      color: "#10b981",
+      prompt: "Create a monthly expense tracker with categories for rent, utilities, groceries, transportation, and entertainment. Add auto-sum formulas and a pie chart for visualization.",
+      result: {
+        type: "spreadsheet",
+        columns: ["Category", "Jan", "Feb", "Mar", "Total"],
+        rows: [
+          ["Rent", "$2,000", "$2,000", "$2,000", "$6,000"],
+          ["Utilities", "$150", "$180", "$140", "$470"],
+          ["Groceries", "$400", "$380", "$420", "$1,200"],
+          ["Transport", "$200", "$220", "$190", "$610"],
+        ],
+      },
+    },
+    {
+      title: "Marketing Survey",
+      icon: "📈",
+      color: "#f59e0b",
+      prompt: "Research competitor pricing for SaaS products in the CRM space. Compare Salesforce, HubSpot, Pipedrive, and Zoho. Include feature comparison and target market analysis.",
+      result: {
+        type: "comparison",
+        items: [
+          { name: "Salesforce", price: "$25-300/user", rating: 4.5 },
+          { name: "HubSpot", price: "$0-120/user", rating: 4.4 },
+          { name: "Pipedrive", price: "$15-99/user", rating: 4.3 },
+          { name: "Zoho CRM", price: "$14-52/user", rating: 4.2 },
+        ],
+      },
+    },
+    {
+      title: "Data Analysis",
+      icon: "📉",
+      color: "#8b5cf6",
+      prompt: "Analyze this cryptocurrency dataset - calculate daily returns, show correlations between BTC, ETH, and SOL. Generate a heatmap and summary statistics.",
+      result: {
+        type: "chart",
+        title: "Crypto Correlation Matrix",
+        correlations: [
+          { pair: "BTC-ETH", value: 0.87 },
+          { pair: "BTC-SOL", value: 0.72 },
+          { pair: "ETH-SOL", value: 0.81 },
+        ],
+      },
+    },
+  ];
+
+  // Determine which task is currently showing
+  const currentTaskIndex = Math.min(Math.floor(frame / taskDuration), tasks.length - 1);
+  const taskFrame = frame - currentTaskIndex * taskDuration;
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#f8fafc" }}>
+      {tasks.map((task, index) => {
+        const taskStart = index * taskDuration;
+        const taskEnd = (index + 1) * taskDuration;
+        const isVisible = frame >= taskStart && frame < taskEnd;
+
+        if (!isVisible) return null;
+
+        const localFrame = frame - taskStart;
+
+        // Animation phases
+        const titleEntrance = spring({ frame: localFrame, fps, config: { damping: 14, stiffness: 100 } });
+        const promptStart = fps * 0.4;
+        const promptTypeProgress = interpolate(localFrame, [promptStart, promptStart + fps * 1.2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+        const resultStart = fps * 1.8;
+        const resultEntrance = spring({ frame: localFrame - resultStart, fps, config: { damping: 12, stiffness: 80 } });
+        const exitOpacity = interpolate(localFrame, [taskDuration - fps * 0.3, taskDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+        return (
+          <AbsoluteFill key={task.title} style={{ opacity: exitOpacity }}>
+            {/* Task Header */}
+            <div style={{
+              position: "absolute",
+              top: 50,
+              left: 80,
+              right: 80,
+              display: "flex",
+              alignItems: "center",
+              gap: 20,
+              opacity: interpolate(titleEntrance, [0, 1], [0, 1]),
+              transform: `translateY(${interpolate(titleEntrance, [0, 1], [20, 0])}px)`,
+            }}>
+              <div style={{
+                width: 64,
+                height: 64,
+                borderRadius: 16,
+                backgroundColor: `${task.color}20`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 32,
+              }}>
+                {task.icon}
+              </div>
+              <div>
+                <div style={{
+                  fontFamily: "system-ui",
+                  fontSize: 14,
+                  color: "#6b7280",
+                  marginBottom: 4,
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                }}>
+                  Repetitive Task
+                </div>
+                <h1 style={{
+                  fontFamily: "system-ui",
+                  fontSize: 36,
+                  fontWeight: 700,
+                  color: "#1f2937",
+                  margin: 0,
+                }}>
+                  {task.title}
+                </h1>
+              </div>
+              <div style={{
+                marginLeft: "auto",
+                padding: "8px 16px",
+                backgroundColor: task.color,
+                borderRadius: 20,
+                fontFamily: "system-ui",
+                fontSize: 14,
+                fontWeight: 600,
+                color: "white",
+              }}>
+                {index + 1} / {tasks.length}
+              </div>
+            </div>
+
+            {/* Prompt Input Area */}
+            <div style={{
+              position: "absolute",
+              top: 160,
+              left: 80,
+              right: 80,
+              opacity: interpolate(localFrame, [promptStart - fps * 0.2, promptStart], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}>
+              <div style={{
+                backgroundColor: "#ffffff",
+                borderRadius: 16,
+                padding: 24,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                border: "1px solid #e5e7eb",
+              }}>
+                <div style={{
+                  fontFamily: "system-ui",
+                  fontSize: 12,
+                  color: "#9ca3af",
+                  marginBottom: 12,
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                }}>
+                  Your Prompt
+                </div>
+                <div style={{
+                  fontFamily: "system-ui",
+                  fontSize: 18,
+                  color: "#374151",
+                  lineHeight: 1.6,
+                }}>
+                  {task.prompt.slice(0, Math.floor(promptTypeProgress * task.prompt.length))}
+                  <span style={{
+                    opacity: Math.sin(localFrame / 4) > 0 ? 1 : 0,
+                    color: task.color,
+                  }}>|</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Result Area */}
+            <div style={{
+              position: "absolute",
+              top: 340,
+              left: 80,
+              right: 80,
+              bottom: 60,
+              opacity: interpolate(resultEntrance, [0, 1], [0, 1]),
+              transform: `translateY(${interpolate(resultEntrance, [0, 1], [30, 0])}px)`,
+            }}>
+              <div style={{
+                backgroundColor: "#ffffff",
+                borderRadius: 16,
+                padding: 24,
+                height: "100%",
+                boxShadow: "0 8px 30px rgba(0,0,0,0.1)",
+                border: `2px solid ${task.color}30`,
+              }}>
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  marginBottom: 20,
+                }}>
+                  <div style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: "#10b981",
+                  }} />
+                  <span style={{
+                    fontFamily: "system-ui",
+                    fontSize: 12,
+                    color: "#10b981",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                  }}>
+                    Result Generated
+                  </span>
+                </div>
+
+                {/* Render different result types */}
+                {task.result.type === "report" && (
+                  <div>
+                    <h3 style={{ fontFamily: "system-ui", fontSize: 20, fontWeight: 600, color: "#1f2937", marginBottom: 20 }}>
+                      {task.result.title}
+                    </h3>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+                      {task.result.items.map((item, i) => (
+                        <div key={i} style={{
+                          padding: 16,
+                          backgroundColor: "#f9fafb",
+                          borderRadius: 12,
+                          border: "1px solid #e5e7eb",
+                        }}>
+                          <div style={{ fontFamily: "system-ui", fontSize: 13, color: "#6b7280", marginBottom: 4 }}>{item.label}</div>
+                          <div style={{ fontFamily: "system-ui", fontSize: 24, fontWeight: 700, color: task.color }}>{item.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {task.result.type === "spreadsheet" && (
+                  <div style={{ fontFamily: "monospace", fontSize: 14 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: `repeat(${task.result.columns.length}, 1fr)`, gap: 1, backgroundColor: "#e5e7eb", borderRadius: 8, overflow: "hidden" }}>
+                      {task.result.columns.map((col, i) => (
+                        <div key={i} style={{ padding: 12, backgroundColor: task.color, color: "white", fontWeight: 600, textAlign: "center" }}>{col}</div>
+                      ))}
+                      {task.result.rows.flat().map((cell, i) => (
+                        <div key={i} style={{ padding: 12, backgroundColor: "white", textAlign: "center", color: "#374151" }}>{cell}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {task.result.type === "comparison" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {task.result.items.map((item, i) => (
+                      <div key={i} style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: 16,
+                        backgroundColor: "#f9fafb",
+                        borderRadius: 12,
+                        border: "1px solid #e5e7eb",
+                      }}>
+                        <div style={{ flex: 1, fontFamily: "system-ui", fontSize: 18, fontWeight: 600, color: "#1f2937" }}>{item.name}</div>
+                        <div style={{ fontFamily: "system-ui", fontSize: 16, color: task.color, fontWeight: 500, marginRight: 24 }}>{item.price}</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          {"★".repeat(Math.floor(item.rating))}
+                          <span style={{ fontFamily: "system-ui", fontSize: 14, color: "#6b7280", marginLeft: 4 }}>{item.rating}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {task.result.type === "chart" && (
+                  <div>
+                    <h3 style={{ fontFamily: "system-ui", fontSize: 20, fontWeight: 600, color: "#1f2937", marginBottom: 20 }}>
+                      {task.result.title}
+                    </h3>
+                    <div style={{ display: "flex", gap: 24, alignItems: "flex-end", height: 180 }}>
+                      {task.result.correlations.map((corr, i) => (
+                        <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                          <div style={{
+                            width: "100%",
+                            height: corr.value * 160,
+                            background: `linear-gradient(180deg, ${task.color} 0%, ${task.color}60 100%)`,
+                            borderRadius: "8px 8px 0 0",
+                            display: "flex",
+                            alignItems: "flex-start",
+                            justifyContent: "center",
+                            paddingTop: 12,
+                          }}>
+                            <span style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 700, color: "white" }}>{corr.value.toFixed(2)}</span>
+                          </div>
+                          <div style={{ fontFamily: "system-ui", fontSize: 14, color: "#6b7280", marginTop: 8 }}>{corr.pair}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </AbsoluteFill>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
+// ============ SCENE 5: COMPLEX CODING TASKS (Full-Screen Cards) ============
+const ComplexCodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const taskDuration = fps * 3.5; // 3.5 seconds per task
+
+  const tasks = [
+    {
+      title: "Import GitHub Repos",
+      icon: "📦",
+      color: "#1f2937",
+      prompt: "Clone the stripe/stripe-node repository, analyze the codebase structure, and explain how webhook signature verification works.",
+      result: {
+        type: "codeStructure",
+        files: [
+          { name: "src/", type: "folder", children: ["Webhooks.ts", "StripeResource.ts", "Error.ts"] },
+          { name: "lib/", type: "folder", children: ["net/", "utils/", "crypto/"] },
+          { name: "types/", type: "folder", children: ["index.d.ts", "Webhooks.d.ts"] },
+        ],
+        insight: "Webhook verification uses HMAC-SHA256 with timestamp validation",
+      },
+    },
+    {
+      title: "Fix Bugs",
+      icon: "🐛",
+      color: "#ef4444",
+      prompt: "Fix issue #234: Login timeout error occurs after 30 seconds of inactivity. Users are logged out unexpectedly during active sessions.",
+      result: {
+        type: "diff",
+        file: "src/auth/session.ts",
+        changes: [
+          { type: "remove", line: "const SESSION_TIMEOUT = 30 * 1000;" },
+          { type: "add", line: "const SESSION_TIMEOUT = 30 * 60 * 1000;" },
+          { type: "remove", line: "if (Date.now() - lastActivity > TIMEOUT) {" },
+          { type: "add", line: "if (Date.now() - lastActivity > TIMEOUT && !isActiveSession) {" },
+        ],
+      },
+    },
+    {
+      title: "Deploy to Production",
+      icon: "🚀",
+      color: "#3b82f6",
+      prompt: "Deploy this Next.js application to Vercel. Set up environment variables for DATABASE_URL, API_KEY, and NEXT_PUBLIC_APP_URL. Enable preview deployments for PRs.",
+      result: {
+        type: "deploy",
+        status: "success",
+        url: "https://my-app.vercel.app",
+        checks: [
+          { name: "Build", status: "passed", time: "45s" },
+          { name: "Tests", status: "passed", time: "1m 23s" },
+          { name: "Lighthouse", status: "passed", score: "98" },
+          { name: "Deploy", status: "passed", time: "12s" },
+        ],
+      },
+    },
+    {
+      title: "Build Features",
+      icon: "⚡",
+      color: "#8b5cf6",
+      prompt: "Add a dark mode toggle to the settings page. It should persist user preference in localStorage and sync with system theme. Include smooth transitions.",
+      result: {
+        type: "feature",
+        component: "ThemeToggle",
+        preview: {
+          hasToggle: true,
+          modes: ["light", "dark", "system"],
+        },
+        files: ["components/ThemeToggle.tsx", "hooks/useTheme.ts", "styles/theme.css"],
+      },
+    },
+  ];
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#0f172a" }}>
+      {tasks.map((task, index) => {
+        const taskStart = index * taskDuration;
+        const taskEnd = (index + 1) * taskDuration;
+        const isVisible = frame >= taskStart && frame < taskEnd;
+
+        if (!isVisible) return null;
+
+        const localFrame = frame - taskStart;
+
+        // Animation phases
+        const titleEntrance = spring({ frame: localFrame, fps, config: { damping: 14, stiffness: 100 } });
+        const promptStart = fps * 0.4;
+        const promptTypeProgress = interpolate(localFrame, [promptStart, promptStart + fps * 1.2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+        const resultStart = fps * 1.8;
+        const resultEntrance = spring({ frame: localFrame - resultStart, fps, config: { damping: 12, stiffness: 80 } });
+        const exitOpacity = interpolate(localFrame, [taskDuration - fps * 0.3, taskDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+        return (
+          <AbsoluteFill key={task.title} style={{ opacity: exitOpacity }}>
+            {/* Task Header */}
+            <div style={{
+              position: "absolute",
+              top: 50,
+              left: 80,
+              right: 80,
+              display: "flex",
+              alignItems: "center",
+              gap: 20,
+              opacity: interpolate(titleEntrance, [0, 1], [0, 1]),
+              transform: `translateY(${interpolate(titleEntrance, [0, 1], [20, 0])}px)`,
+            }}>
+              <div style={{
+                width: 64,
+                height: 64,
+                borderRadius: 16,
+                backgroundColor: `${task.color}40`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 32,
+              }}>
+                {task.icon}
+              </div>
+              <div>
+                <div style={{
+                  fontFamily: "system-ui",
+                  fontSize: 14,
+                  color: "#94a3b8",
+                  marginBottom: 4,
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                }}>
+                  Complex Coding
+                </div>
+                <h1 style={{
+                  fontFamily: "system-ui",
+                  fontSize: 36,
+                  fontWeight: 700,
+                  color: "#f8fafc",
+                  margin: 0,
+                }}>
+                  {task.title}
+                </h1>
+              </div>
+              <div style={{
+                marginLeft: "auto",
+                padding: "8px 16px",
+                backgroundColor: task.color,
+                borderRadius: 20,
+                fontFamily: "system-ui",
+                fontSize: 14,
+                fontWeight: 600,
+                color: "white",
+              }}>
+                {index + 1} / {tasks.length}
+              </div>
+            </div>
+
+            {/* Terminal-style Prompt */}
+            <div style={{
+              position: "absolute",
+              top: 160,
+              left: 80,
+              right: 80,
+              opacity: interpolate(localFrame, [promptStart - fps * 0.2, promptStart], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}>
+              <div style={{
+                backgroundColor: "#1e293b",
+                borderRadius: 12,
+                overflow: "hidden",
+                border: "1px solid #334155",
+              }}>
+                {/* Terminal header */}
+                <div style={{
+                  padding: "10px 16px",
+                  backgroundColor: "#334155",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}>
+                  <div style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: "#ef4444" }} />
+                  <div style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: "#f59e0b" }} />
+                  <div style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: "#22c55e" }} />
+                  <span style={{ marginLeft: 12, fontFamily: "monospace", fontSize: 12, color: "#94a3b8" }}>rebyte-agent</span>
+                </div>
+                {/* Terminal content */}
+                <div style={{ padding: 20 }}>
+                  <div style={{ fontFamily: "monospace", fontSize: 14, color: "#22c55e", marginBottom: 8 }}>
+                    <span style={{ color: "#3b82f6" }}>→</span> Task:
+                  </div>
+                  <div style={{ fontFamily: "system-ui", fontSize: 16, color: "#e2e8f0", lineHeight: 1.6 }}>
+                    {task.prompt.slice(0, Math.floor(promptTypeProgress * task.prompt.length))}
+                    <span style={{ opacity: Math.sin(localFrame / 4) > 0 ? 1 : 0, color: "#22c55e" }}>▊</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Result Area */}
+            <div style={{
+              position: "absolute",
+              top: 340,
+              left: 80,
+              right: 80,
+              bottom: 60,
+              opacity: interpolate(resultEntrance, [0, 1], [0, 1]),
+              transform: `translateY(${interpolate(resultEntrance, [0, 1], [30, 0])}px)`,
+            }}>
+              <div style={{
+                backgroundColor: "#1e293b",
+                borderRadius: 12,
+                padding: 24,
+                height: "100%",
+                border: `2px solid ${task.color}60`,
+              }}>
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  marginBottom: 20,
+                }}>
+                  <div style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "#22c55e" }} />
+                  <span style={{ fontFamily: "monospace", fontSize: 12, color: "#22c55e", fontWeight: 600, textTransform: "uppercase", letterSpacing: 1 }}>
+                    Task Complete
+                  </span>
+                </div>
+
+                {/* Code Structure Result */}
+                {task.result.type === "codeStructure" && (
+                  <div style={{ display: "flex", gap: 40 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontFamily: "monospace", fontSize: 13, color: "#94a3b8", marginBottom: 12 }}>Project Structure:</div>
+                      {task.result.files?.map((folder, i) => (
+                        <div key={i} style={{ marginBottom: 12 }}>
+                          <div style={{ fontFamily: "monospace", fontSize: 14, color: "#f59e0b" }}>📁 {folder.name}</div>
+                          <div style={{ paddingLeft: 20 }}>
+                            {folder.children?.map((file, j) => (
+                              <div key={j} style={{ fontFamily: "monospace", fontSize: 13, color: "#e2e8f0" }}>└─ {file}</div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ flex: 1, padding: 20, backgroundColor: "#0f172a", borderRadius: 8, border: "1px solid #334155" }}>
+                      <div style={{ fontFamily: "monospace", fontSize: 13, color: "#94a3b8", marginBottom: 8 }}>Analysis:</div>
+                      <div style={{ fontFamily: "system-ui", fontSize: 16, color: "#22c55e", lineHeight: 1.6 }}>{task.result.insight}</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Diff Result */}
+                {task.result.type === "diff" && (
+                  <div>
+                    <div style={{ fontFamily: "monospace", fontSize: 13, color: "#94a3b8", marginBottom: 12 }}>{task.result.file}</div>
+                    <div style={{ backgroundColor: "#0f172a", borderRadius: 8, padding: 16, fontFamily: "monospace", fontSize: 14 }}>
+                      {task.result.changes?.map((change, i) => (
+                        <div key={i} style={{
+                          color: change.type === "add" ? "#22c55e" : "#ef4444",
+                          backgroundColor: change.type === "add" ? "#22c55e15" : "#ef444415",
+                          padding: "4px 8px",
+                          marginBottom: 2,
+                          borderRadius: 4,
+                        }}>
+                          {change.type === "add" ? "+ " : "- "}{change.line}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Deploy Result */}
+                {task.result.type === "deploy" && (
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                      <div style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: "#22c55e" }} />
+                      <span style={{ fontFamily: "system-ui", fontSize: 18, color: "#22c55e", fontWeight: 600 }}>Deployed Successfully</span>
+                      <span style={{ fontFamily: "monospace", fontSize: 14, color: "#3b82f6", marginLeft: 12 }}>{task.result.url}</span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+                      {task.result.checks?.map((check, i) => (
+                        <div key={i} style={{
+                          padding: 16,
+                          backgroundColor: "#0f172a",
+                          borderRadius: 8,
+                          border: "1px solid #334155",
+                          textAlign: "center",
+                        }}>
+                          <div style={{ fontFamily: "system-ui", fontSize: 13, color: "#94a3b8", marginBottom: 4 }}>{check.name}</div>
+                          <div style={{ fontFamily: "monospace", fontSize: 16, color: "#22c55e", fontWeight: 600 }}>
+                            {check.score || check.time}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Feature Result */}
+                {task.result.type === "feature" && (
+                  <div style={{ display: "flex", gap: 40 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontFamily: "monospace", fontSize: 13, color: "#94a3b8", marginBottom: 12 }}>Component: {task.result.component}</div>
+                      <div style={{ fontFamily: "monospace", fontSize: 13, color: "#94a3b8", marginBottom: 8 }}>Files created:</div>
+                      {task.result.files?.map((file, i) => (
+                        <div key={i} style={{ fontFamily: "monospace", fontSize: 14, color: "#e2e8f0", marginBottom: 4 }}>
+                          📄 {file}
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ flex: 1, padding: 24, backgroundColor: "#0f172a", borderRadius: 12, border: "1px solid #334155", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                      <div style={{ fontFamily: "system-ui", fontSize: 13, color: "#94a3b8", marginBottom: 16 }}>Preview</div>
+                      <div style={{ display: "flex", gap: 8, backgroundColor: "#1e293b", padding: 8, borderRadius: 24 }}>
+                        {task.result.preview?.modes?.map((mode, i) => (
+                          <div key={i} style={{
+                            padding: "8px 16px",
+                            borderRadius: 16,
+                            backgroundColor: mode === "dark" ? "#8b5cf6" : "transparent",
+                            fontFamily: "system-ui",
+                            fontSize: 14,
+                            color: mode === "dark" ? "white" : "#94a3b8",
+                          }}>
+                            {mode}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </AbsoluteFill>
+        );
+      })}
     </AbsoluteFill>
   );
 };

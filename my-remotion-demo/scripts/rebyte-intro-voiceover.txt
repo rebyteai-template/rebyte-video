@@ -1,14 +1,25 @@
-Previously, only programmers could code. Everyone else had to use predefined software or ask a friend for help.
+# Rebyte Intro Voiceover Script
+# Word count: ~280 words
+# Estimated duration: ~112 seconds (at 150 wpm speaking rate)
+# Last updated: 2024-01-21
 
-Everything changed with code agents. It sounds like it's for programmers, but it's actually for everyone.
+---
 
-Rebyte was born to bridge the gap. We run state-of-the-art code agents on the cloud for everyone.
+Previously, only programmers could code. Everyone else had to use predefined software or, if you really needed customized software, ask a programmer for help.
 
-From repetitive tasks like data cleaning, spreadsheets, and building websites.
+Everything changed with code agents. Initially, it sounds like it's for programmers, but it's actually for everyone.
 
-To complex coding projects—importing GitHub repos, fixing bugs, deploying to production.
+Rebyte was born to bridge the gap. We took those state-of-the-art code agents and run them in the cloud, equipped those agents with highly specialized skills. Those code agents actually become generic problem solvers for every task.
 
-Each task runs in an isolated cloud environment. And we equip every agent with human-level skills—specialized knowledge for your specific workflows.
+Let me show you. Say your marketing team needs a survey to understand how your customers use your product.
+
+The old way? Search Google, compare tools like Typeform or SurveyMonkey, sign up, learn the interface, pay monthly fees.
+
+The new way? Just combine a code agent with a skill that knows how to build world-class interactive forms, then tell the agent what you like, then wait for the magic to happen. The code agent will actually do research, build, deploy, and leverage the most expertise—and you get exactly what you needed. If it's not, ask the code agent to fix it.
+
+Tired of spreadsheets? Let the code agent help you. Equip a spreadsheet builder skill with the code agent, let it build world-class collaborative spreadsheets for you. You and the agent can collaborate on the spreadsheet together to make work done much faster than ever before.
+
+Also, let's get back to coding itself. We run all those code agents on cloud, each task runs in a pure isolated environment. You can ask it to fix bugs, implement new features, or resolve GitHub issues. You can also assign a single coding task to different agents and pick whichever you think is best.
 
 See what's possible. Real results from real users.
 
