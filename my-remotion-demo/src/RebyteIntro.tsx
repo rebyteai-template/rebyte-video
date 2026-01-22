@@ -1477,9 +1477,7 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
 // You and the agent can collaborate on the spreadsheet together to make work done much faster than ever before."
 const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
   // Phase timings for ~16.75 seconds
-  // Script: "Say you need a spreadsheet to track your project timeline. Instead of building it manually,
-  // combine a code agent with the spreadsheet skill. The agent will write the necessary code,
-  // create the spreadsheet structure, and even fill in sample data for you. Done in seconds."
+  // Script: "Enable the agent and user to collaborate on the same spreadsheet together."
   const phases = {
     prompt: { start: 0, end: fps * 4 },                   // 0-4s: Zoom to user prompt
     agentWorking: { start: fps * 4, end: fps * 11 },      // 4-11s: Pan to show execution steps
