@@ -1,0 +1,19 @@
+Previously, only programmers could code. Everyone else had to use predefined software or, if you really needed customized software, ask a programmer for help.
+
+Everything changed with code agents. Initially, it sounds like it's for programmers, but it's actually for everyone.
+
+Rebyte was born to bridge the gap. We took those state-of-the-art code agents and run them in the cloud, equipped those agents with highly specialized skills. Those code agents actually become generic problem solvers for every task.
+
+Let me show you. Say your marketing team needs a survey to understand how your customers use your product.
+
+The old way? Search Google, compare tools like Typeform or SurveyMonkey, sign up, learn the interface, pay monthly fees.
+
+The new way? Just combine a code agent with a skill that knows how to build world-class interactive forms, then tell the agent what you like, then wait for the magic to happen. The code agent will actually do research, build, deploy, and leverage the most expertise—and you get exactly what you needed. If it's not, ask the code agent to fix it.
+
+Tired of spreadsheets? Let the code agent help you. Equip a spreadsheet builder skill with the code agent, let it build world-class collaborative spreadsheets for you. You and the agent can collaborate on the spreadsheet together to make work done much faster than ever before.
+
+Back to coding. On your local machine, running multiple agents means complex setups—worktrees, separate environments—just to avoid conflicts. The new way? It's all in the cloud. Each task runs in complete isolation. Develop features, run unit tests, start servers—all independently.
+
+These are just the beginning. Unleash your imagination with Rebyte, and unleash the full potential of code agents.
+
+Rebyte. Vibe working with skilled code agents.
