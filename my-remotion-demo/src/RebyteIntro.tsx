@@ -246,68 +246,83 @@ export const RebyteIntro = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
-  // Scene timings (~112 seconds total)
-  // Matches voiceover script exactly
-  const scenes = {
-    problem: { start: 0, duration: fps * 10 },                   // 0-10s: "Previously, only programmers could code..."
-    change: { start: fps * 10, duration: fps * 7 },              // 10-17s: "Everything changed with code agents..."
-    rebyteMission: { start: fps * 17, duration: fps * 13 },      // 17-30s: "Rebyte was born to bridge the gap..."
-    surveyIntro: { start: fps * 30, duration: fps * 5 },         // 30-35s: "Let me show you. Say your marketing team..."
-    surveyOldWay: { start: fps * 35, duration: fps * 8 },        // 35-43s: "The old way? Search Google, compare tools..."
-    surveyNewWay: { start: fps * 43, duration: fps * 22 },       // 43-65s: "The new way? Just combine a code agent with a skill..."
-    spreadsheet: { start: fps * 65, duration: fps * 15 },        // 65-80s: "Tired of spreadsheets? Let the code agent help you..."
-    coding: { start: fps * 80, duration: fps * 20 },             // 80-100s: "Also, let's get back to coding itself..."
-    outro: { start: fps * 100, duration: fps * 12 },             // 100-112s: "See what's possible. Real results. Rebyte."
+  // Scene timings based on actual audio durations (at 30fps)
+  // Total: ~110 seconds
+  const sections = {
+    intro:        { start: 0,    duration: 294 },   // 9.8s - "Previously, only programmers..."
+    change:       { start: 294,  duration: 201 },   // 6.7s - "Everything changed with code agents..."
+    rebyte:       { start: 495,  duration: 437 },   // 14.6s - "Rebyte was born to bridge the gap..."
+    surveyIntro:  { start: 932,  duration: 200 },   // 6.7s - "Let me show you..."
+    oldWay:       { start: 1132, duration: 219 },   // 7.3s - "The old way?..."
+    newWay:       { start: 1351, duration: 614 },   // 20.5s - "The new way?..."
+    spreadsheet:  { start: 1965, duration: 512 },   // 17.1s - "Tired of spreadsheets?..."
+    coding:       { start: 2477, duration: 516 },   // 17.2s - "Back to coding..."
+    outro:        { start: 2993, duration: 214 },   // 7.1s - "These are just the beginning..."
+    tagline:      { start: 3207, duration: 87 },    // 2.9s - "Rebyte. Vibe working..."
   };
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#f8fafc" }}>
-      {/* Voiceover */}
-      <Audio src={staticFile("voiceover.mp3")} volume={1} />
+      {/* Per-section audio files */}
+      <Sequence from={sections.intro.start}><Audio src={staticFile("sections/01-intro/audio.mp3")} /></Sequence>
+      <Sequence from={sections.change.start}><Audio src={staticFile("sections/02-change/audio.mp3")} /></Sequence>
+      <Sequence from={sections.rebyte.start}><Audio src={staticFile("sections/03-rebyte/audio.mp3")} /></Sequence>
+      <Sequence from={sections.surveyIntro.start}><Audio src={staticFile("sections/04-survey-intro/audio.mp3")} /></Sequence>
+      <Sequence from={sections.oldWay.start}><Audio src={staticFile("sections/05-old-way/audio.mp3")} /></Sequence>
+      <Sequence from={sections.newWay.start}><Audio src={staticFile("sections/06-new-way/audio.mp3")} /></Sequence>
+      <Sequence from={sections.spreadsheet.start}><Audio src={staticFile("sections/07-spreadsheet/audio.mp3")} /></Sequence>
+      <Sequence from={sections.coding.start}><Audio src={staticFile("sections/08-coding/audio.mp3")} /></Sequence>
+      <Sequence from={sections.outro.start}><Audio src={staticFile("sections/09-outro/audio.mp3")} /></Sequence>
+      <Sequence from={sections.tagline.start}><Audio src={staticFile("sections/10-tagline/audio.mp3")} /></Sequence>
 
-      {/* Scene 1: The Problem (0-10s) */}
-      <Sequence from={scenes.problem.start} durationInFrames={scenes.problem.duration}>
-        <ProblemScene frame={frame} fps={fps} sceneDuration={scenes.problem.duration} />
+      {/* Scene 1: The Problem */}
+      <Sequence from={sections.intro.start} durationInFrames={sections.intro.duration}>
+        <ProblemScene frame={frame - sections.intro.start} fps={fps} sceneDuration={sections.intro.duration} />
       </Sequence>
 
-      {/* Scene 2: Code Agents Changed Everything (10-17s) */}
-      <Sequence from={scenes.change.start} durationInFrames={scenes.change.duration}>
-        <ChangeScene frame={frame - scenes.change.start} fps={fps} sceneDuration={scenes.change.duration} />
+      {/* Scene 2: Code Agents Changed Everything */}
+      <Sequence from={sections.change.start} durationInFrames={sections.change.duration}>
+        <ChangeScene frame={frame - sections.change.start} fps={fps} sceneDuration={sections.change.duration} />
       </Sequence>
 
-      {/* Scene 3: Rebyte Mission - Skills + Cloud (17-30s) */}
-      <Sequence from={scenes.rebyteMission.start} durationInFrames={scenes.rebyteMission.duration}>
-        <RebyteMissionScene frame={frame - scenes.rebyteMission.start} fps={fps} sceneDuration={scenes.rebyteMission.duration} />
+      {/* Scene 3: Rebyte Mission */}
+      <Sequence from={sections.rebyte.start} durationInFrames={sections.rebyte.duration}>
+        <RebyteMissionScene frame={frame - sections.rebyte.start} fps={fps} sceneDuration={sections.rebyte.duration} />
       </Sequence>
 
-      {/* Scene 4: Survey Intro (30-35s) */}
-      <Sequence from={scenes.surveyIntro.start} durationInFrames={scenes.surveyIntro.duration}>
-        <SurveyIntroScene frame={frame - scenes.surveyIntro.start} fps={fps} sceneDuration={scenes.surveyIntro.duration} />
+      {/* Scene 4: Survey Intro */}
+      <Sequence from={sections.surveyIntro.start} durationInFrames={sections.surveyIntro.duration}>
+        <SurveyIntroScene frame={frame - sections.surveyIntro.start} fps={fps} sceneDuration={sections.surveyIntro.duration} />
       </Sequence>
 
-      {/* Scene 5: Survey Old Way (35-43s) */}
-      <Sequence from={scenes.surveyOldWay.start} durationInFrames={scenes.surveyOldWay.duration}>
-        <SurveyOldWayScene frame={frame - scenes.surveyOldWay.start} fps={fps} sceneDuration={scenes.surveyOldWay.duration} />
+      {/* Scene 5: Survey Old Way */}
+      <Sequence from={sections.oldWay.start} durationInFrames={sections.oldWay.duration}>
+        <SurveyOldWayScene frame={frame - sections.oldWay.start} fps={fps} sceneDuration={sections.oldWay.duration} />
       </Sequence>
 
-      {/* Scene 6: Survey New Way (43-65s) */}
-      <Sequence from={scenes.surveyNewWay.start} durationInFrames={scenes.surveyNewWay.duration}>
-        <SurveyNewWayScene frame={frame - scenes.surveyNewWay.start} fps={fps} sceneDuration={scenes.surveyNewWay.duration} />
+      {/* Scene 6: Survey New Way */}
+      <Sequence from={sections.newWay.start} durationInFrames={sections.newWay.duration}>
+        <SurveyNewWayScene frame={frame - sections.newWay.start} fps={fps} sceneDuration={sections.newWay.duration} />
       </Sequence>
 
-      {/* Scene 7: Spreadsheet Builder (65-80s) */}
-      <Sequence from={scenes.spreadsheet.start} durationInFrames={scenes.spreadsheet.duration}>
-        <SpreadsheetScene frame={frame - scenes.spreadsheet.start} fps={fps} sceneDuration={scenes.spreadsheet.duration} />
+      {/* Scene 7: Spreadsheet Builder */}
+      <Sequence from={sections.spreadsheet.start} durationInFrames={sections.spreadsheet.duration}>
+        <SpreadsheetScene frame={frame - sections.spreadsheet.start} fps={fps} sceneDuration={sections.spreadsheet.duration} />
       </Sequence>
 
-      {/* Scene 8: Coding Capabilities (80-100s) */}
-      <Sequence from={scenes.coding.start} durationInFrames={scenes.coding.duration}>
-        <CodingScene frame={frame - scenes.coding.start} fps={fps} sceneDuration={scenes.coding.duration} />
+      {/* Scene 8: Coding Capabilities */}
+      <Sequence from={sections.coding.start} durationInFrames={sections.coding.duration}>
+        <CodingScene frame={frame - sections.coding.start} fps={fps} sceneDuration={sections.coding.duration} />
       </Sequence>
 
-      {/* Scene 9: Outro/CTA (100-112s) */}
-      <Sequence from={scenes.outro.start} durationInFrames={scenes.outro.duration}>
-        <OutroScene frame={frame - scenes.outro.start} fps={fps} sceneDuration={scenes.outro.duration} />
+      {/* Scene 9: Outro */}
+      <Sequence from={sections.outro.start} durationInFrames={sections.outro.duration}>
+        <OutroScene frame={frame - sections.outro.start} fps={fps} sceneDuration={sections.outro.duration} />
+      </Sequence>
+
+      {/* Scene 10: Tagline */}
+      <Sequence from={sections.tagline.start} durationInFrames={sections.tagline.duration}>
+        <TaglineScene frame={frame - sections.tagline.start} fps={fps} sceneDuration={sections.tagline.duration} />
       </Sequence>
 
       {/* Progress bar */}
@@ -1209,11 +1224,11 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
 
   // Form step carousel
   const formSteps = [
-    "form-step0-intro.png",
-    "form-step1-coverage.png",
-    "form-step2-property.png",
-    "form-step3-deductible.png",
-    "form-step4-contact.png",
+    "sections/06-new-way/assets/form-step0-intro.png",
+    "sections/06-new-way/assets/form-step1-coverage.png",
+    "sections/06-new-way/assets/form-step2-property.png",
+    "sections/06-new-way/assets/form-step3-deductible.png",
+    "sections/06-new-way/assets/form-step4-contact.png",
   ];
 
   const agentActions = [
@@ -1249,7 +1264,7 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
       {frame >= phases.combineSkill.start && frame < phases.tellAgent.start && (
         <AbsoluteFill>
           <Img
-            src={staticFile("rebyte-form-task.png")}
+            src={staticFile("sections/06-new-way/assets/rebyte-form-task.png")}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
           {/* Step indicator */}
@@ -1491,7 +1506,7 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
       {frame >= phases.taskView.start && frame < phases.building.start && (
         <AbsoluteFill>
           <Img
-            src={staticFile("rebyte-spreadsheet-task.png")}
+            src={staticFile("sections/07-spreadsheet/assets/rebyte-spreadsheet-task.png")}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
           {/* Skill badge */}
@@ -1515,7 +1530,7 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
       {frame >= phases.building.start && frame < phases.result.start && (
         <AbsoluteFill>
           <Img
-            src={staticFile("rebyte-spreadsheet-task.png")}
+            src={staticFile("sections/07-spreadsheet/assets/rebyte-spreadsheet-task.png")}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
           {/* Building indicator */}
@@ -1565,7 +1580,7 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
               transform: `translateY(${interpolate(frame, [phases.result.start, phases.result.start + fps * 0.5], [20, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
             }}>
               <Img
-                src={staticFile("spreadsheet-full-view.png")}
+                src={staticFile("sections/07-spreadsheet/assets/spreadsheet-full-view.png")}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             </div>
@@ -1602,7 +1617,7 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
                 boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
               }}>
                 <Img
-                  src={staticFile("spreadsheet-collab-view.png")}
+                  src={staticFile("sections/07-spreadsheet/assets/spreadsheet-collab-view.png")}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               </div>
@@ -1679,8 +1694,8 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
   ];
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "#0f172a", opacity: exitOpacity }}>
-      {/* Intro: "Let's get back to coding" */}
+    <AbsoluteFill style={{ backgroundColor: "#f8fafc", opacity: exitOpacity }}>
+      {/* Intro: "Back to coding" */}
       {frame < phases.isolation.start && (
         <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
           <div style={{
@@ -1691,13 +1706,21 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
               fontFamily: "system-ui",
               fontSize: 52,
               fontWeight: 700,
-              color: "#f8fafc",
+              color: "#1f2937",
               textAlign: "center",
               margin: 0,
             }}>
-              Also, let's get back to<br />
-              <span style={{ color: "#3b82f6" }}>coding itself</span>
+              Back to <span style={{ color: "#3b82f6" }}>coding</span>
             </h1>
+            <p style={{
+              fontFamily: "system-ui",
+              fontSize: 22,
+              color: "#6b7280",
+              textAlign: "center",
+              marginTop: 16,
+            }}>
+              On your local machine, running multiple agents means complex setups
+            </p>
           </div>
         </AbsoluteFill>
       )}
@@ -1713,19 +1736,20 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
               alignItems: "center",
               gap: 20,
               padding: "28px 44px",
-              backgroundColor: "#1e293b",
+              backgroundColor: "white",
               borderRadius: 16,
               border: "2px solid #3b82f6",
+              boxShadow: "0 10px 40px rgba(59, 130, 246, 0.15)",
             }}>
               <svg width="56" height="56" viewBox="0 0 24 24" fill="#3b82f6">
                 <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
               </svg>
               <div>
-                <div style={{ fontFamily: "system-ui", fontSize: 26, fontWeight: 700, color: "#f8fafc" }}>
-                  We run all code agents on <span style={{ color: "#3b82f6" }}>cloud</span>
+                <div style={{ fontFamily: "system-ui", fontSize: 26, fontWeight: 700, color: "#1f2937" }}>
+                  The new way? It's all in the <span style={{ color: "#3b82f6" }}>cloud</span>
                 </div>
-                <div style={{ fontFamily: "system-ui", fontSize: 18, color: "#94a3b8", marginTop: 8 }}>
-                  Each task runs in a <span style={{ color: "#10b981", fontWeight: 600 }}>pure isolated environment</span>
+                <div style={{ fontFamily: "system-ui", fontSize: 18, color: "#6b7280", marginTop: 8 }}>
+                  Each task runs in <span style={{ color: "#10b981", fontWeight: 600 }}>complete isolation</span>
                 </div>
               </div>
             </div>
@@ -1740,21 +1764,22 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
             fontFamily: "system-ui",
             fontSize: 36,
             fontWeight: 700,
-            color: "#f8fafc",
+            color: "#1f2937",
             marginBottom: 40,
             opacity: interpolate(frame, [phases.capabilities.start, phases.capabilities.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
-            What code agents can do
+            Develop features, run unit tests, start servers
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24 }}>
             {capabilities.map((cap, i) => {
               const capEntrance = spring({ frame: frame - phases.capabilities.start - i * fps * 0.4, fps, config: { damping: 12 } });
               return (
                 <div key={cap.title} style={{
-                  backgroundColor: "#1e293b",
+                  backgroundColor: "white",
                   borderRadius: 16,
                   padding: 28,
-                  border: "1px solid #334155",
+                  border: "1px solid #e5e7eb",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
                   opacity: interpolate(capEntrance, [0, 1], [0, 1]),
                   transform: `translateY(${interpolate(capEntrance, [0, 1], [20, 0])}px)`,
                 }}>
@@ -1763,7 +1788,7 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                       width: 56,
                       height: 56,
                       borderRadius: 12,
-                      backgroundColor: "#3b82f620",
+                      backgroundColor: "#f0f9ff",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -1772,8 +1797,8 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                       {cap.icon}
                     </div>
                     <div>
-                      <div style={{ fontFamily: "system-ui", fontSize: 20, fontWeight: 600, color: "#f8fafc" }}>{cap.title}</div>
-                      <div style={{ fontFamily: "system-ui", fontSize: 14, color: "#94a3b8", marginTop: 4 }}>{cap.desc}</div>
+                      <div style={{ fontFamily: "system-ui", fontSize: 20, fontWeight: 600, color: "#1f2937" }}>{cap.title}</div>
+                      <div style={{ fontFamily: "system-ui", fontSize: 14, color: "#6b7280", marginTop: 4 }}>{cap.desc}</div>
                     </div>
                   </div>
                 </div>
@@ -1783,7 +1808,7 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
         </AbsoluteFill>
       )}
 
-      {/* Multi-Agent: Assign to different agents, pick the best */}
+      {/* Multi-Agent: All independently */}
       {frame >= phases.multiAgent.start && (
         <AbsoluteFill style={{ padding: 60 }}>
           <div style={{
@@ -1795,18 +1820,18 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
               fontFamily: "system-ui",
               fontSize: 40,
               fontWeight: 700,
-              color: "#f8fafc",
+              color: "#1f2937",
               margin: 0,
             }}>
-              Assign tasks to <span style={{ color: "#10b981" }}>different agents</span>
+              All <span style={{ color: "#10b981" }}>independently</span>
             </h2>
             <p style={{
               fontFamily: "system-ui",
               fontSize: 20,
-              color: "#94a3b8",
+              color: "#6b7280",
               marginTop: 12,
             }}>
-              Compare results and pick the best solution
+              Each agent runs in its own isolated cloud environment
             </p>
           </div>
 
@@ -1826,14 +1851,14 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                   <div style={{
                     width: 200,
                     height: 240,
-                    backgroundColor: "#1e293b",
+                    backgroundColor: "white",
                     borderRadius: 16,
                     border: `3px solid ${color}`,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     padding: 20,
-                    boxShadow: `0 20px 40px ${color}30`,
+                    boxShadow: `0 10px 30px ${color}20`,
                   }}>
                     {/* Top bar */}
                     <div style={{ width: "100%", height: 8, backgroundColor: color, borderRadius: 4, marginBottom: 20 }} />
@@ -1843,7 +1868,7 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                       width: 70,
                       height: 70,
                       borderRadius: 12,
-                      backgroundColor: `${color}20`,
+                      backgroundColor: `${color}15`,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -1853,15 +1878,15 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                     </div>
 
                     {/* Agent name */}
-                    <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#f8fafc" }}>{name}</span>
+                    <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#1f2937" }}>{name}</span>
 
                     {/* VM label */}
                     <span style={{
                       marginTop: 12,
                       fontFamily: "monospace",
                       fontSize: 11,
-                      color: "#64748b",
-                      backgroundColor: "#0f172a",
+                      color: "#6b7280",
+                      backgroundColor: "#f1f5f9",
                       padding: "4px 10px",
                       borderRadius: 4,
                     }}>
@@ -1872,11 +1897,11 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                   {/* Task indicator */}
                   <div style={{
                     padding: "8px 16px",
-                    backgroundColor: `${color}20`,
+                    backgroundColor: `${color}10`,
                     borderRadius: 8,
-                    border: `1px solid ${color}50`,
+                    border: `1px solid ${color}30`,
                   }}>
-                    <span style={{ fontFamily: "system-ui", fontSize: 13, color: color }}>
+                    <span style={{ fontFamily: "system-ui", fontSize: 13, color: color, fontWeight: 500 }}>
                       Working on task...
                     </span>
                   </div>
@@ -1903,7 +1928,7 @@ const OutroScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number;
   const examples = [
     { src: "example-insurance-form.png", title: "Insurance Form Builder" },
     { src: "example-crypto-analysis.png", title: "Crypto Analysis" },
-    { src: "spreadsheet-dashboard.png", title: "Data Dashboard" },
+    { src: "sections/07-spreadsheet/assets/spreadsheet-dashboard.png", title: "Data Dashboard" },
   ];
 
   return (
@@ -2034,6 +2059,50 @@ const CTAScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; s
           Vibe working with skilled code agents
         </p>
       </div>
+    </AbsoluteFill>
+  );
+};
+
+// ============ SCENE 10: TAGLINE ============
+// Script: "Rebyte. Vibe working with skilled code agents."
+const TaglineScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const logoScale = spring({ frame, fps, config: { damping: 12, stiffness: 100 } });
+  const textOpacity = interpolate(frame, [fps * 0.3, fps * 0.8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  return (
+    <AbsoluteFill style={{
+      backgroundColor: "#f8fafc",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 24,
+    }}>
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 20,
+        transform: `scale(${logoScale})`,
+      }}>
+        <RebyteLogo size={80} color="#10b981" innerColor="#ffffff" />
+        <span style={{
+          fontFamily: "system-ui",
+          fontSize: 64,
+          fontWeight: 700,
+          color: "#10b981",
+        }}>
+          Rebyte
+        </span>
+      </div>
+      <p style={{
+        fontFamily: "system-ui",
+        fontSize: 28,
+        color: "#6b7280",
+        margin: 0,
+        opacity: textOpacity,
+      }}>
+        Vibe working with skilled code agents
+      </p>
     </AbsoluteFill>
   );
 };
