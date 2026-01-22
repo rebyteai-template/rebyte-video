@@ -272,11 +272,11 @@ export const RebyteIntro = () => {
     rebyte:       { start: 495,  duration: 437 },   // 14.6s - "Rebyte was born to bridge the gap..."
     surveyIntro:  { start: 932,  duration: 200 },   // 6.7s - "Let me show you..."
     oldWay:       { start: 1132, duration: 219 },   // 7.3s - "The old way?..."
-    newWay:       { start: 1351, duration: 614 },   // 20.5s - "The new way?..."
-    spreadsheet:  { start: 1965, duration: 512 },   // 17.1s - "Tired of spreadsheets?..."
-    coding:       { start: 2477, duration: 516 },   // 17.2s - "Back to coding..."
-    outro:        { start: 2993, duration: 214 },   // 7.1s - "These are just the beginning..."
-    tagline:      { start: 3207, duration: 87 },    // 2.9s - "Rebyte. Vibe working..."
+    newWay:       { start: 1351, duration: 764 },   // 25.5s - "The new way?..."
+    spreadsheet:  { start: 2115, duration: 512 },   // 17.1s - "Tired of spreadsheets?..."
+    coding:       { start: 2627, duration: 516 },   // 17.2s - "Back to coding..."
+    outro:        { start: 3143, duration: 214 },   // 7.1s - "These are just the beginning..."
+    tagline:      { start: 3357, duration: 87 },    // 2.9s - "Rebyte. Vibe working..."
   };
 
   return (
@@ -1259,29 +1259,26 @@ const SurveyOldWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
 const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
   // Phase timings within the 22-second scene
   const phases = {
-    transition: { start: 0, end: fps * 3 },              // 0-3s: "The new way?"
-    combineSkill: { start: fps * 3, end: fps * 8 },      // 3-8s: Combine agent + skill
-    tellAgent: { start: fps * 8, end: fps * 12 },        // 8-12s: Tell agent what you want
-    agentWorking: { start: fps * 12, end: fps * 17 },    // 12-17s: Research, build, deploy
-    formSteps: { start: fps * 17, end: fps * 22 },       // 17-22s: Show result + "fix it" option
+    transition: { start: 0, end: fps * 1.5 },            // 0-1.5s: "The new way?"
+    combineSkill: { start: fps * 1.5, end: fps * 7 },    // 1.5-7s: Combine agent + skill
+    tellAgent: { start: fps * 7, end: fps * 12 },        // 7-12s: Tell agent what you want
+    agentWorking: { start: fps * 12, end: fps * 18 },    // 12-18s: Research, build, deploy
+    formSteps: { start: fps * 18, end: fps * 23 },       // 18-23s: Show final results
   };
 
   const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-
-  // Form step carousel
-  const formSteps = [
-    "sections/06-new-way/assets/form-step0-intro.png",
-    "sections/06-new-way/assets/form-step1-coverage.png",
-    "sections/06-new-way/assets/form-step2-property.png",
-    "sections/06-new-way/assets/form-step3-deductible.png",
-    "sections/06-new-way/assets/form-step4-contact.png",
-  ];
 
   const agentActions = [
     { text: "Researching best form practices...", icon: "🔍" },
     { text: "Building form structure...", icon: "⚙️" },
     { text: "Deploying to cloud...", icon: "☁️" },
     { text: "Form is live!", icon: "✅" },
+  ];
+
+  const formSteps = [
+    "sections/06-new-way/assets/live-step1-coverage.png",
+    "sections/06-new-way/assets/live-step2-property.png",
+    "sections/06-new-way/assets/live-step3-deductible.png",
   ];
 
   return (
@@ -1309,10 +1306,20 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
       {/* Combine Skill Phase: "Just combine a code agent with a skill" */}
       {frame >= phases.combineSkill.start && frame < phases.tellAgent.start && (
         <AbsoluteFill>
-          <Img
-            src={staticFile("sections/06-new-way/assets/rebyte-form-task.png")}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          />
+          <div style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            transform: `scale(${interpolate(frame, [phases.combineSkill.start, phases.combineSkill.start + fps * 1.2], [1, 1.2], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+            transformOrigin: "center center",
+          }}>
+            <Img
+              src={staticFile("rebyte-input-typed.png")}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          </div>
           {/* Step indicator */}
           <div style={{
             position: "absolute",
@@ -1327,25 +1334,6 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
               Combine Agent + Skill
             </span>
           </div>
-          {/* Key message: World-class forms */}
-          <div style={{
-            position: "absolute",
-            bottom: 60,
-            left: "50%",
-            transform: "translateX(-50%)",
-            padding: "20px 32px",
-            backgroundColor: "rgba(15, 23, 42, 0.98)",
-            borderRadius: 16,
-            border: "2px solid #374151",
-            maxWidth: 700,
-            textAlign: "center",
-            opacity: interpolate(frame, [phases.combineSkill.start + fps * 1, phases.combineSkill.start + fps * 1.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-          }}>
-            <div style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.5 }}>
-              Just combine a code agent with a skill that knows how to build<br/>
-              <span style={{ color: "#374151", fontWeight: 700, fontSize: 22 }}>world-class interactive forms</span>
-            </div>
-          </div>
         </AbsoluteFill>
       )}
 
@@ -1354,7 +1342,13 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
         <AbsoluteFill>
           <Img
             src={staticFile("rebyte-input-typed.png")}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transform: `scale(${interpolate(frame, [phases.tellAgent.start, phases.tellAgent.start + fps * 1], [1, 1.18], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+              transformOrigin: "center center",
+            }}
           />
           {/* Step indicator */}
           <div style={{
@@ -1390,7 +1384,13 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
         <AbsoluteFill>
           <Img
             src={staticFile("rebyte-input-typed.png")}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transform: `scale(${interpolate(frame, [phases.agentWorking.start, phases.agentWorking.start + fps * 1], [1, 1.2], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+              transformOrigin: "center center",
+            }}
           />
           {/* Agent Working Panel */}
           <div style={{
@@ -1435,65 +1435,27 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
         </AbsoluteFill>
       )}
 
-      {/* Form Steps Carousel */}
+      {/* Final Results: Full-screen steps, one by one */}
       {frame >= phases.formSteps.start && (
-        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-          {/* Success badge */}
-          <div style={{
-            position: "absolute",
-            top: 40,
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            padding: "12px 24px",
-            backgroundColor: "#374151",
-            borderRadius: 50,
-            boxShadow: "0 8px 30px rgba(16, 185, 129, 0.5)",
-          }}>
-            <span style={{ fontSize: 20 }}>✅</span>
-            <span style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 700, color: "white" }}>Form is Live!</span>
-          </div>
-
-          {/* Form steps carousel */}
-          <div style={{
-            display: "flex",
-            gap: 20,
-            padding: "0 40px",
-            marginTop: 60,
-          }}>
-            {formSteps.map((step, i) => {
-              const stepEntrance = spring({ frame: frame - phases.formSteps.start - i * fps * 0.2, fps, config: { damping: 12 } });
-              return (
-                <div key={step} style={{
-                  width: 220,
-                  height: 320,
-                  borderRadius: 12,
-                  overflow: "hidden",
-                  boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
-                  border: "2px solid #e5e7eb",
-                  opacity: interpolate(stepEntrance, [0, 1], [0, 1]),
-                  transform: `translateY(${interpolate(stepEntrance, [0, 1], [30, 0])}px)`,
-                }}>
-                  <Img src={staticFile(step)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Caption */}
-          <div style={{
-            position: "absolute",
-            bottom: 50,
-            left: 0,
-            right: 0,
-            textAlign: "center",
-          }}>
-            <p style={{ fontFamily: "system-ui", fontSize: 18, color: "#6b7280" }}>
-              Professional multi-step form—deployed live in seconds
-            </p>
-          </div>
+        <AbsoluteFill style={{ backgroundColor: "#f8fafc" }}>
+          {formSteps.map((step, i) => {
+            const perStep = (phases.formSteps.end - phases.formSteps.start) / formSteps.length;
+            const stepStart = phases.formSteps.start + i * perStep;
+            const stepEnd = stepStart + perStep;
+            const opacity = interpolate(frame, [stepStart, stepStart + fps * 0.2, stepEnd - fps * 0.2, stepEnd], [0, 1, 1, 0], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            });
+            const scale = interpolate(frame, [stepStart, stepStart + fps * 0.75], [1.02, 1], {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            });
+            return (
+              <AbsoluteFill key={step} style={{ opacity, transform: `scale(${scale})` }}>
+                <Img src={staticFile(step)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </AbsoluteFill>
+            );
+          })}
         </AbsoluteFill>
       )}
     </AbsoluteFill>
