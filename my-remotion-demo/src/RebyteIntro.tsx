@@ -84,6 +84,24 @@ const OpenCodeLogo = ({ size = 48 }: { size?: number }) => (
   </svg>
 );
 
+const ClineLogo = ({ size = 48 }: { size?: number }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size}>
+    <rect width="24" height="24" rx="6" fill="#2563eb"/>
+    <circle cx="12" cy="12" r="7.5" fill="#1e40af"/>
+    <text x="12" y="15" textAnchor="middle" fill="white" fontSize="12" fontFamily="system-ui" fontWeight="700">C</text>
+  </svg>
+);
+
+const DroidLogo = ({ size = 48 }: { size?: number }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size}>
+    <rect width="24" height="24" rx="6" fill="#16a34a"/>
+    <rect x="6" y="7" width="12" height="10" rx="3" fill="#052e16"/>
+    <circle cx="10" cy="12" r="1.5" fill="#4ade80"/>
+    <circle cx="14" cy="12" r="1.5" fill="#4ade80"/>
+    <rect x="9" y="18" width="6" height="1.5" rx="0.75" fill="#14532d"/>
+  </svg>
+);
+
 // ============ TRADITIONAL SOFTWARE LOGOS ============
 const MicrosoftLogo = () => (
   <svg width="40" height="40" viewBox="0 0 24 24">
@@ -418,6 +436,8 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
     { Logo: CopilotLogo, name: "GitHub Copilot", delay: 1.1 },
     { Logo: WindsurfLogo, name: "Windsurf", delay: 1.3 },
     { Logo: OpenCodeLogo, name: "OpenCode", delay: 1.5 },
+    { Logo: ClineLogo, name: "Cline", delay: 1.7 },
+    { Logo: DroidLogo, name: "Droid", delay: 1.9 },
   ];
 
   return (
@@ -441,7 +461,7 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
           opacity: interpolate(entrance, [0, 1], [0, 1]),
           transform: `translateY(${interpolate(entrance, [0, 1], [20, 0])}px)`,
         }}>
-          Everything changed with <span style={{ color: "#3b82f6" }}>Code Agents</span>
+          Everything changed with <span style={{ color: "#374151" }}>Code Agents</span>
         </h1>
 
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 28, marginTop: 20, maxWidth: 850 }}>
@@ -476,7 +496,7 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
           textAlign: "center",
           opacity: interpolate(frame, [fps * 3, fps * 3.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
         }}>
-          Initially for programmers—but actually for <span style={{ color: "#10b981", fontWeight: 600 }}>everyone</span>
+          Initially for programmers—but actually for <span style={{ color: "#374151", fontWeight: 600 }}>everyone</span>
         </p>
       </div>
     </AbsoluteFill>
@@ -487,17 +507,28 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
 // Script: "Rebyte was born to bridge the gap. We took those state-of-the-art code agents
 // and run them in the cloud, equipped those agents with highly specialized skills.
 // Those code agents actually become generic problem solvers for every task."
-const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
-  const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+    const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    const animFrame = frame * 0.5;
+
+  const leftEnter = spring({ frame: animFrame - fps * 1, fps, config: { damping: 12, stiffness: 90 } });
+  const rightEnter = spring({ frame: animFrame - fps * 2.1, fps, config: { damping: 12, stiffness: 90 } });
+  const runtimeEnter = spring({ frame: animFrame - fps * 3.2, fps, config: { damping: 12, stiffness: 90 } });
+  const packProgress = interpolate(animFrame, [fps * 4.4, fps * 5.2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const packFade = interpolate(packProgress, [0, 1], [1, 0.35]);
+  const packScale = interpolate(packProgress, [0, 1], [1, 0.7]);
+  const packShift = interpolate(packProgress, [0, 1], [0, 110]);
 
   // Skills to show
   const skills = [
-    { name: "form-builder", icon: "📝", desc: "Build interactive forms" },
-    { name: "spreadsheet-builder", icon: "📊", desc: "Create spreadsheets" },
-    { name: "web-scraper", icon: "🌐", desc: "Extract web data" },
-    { name: "sec-edgar", icon: "📈", desc: "Financial research" },
-    { name: "code-review", icon: "🔍", desc: "Review pull requests" },
-    { name: "deploy", icon: "🚀", desc: "Deploy to production" },
+    "Create spreadsheets",
+    "Create presentation",
+    "Create a video",
+    "Create forms",
+    "Deep research",
+    "Data analysis",
+    "Financial analysis",
+    "Image generation Pro",
   ];
 
   // Code agents
@@ -512,19 +543,19 @@ const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps:
       {/* Title: Rebyte was born to bridge the gap */}
       <div style={{
         position: "absolute",
-        top: 40,
+        top: 24,
         left: 0,
         right: 0,
         textAlign: "center",
-        opacity: interpolate(frame, [fps * 0.2, fps * 0.7], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+        opacity: interpolate(animFrame, [fps * 0.2, fps * 0.7], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginBottom: 12 }}>
-          <RebyteLogo size={56} color="#10b981" innerColor="#ffffff" />
-          <span style={{ fontFamily: "system-ui", fontSize: 40, fontWeight: 700, color: "#10b981" }}>Rebyte</span>
+          <RebyteLogo size={56} color="#000000" innerColor="#ffffff" />
+          <span style={{ fontFamily: "system-ui", fontSize: 40, fontWeight: 700, color: "#000000" }}>Rebyte</span>
         </div>
         <h1 style={{
           fontFamily: "system-ui",
-          fontSize: 36,
+          fontSize: 34,
           fontWeight: 600,
           color: "#1f2937",
           margin: 0,
@@ -536,15 +567,17 @@ const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps:
       {/* Main visualization: Agents + Skills + Cloud */}
       <div style={{
         position: "absolute",
-        top: 180,
+        top: 170,
         left: 0,
         right: 0,
-        bottom: 60,
+        bottom: 140,
         display: "flex",
         justifyContent: "center",
-        alignItems: "flex-start",
+        alignItems: "center",
         gap: 60,
         padding: "0 60px",
+        transform: "scale(1.08)",
+        transformOrigin: "center top",
       }}>
         {/* Left: State-of-the-art code agents */}
         <div style={{
@@ -552,7 +585,8 @@ const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps:
           flexDirection: "column",
           alignItems: "center",
           gap: 16,
-          opacity: interpolate(frame, [fps * 1, fps * 1.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          opacity: interpolate(leftEnter, [0, 1], [0, 1]) * packFade,
+          transform: `translateX(${interpolate(leftEnter, [0, 1], [-160, 0]) + packShift}px) translateY(${interpolate(leftEnter, [0, 1], [20, 0])}px) scale(${packScale})`,
         }}>
           <span style={{
             fontFamily: "system-ui",
@@ -565,7 +599,7 @@ const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps:
           </span>
           <div style={{ display: "flex", gap: 20 }}>
             {agents.map(({ Logo, name, color }, i) => {
-              const agentEntrance = spring({ frame: frame - fps * (1.5 + i * 0.2), fps, config: { damping: 12 } });
+              const agentEntrance = spring({ frame: animFrame - fps * (1.5 + i * 0.2), fps, config: { damping: 12 } });
               return (
                 <div key={name} style={{
                   display: "flex",
@@ -595,36 +629,47 @@ const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps:
           </div>
         </div>
 
-        {/* Center: Cloud symbol with "+" */}
+        {/* Center: Agent runtime container */}
         <div style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 16,
-          marginTop: 30,
-          opacity: interpolate(frame, [fps * 2.5, fps * 3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          gap: 12,
+          marginTop: 10,
+          opacity: interpolate(runtimeEnter, [0, 1], [0, 1]),
+          transform: `translateY(${interpolate(runtimeEnter, [0, 1], [120, 0])}px) scale(${interpolate(runtimeEnter, [0, 1], [0.9, 1.02])})`,
+          zIndex: 2,
         }}>
           <div style={{
             width: 100,
             height: 100,
-            borderRadius: "50%",
-            background: "linear-gradient(135deg, #3b82f6 0%, #10b981 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 15px 40px rgba(59, 130, 246, 0.3)",
           }}>
-            <svg width="50" height="50" viewBox="0 0 24 24" fill="white">
-              <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+            <svg
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#374151"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="8" width="18" height="4" rx="1" />
+              <path d="M12 8v13" />
+              <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" />
+              <path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5" />
             </svg>
           </div>
           <span style={{
             fontFamily: "system-ui",
             fontSize: 14,
-            color: "#3b82f6",
+            color: "#374151",
             fontWeight: 600,
           }}>
-            Running in Cloud
+            Agent Runtime
           </span>
         </div>
 
@@ -634,7 +679,8 @@ const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps:
           flexDirection: "column",
           alignItems: "center",
           gap: 16,
-          opacity: interpolate(frame, [fps * 3.5, fps * 4], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          opacity: interpolate(rightEnter, [0, 1], [0, 1]) * packFade,
+          transform: `translateX(${interpolate(rightEnter, [0, 1], [160, 0]) - packShift}px) translateY(${interpolate(rightEnter, [0, 1], [20, 0])}px) scale(${packScale})`,
         }}>
           <span style={{
             fontFamily: "system-ui",
@@ -645,23 +691,23 @@ const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps:
           }}>
             Specialized Skills
           </span>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {skills.slice(0, 4).map((skill, i) => {
-              const skillEntrance = spring({ frame: frame - fps * (4 + i * 0.2), fps, config: { damping: 12 } });
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", maxWidth: 360 }}>
+            {skills.map((skill, i) => {
+              const skillEntrance = spring({ frame: animFrame - fps * (2.6 + i * 0.2), fps, config: { damping: 12 } });
               return (
-                <div key={skill.name} style={{
+                <div key={skill} style={{
                   display: "flex",
                   alignItems: "center",
                   gap: 10,
-                  padding: "8px 16px",
-                  backgroundColor: "#ecfdf5",
-                  borderRadius: 8,
-                  border: "1px solid #a7f3d0",
+                  padding: "10px 18px",
+                  backgroundColor: "#f8fafc",
+                  borderRadius: 999,
+                  border: "1px solid #e5e7eb",
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
                   opacity: interpolate(skillEntrance, [0, 1], [0, 1]),
                   transform: `translateX(${interpolate(skillEntrance, [0, 1], [20, 0])}px)`,
                 }}>
-                  <span style={{ fontSize: 18 }}>{skill.icon}</span>
-                  <span style={{ fontFamily: "monospace", fontSize: 13, color: "#059669" }}>{skill.name}</span>
+                  <span style={{ fontFamily: "system-ui", fontSize: 14, color: "#6b7280", fontWeight: 600 }}>{skill}</span>
                 </div>
               );
             })}
@@ -672,11 +718,11 @@ const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps:
       {/* Bottom tagline */}
       <div style={{
         position: "absolute",
-        bottom: 50,
+        bottom: 60,
         left: 0,
         right: 0,
         textAlign: "center",
-        opacity: interpolate(frame, [fps * 6, fps * 6.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+        opacity: interpolate(animFrame, [fps * 6, fps * 6.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
       }}>
         <p style={{
           fontFamily: "system-ui",
@@ -685,7 +731,7 @@ const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps:
           fontWeight: 500,
           margin: 0,
         }}>
-          Code agents become <span style={{ color: "#10b981", fontWeight: 700 }}>generic problem solvers</span> for every task
+          Code agents become <span style={{ color: "#374151", fontWeight: 700 }}>generic problem solvers</span> for every task
         </p>
       </div>
     </AbsoluteFill>
@@ -917,7 +963,7 @@ const MissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps: numbe
         <span style={{
           fontFamily: "system-ui",
           fontSize: 16,
-          color: "#10b981",
+          color: "#374151",
           fontWeight: 600,
         }}>
           Each agent runs in its own isolated cloud environment
@@ -1040,7 +1086,7 @@ const SurveyIntroScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
           lineHeight: 1.3,
         }}>
           Say your marketing team needs<br />
-          <span style={{ color: "#3b82f6" }}>a survey form</span>
+          <span style={{ color: "#374151" }}>a survey form</span>
         </h1>
         <p style={{
           fontFamily: "system-ui",
@@ -1254,7 +1300,7 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
               color: "#1f2937",
               textAlign: "center",
             }}>
-              The <span style={{ color: "#10b981" }}>new</span> way?
+              The <span style={{ color: "#374151" }}>new</span> way?
             </h1>
           </div>
         </AbsoluteFill>
@@ -1277,7 +1323,7 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
             borderRadius: 8,
             opacity: interpolate(frame, [phases.combineSkill.start + fps * 0.3, phases.combineSkill.start + fps * 0.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
-            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#10b981" }}>
+            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#374151" }}>
               Combine Agent + Skill
             </span>
           </div>
@@ -1290,14 +1336,14 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
             padding: "20px 32px",
             backgroundColor: "rgba(15, 23, 42, 0.98)",
             borderRadius: 16,
-            border: "2px solid #10b981",
+            border: "2px solid #374151",
             maxWidth: 700,
             textAlign: "center",
             opacity: interpolate(frame, [phases.combineSkill.start + fps * 1, phases.combineSkill.start + fps * 1.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
             <div style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.5 }}>
               Just combine a code agent with a skill that knows how to build<br/>
-              <span style={{ color: "#10b981", fontWeight: 700, fontSize: 22 }}>world-class interactive forms</span>
+              <span style={{ color: "#374151", fontWeight: 700, fontSize: 22 }}>world-class interactive forms</span>
             </div>
           </div>
         </AbsoluteFill>
@@ -1319,7 +1365,7 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
             backgroundColor: "rgba(15, 23, 42, 0.95)",
             borderRadius: 8,
           }}>
-            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#10b981" }}>
+            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#374151" }}>
               Tell the agent what you want
             </span>
           </div>
@@ -1359,7 +1405,7 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
             border: "1px solid #334155",
             boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
           }}>
-            <div style={{ fontFamily: "system-ui", fontSize: 16, color: "#10b981", marginBottom: 16, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ fontFamily: "system-ui", fontSize: 16, color: "#374151", marginBottom: 16, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
               <span>⚙️</span>
               Agent Working...
             </div>
@@ -1380,7 +1426,7 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
                     {action.text}
                   </span>
                   {isActive && actionProgress >= 1 && (
-                    <span style={{ color: "#10b981", marginLeft: "auto", fontSize: 16 }}>✓</span>
+                    <span style={{ color: "#374151", marginLeft: "auto", fontSize: 16 }}>✓</span>
                   )}
                 </div>
               );
@@ -1402,7 +1448,7 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
             alignItems: "center",
             gap: 12,
             padding: "12px 24px",
-            backgroundColor: "#10b981",
+            backgroundColor: "#374151",
             borderRadius: 50,
             boxShadow: "0 8px 30px rgba(16, 185, 129, 0.5)",
           }}>
@@ -1486,7 +1532,7 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
               textAlign: "center",
               margin: 0,
             }}>
-              Tired of building <span style={{ color: "#10b981" }}>spreadsheets</span>?
+              Tired of building <span style={{ color: "#374151" }}>spreadsheets</span>?
             </h1>
             <p style={{
               fontFamily: "system-ui",
@@ -1519,7 +1565,7 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
             borderRadius: 8,
             opacity: interpolate(frame, [phases.taskView.start + fps * 0.5, phases.taskView.start + fps * 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
-            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#10b981" }}>
+            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#374151" }}>
               Using spreadsheet-builder Skill
             </span>
           </div>
@@ -1550,7 +1596,7 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
               width: 20,
               height: 20,
               borderRadius: "50%",
-              border: "3px solid #10b981",
+              border: "3px solid #374151",
               borderTopColor: "transparent",
               animation: "spin 1s linear infinite",
             }} />
@@ -1575,7 +1621,7 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
               borderRadius: 16,
               overflow: "hidden",
               boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
-              border: "2px solid #10b981",
+              border: "2px solid #374151",
               opacity: interpolate(frame, [phases.result.start, phases.result.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
               transform: `translateY(${interpolate(frame, [phases.result.start, phases.result.start + fps * 0.5], [20, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
             }}>
@@ -1638,7 +1684,7 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
                       width: 32,
                       height: 32,
                       borderRadius: "50%",
-                      backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"][i - 1],
+                      backgroundColor: ["#374151", "#374151", "#f59e0b", "#ef4444"][i - 1],
                       border: "2px solid white",
                       marginLeft: i > 1 ? -10 : 0,
                       display: "flex",
@@ -1710,7 +1756,7 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
               textAlign: "center",
               margin: 0,
             }}>
-              Back to <span style={{ color: "#3b82f6" }}>coding</span>
+              Back to <span style={{ color: "#374151" }}>coding</span>
             </h1>
             <p style={{
               fontFamily: "system-ui",
@@ -1738,18 +1784,18 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
               padding: "28px 44px",
               backgroundColor: "white",
               borderRadius: 16,
-              border: "2px solid #3b82f6",
+              border: "2px solid #374151",
               boxShadow: "0 10px 40px rgba(59, 130, 246, 0.15)",
             }}>
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="#3b82f6">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="#374151">
                 <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
               </svg>
               <div>
                 <div style={{ fontFamily: "system-ui", fontSize: 26, fontWeight: 700, color: "#1f2937" }}>
-                  The new way? It's all in the <span style={{ color: "#3b82f6" }}>cloud</span>
+                  The new way? It's all in the <span style={{ color: "#374151" }}>cloud</span>
                 </div>
                 <div style={{ fontFamily: "system-ui", fontSize: 18, color: "#6b7280", marginTop: 8 }}>
-                  Each task runs in <span style={{ color: "#10b981", fontWeight: 600 }}>complete isolation</span>
+                  Each task runs in <span style={{ color: "#374151", fontWeight: 600 }}>complete isolation</span>
                 </div>
               </div>
             </div>
@@ -1823,7 +1869,7 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
               color: "#1f2937",
               margin: 0,
             }}>
-              All <span style={{ color: "#10b981" }}>independently</span>
+              All <span style={{ color: "#374151" }}>independently</span>
             </h2>
             <p style={{
               fontFamily: "system-ui",
@@ -1948,7 +1994,7 @@ const OutroScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number;
               color: "#1f2937",
               margin: 0,
             }}>
-              See what's <span style={{ color: "#10b981" }}>possible</span>
+              See what's <span style={{ color: "#374151" }}>possible</span>
             </h1>
             <p style={{
               fontFamily: "system-ui",
@@ -2123,7 +2169,7 @@ const ProgressBar = ({ frame, durationInFrames }: { frame: number; durationInFra
       <div style={{
         width: `${progress}%`,
         height: "100%",
-        background: "linear-gradient(90deg, #3b82f6, #10b981)",
+        background: "linear-gradient(90deg, #374151, #374151)",
       }} />
     </div>
   );
