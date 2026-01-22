@@ -337,7 +337,7 @@ export const RebyteIntro = () => {
 
       {/* Scene 9: Outro */}
       <Sequence from={sections.outro.start} durationInFrames={sections.outro.duration}>
-        <OutroScene frame={frame - sections.outro.start} fps={fps} sceneDuration={sections.outro.duration} />
+        <OutroScene frame={frame - sections.outro.start} fps={fps} />
       </Sequence>
 
       {/* Scene 10: Tagline */}
@@ -1959,116 +1959,162 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
 
 // ============ SCENE 9: OUTRO (100-112s) ============
 // Script: "See what's possible. Real results from real users. Rebyte. Vibe working with skilled code agents."
-const OutroScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
-  // Phase timings within the 12-second scene
-  const phases = {
-    examples: { start: 0, end: fps * 6 },                 // 0-6s: "See what's possible" + example carousel
-    cta: { start: fps * 6, end: fps * 12 },               // 6-12s: Rebyte CTA
-  };
-
-  const examples = [
-    { src: "example-insurance-form.png", title: "Insurance Form Builder" },
-    { src: "example-crypto-analysis.png", title: "Crypto Analysis" },
-    { src: "sections/07-spreadsheet/assets/spreadsheet-dashboard.png", title: "Data Dashboard" },
+const OutroScene = ({ frame, fps }: { frame: number; fps: number }) => {
+  // All capability chips from the Rebyte platform
+  const capabilities = [
+    // Row 1
+    { icon: "📊", label: "Create spreadsheets" },
+    { icon: "📽️", label: "Create presentation" },
+    { icon: "🎬", label: "Create a video" },
+    { icon: "📝", label: "Create forms" },
+    // Row 2
+    { icon: "🔍", label: "Deep research" },
+    { icon: "📈", label: "Data analysis" },
+    { icon: "📉", label: "Financial analysis" },
+    { icon: "🖼️", label: "Image generation", isPro: true },
+    // Row 3
+    { icon: "🗄️", label: "Data collection" },
+    { icon: "📄", label: "Document processing" },
+    // Row 4
+    { icon: "🚀", label: "Create web app" },
+    { icon: "🤖", label: "Create AI agent" },
+    { icon: "⚙️", label: "Create with backend" },
+    { icon: "🧩", label: "Chrome extension" },
+    // Row 5
+    { icon: "▲", label: "Create app on Vercel" },
+    { icon: "🔀", label: "Code review" },
+    { icon: "🎨", label: "UI/UX design", isPro: true },
   ];
+
+  // Chip component
+  const Chip = ({ icon, label, isPro, index }: { icon: string; label: string; isPro?: boolean; index: number }) => {
+    const delay = fps * 0.8 + index * fps * 0.08; // Staggered entrance
+    const chipEntrance = spring({ frame: frame - delay, fps, config: { damping: 14, stiffness: 120 } });
+    const chipOpacity = interpolate(chipEntrance, [0, 1], [0, 1]);
+    const chipScale = interpolate(chipEntrance, [0, 1], [0.8, 1]);
+    const chipY = interpolate(chipEntrance, [0, 1], [15, 0]);
+
+    return (
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "12px 20px",
+        backgroundColor: "white",
+        borderRadius: 999,
+        border: "1px solid #e5e7eb",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+        opacity: chipOpacity,
+        transform: `scale(${chipScale}) translateY(${chipY}px)`,
+      }}>
+        <span style={{ fontSize: 18 }}>{icon}</span>
+        <span style={{ fontFamily: "system-ui", fontSize: 15, fontWeight: 500, color: "#374151" }}>
+          {label}
+        </span>
+        {isPro && (
+          <span style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+            fontFamily: "system-ui",
+            fontSize: 12,
+            fontWeight: 600,
+            color: "#f59e0b",
+          }}>
+            ✨ Pro
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#f8fafc" }}>
-      {/* Examples carousel */}
-      {frame < phases.cta.start && (
-        <AbsoluteFill style={{ padding: 60 }}>
-          <div style={{
-            textAlign: "center",
-            marginBottom: 40,
-            opacity: interpolate(frame, [0, fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-          }}>
-            <h1 style={{
-              fontFamily: "system-ui",
-              fontSize: 48,
-              fontWeight: 700,
-              color: "#1f2937",
-              margin: 0,
-            }}>
-              See what's <span style={{ color: "#374151" }}>possible</span>
-            </h1>
-            <p style={{
-              fontFamily: "system-ui",
-              fontSize: 20,
-              color: "#6b7280",
-              marginTop: 12,
-            }}>
-              Real results from real users
-            </p>
-          </div>
+      {/* Header */}
+      <div style={{
+        textAlign: "center",
+        paddingTop: 50,
+        opacity: interpolate(frame, [0, fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+        transform: `translateY(${interpolate(frame, [0, fps * 0.5], [20, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
+      }}>
+        <h1 style={{
+          fontFamily: "system-ui",
+          fontSize: 44,
+          fontWeight: 700,
+          color: "#1f2937",
+          margin: 0,
+        }}>
+          See what's <span style={{ color: "#0ea5e9" }}>possible</span>
+        </h1>
+        <p style={{
+          fontFamily: "system-ui",
+          fontSize: 18,
+          color: "#6b7280",
+          marginTop: 10,
+        }}>
+          Unleash your imagination with Rebyte
+        </p>
+      </div>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: 30 }}>
-            {examples.map((ex, i) => {
-              const exEntrance = spring({ frame: frame - fps * (0.5 + i * 0.3), fps, config: { damping: 12 } });
-              return (
-                <div key={ex.src} style={{
-                  width: 350,
-                  opacity: interpolate(exEntrance, [0, 1], [0, 1]),
-                  transform: `translateY(${interpolate(exEntrance, [0, 1], [30, 0])}px)`,
-                }}>
-                  <div style={{
-                    borderRadius: 16,
-                    overflow: "hidden",
-                    boxShadow: "0 15px 40px rgba(0,0,0,0.12)",
-                    border: "1px solid #e5e7eb",
-                  }}>
-                    <Img src={staticFile(ex.src)} style={{ width: "100%", height: 240, objectFit: "cover" }} />
-                  </div>
-                  <p style={{
-                    fontFamily: "system-ui",
-                    fontSize: 14,
-                    color: "#6b7280",
-                    textAlign: "center",
-                    marginTop: 12,
-                  }}>
-                    {ex.title}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </AbsoluteFill>
-      )}
+      {/* Chips Grid */}
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 16,
+        padding: "30px 60px",
+      }}>
+        {/* Row 1 */}
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+          {capabilities.slice(0, 4).map((cap, i) => (
+            <Chip key={cap.label} {...cap} index={i} />
+          ))}
+        </div>
+        {/* Row 2 */}
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+          {capabilities.slice(4, 8).map((cap, i) => (
+            <Chip key={cap.label} {...cap} index={i + 4} />
+          ))}
+        </div>
+        {/* Row 3 */}
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+          {capabilities.slice(8, 10).map((cap, i) => (
+            <Chip key={cap.label} {...cap} index={i + 8} />
+          ))}
+        </div>
+        {/* Row 4 */}
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+          {capabilities.slice(10, 14).map((cap, i) => (
+            <Chip key={cap.label} {...cap} index={i + 10} />
+          ))}
+        </div>
+        {/* Row 5 */}
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+          {capabilities.slice(14, 17).map((cap, i) => (
+            <Chip key={cap.label} {...cap} index={i + 14} />
+          ))}
+        </div>
+      </div>
 
-      {/* CTA */}
-      {frame >= phases.cta.start && (
-        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 24,
-            opacity: interpolate(frame, [phases.cta.start, phases.cta.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-            transform: `scale(${interpolate(frame, [phases.cta.start, phases.cta.start + fps * 0.5], [0.9, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-          }}>
-            <div style={{ transform: `scale(${spring({ frame: frame - phases.cta.start, fps, config: { damping: 12 } })})` }}>
-              <RebyteLogo size={100} color="#1f2937" innerColor="#f8fafc" />
-            </div>
-            <h1 style={{
-              fontFamily: "system-ui",
-              fontSize: 56,
-              fontWeight: 700,
-              color: "#1f2937",
-              margin: 0,
-            }}>
-              rebyte.ai
-            </h1>
-            <p style={{
-              fontFamily: "system-ui",
-              fontSize: 24,
-              color: "#6b7280",
-              margin: 0,
-              opacity: interpolate(frame, [phases.cta.start + fps * 1, phases.cta.start + fps * 1.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-            }}>
-              Vibe working with skilled code agents
-            </p>
-          </div>
-        </AbsoluteFill>
-      )}
+      {/* Bottom tagline */}
+      <div style={{
+        position: "absolute",
+        bottom: 40,
+        left: 0,
+        right: 0,
+        textAlign: "center",
+        opacity: interpolate(frame, [fps * 4, fps * 4.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+      }}>
+        <p style={{
+          fontFamily: "system-ui",
+          fontSize: 20,
+          fontWeight: 600,
+          color: "#0ea5e9",
+          margin: 0,
+        }}>
+          Unleash the full potential of code agents
+        </p>
+      </div>
     </AbsoluteFill>
   );
 };
@@ -2125,12 +2171,12 @@ const TaglineScene = ({ frame, fps, sceneDuration }: { frame: number; fps: numbe
         gap: 20,
         transform: `scale(${logoScale})`,
       }}>
-        <RebyteLogo size={80} color="#10b981" innerColor="#ffffff" />
+        <RebyteLogo size={80} color="#1f2937" innerColor="#ffffff" />
         <span style={{
           fontFamily: "system-ui",
           fontSize: 64,
           fontWeight: 700,
-          color: "#10b981",
+          color: "#1f2937",
         }}>
           Rebyte
         </span>
