@@ -246,16 +246,18 @@ export const RebyteIntro = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
-  // Scene timings (~60 seconds total)
-  // Detailed narrative case study approach
+  // Scene timings (~112 seconds total)
+  // Matches voiceover script exactly
   const scenes = {
-    problem: { start: 0, duration: fps * 7 },                    // 0-7s: The Problem
-    change: { start: fps * 7, duration: fps * 6 },               // 7-13s: The Change (CodeAgent)
-    mission: { start: fps * 13, duration: fps * 6 },             // 13-19s: Rebyte's Mission
-    surveyCase: { start: fps * 19, duration: fps * 22 },         // 19-41s: Survey Case Study (detailed narrative)
-    cloud: { start: fps * 41, duration: fps * 9 },               // 41-50s: Cloud & Skills
-    examples: { start: fps * 50, duration: fps * 5 },            // 50-55s: Live Examples
-    cta: { start: fps * 55, duration: durationInFrames - fps * 55 }, // 55-60s: CTA
+    problem: { start: 0, duration: fps * 10 },                   // 0-10s: "Previously, only programmers could code..."
+    change: { start: fps * 10, duration: fps * 7 },              // 10-17s: "Everything changed with code agents..."
+    rebyteMission: { start: fps * 17, duration: fps * 13 },      // 17-30s: "Rebyte was born to bridge the gap..."
+    surveyIntro: { start: fps * 30, duration: fps * 5 },         // 30-35s: "Let me show you. Say your marketing team..."
+    surveyOldWay: { start: fps * 35, duration: fps * 8 },        // 35-43s: "The old way? Search Google, compare tools..."
+    surveyNewWay: { start: fps * 43, duration: fps * 22 },       // 43-65s: "The new way? Just combine a code agent with a skill..."
+    spreadsheet: { start: fps * 65, duration: fps * 15 },        // 65-80s: "Tired of spreadsheets? Let the code agent help you..."
+    coding: { start: fps * 80, duration: fps * 20 },             // 80-100s: "Also, let's get back to coding itself..."
+    outro: { start: fps * 100, duration: fps * 12 },             // 100-112s: "See what's possible. Real results. Rebyte."
   };
 
   return (
@@ -263,51 +265,49 @@ export const RebyteIntro = () => {
       {/* Voiceover */}
       <Audio src={staticFile("voiceover.mp3")} volume={1} />
 
-      {/* Scene 1: The Problem (0-7s) */}
+      {/* Scene 1: The Problem (0-10s) */}
       <Sequence from={scenes.problem.start} durationInFrames={scenes.problem.duration}>
         <ProblemScene frame={frame} fps={fps} sceneDuration={scenes.problem.duration} />
       </Sequence>
 
-      {/* Scene 2: The Change - CodeAgent (7-13s) */}
+      {/* Scene 2: Code Agents Changed Everything (10-17s) */}
       <Sequence from={scenes.change.start} durationInFrames={scenes.change.duration}>
         <ChangeScene frame={frame - scenes.change.start} fps={fps} sceneDuration={scenes.change.duration} />
       </Sequence>
 
-      {/* Scene 3: Rebyte's Mission (13-19s) */}
-      <Sequence from={scenes.mission.start} durationInFrames={scenes.mission.duration}>
-        <MissionScene frame={frame - scenes.mission.start} fps={fps} sceneDuration={scenes.mission.duration} />
+      {/* Scene 3: Rebyte Mission - Skills + Cloud (17-30s) */}
+      <Sequence from={scenes.rebyteMission.start} durationInFrames={scenes.rebyteMission.duration}>
+        <RebyteMissionScene frame={frame - scenes.rebyteMission.start} fps={fps} sceneDuration={scenes.rebyteMission.duration} />
       </Sequence>
 
-      {/* Scene 4: Survey Case Study (19-41s) */}
-      <Sequence from={scenes.surveyCase.start} durationInFrames={scenes.surveyCase.duration}>
-        <SurveyCaseScene
-          frame={frame - scenes.surveyCase.start}
-          fps={fps}
-          sceneDuration={scenes.surveyCase.duration}
-        />
+      {/* Scene 4: Survey Intro (30-35s) */}
+      <Sequence from={scenes.surveyIntro.start} durationInFrames={scenes.surveyIntro.duration}>
+        <SurveyIntroScene frame={frame - scenes.surveyIntro.start} fps={fps} sceneDuration={scenes.surveyIntro.duration} />
       </Sequence>
 
-      {/* Scene 5: Cloud & Skills (41-50s) */}
-      <Sequence from={scenes.cloud.start} durationInFrames={scenes.cloud.duration}>
-        <CloudSkillsScene frame={frame - scenes.cloud.start} fps={fps} sceneDuration={scenes.cloud.duration} />
+      {/* Scene 5: Survey Old Way (35-43s) */}
+      <Sequence from={scenes.surveyOldWay.start} durationInFrames={scenes.surveyOldWay.duration}>
+        <SurveyOldWayScene frame={frame - scenes.surveyOldWay.start} fps={fps} sceneDuration={scenes.surveyOldWay.duration} />
       </Sequence>
 
-      {/* Scene 7: Live Examples (40-45s) */}
-      <Sequence from={scenes.examples.start} durationInFrames={scenes.examples.duration}>
-        <TaskScene
-          frame={frame - scenes.examples.start}
-          fps={fps}
-          sceneDuration={scenes.examples.duration}
-          src="example-insurance-form.png"
-          title="See What's Possible"
-          subtitle="Real results from real users"
-          bgColor="#f8fafc"
-        />
+      {/* Scene 6: Survey New Way (43-65s) */}
+      <Sequence from={scenes.surveyNewWay.start} durationInFrames={scenes.surveyNewWay.duration}>
+        <SurveyNewWayScene frame={frame - scenes.surveyNewWay.start} fps={fps} sceneDuration={scenes.surveyNewWay.duration} />
       </Sequence>
 
-      {/* Scene 8: CTA (45-51s) */}
-      <Sequence from={scenes.cta.start} durationInFrames={scenes.cta.duration}>
-        <CTAScene frame={frame - scenes.cta.start} fps={fps} sceneDuration={scenes.cta.duration} />
+      {/* Scene 7: Spreadsheet Builder (65-80s) */}
+      <Sequence from={scenes.spreadsheet.start} durationInFrames={scenes.spreadsheet.duration}>
+        <SpreadsheetScene frame={frame - scenes.spreadsheet.start} fps={fps} sceneDuration={scenes.spreadsheet.duration} />
+      </Sequence>
+
+      {/* Scene 8: Coding Capabilities (80-100s) */}
+      <Sequence from={scenes.coding.start} durationInFrames={scenes.coding.duration}>
+        <CodingScene frame={frame - scenes.coding.start} fps={fps} sceneDuration={scenes.coding.duration} />
+      </Sequence>
+
+      {/* Scene 9: Outro/CTA (100-112s) */}
+      <Sequence from={scenes.outro.start} durationInFrames={scenes.outro.duration}>
+        <OutroScene frame={frame - scenes.outro.start} fps={fps} sceneDuration={scenes.outro.duration} />
       </Sequence>
 
       {/* Progress bar */}
@@ -316,24 +316,25 @@ export const RebyteIntro = () => {
   );
 };
 
-// ============ SCENE 1: THE PROBLEM ============
+// ============ SCENE 1: THE PROBLEM (0-10s) ============
+// Script: "Previously, only programmers could code. Everyone else had to use predefined software
+// or, if you really needed customized software, ask a programmer for help."
 const ProblemScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
   const textOpacity = interpolate(frame, [fps * 0.3, fps * 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
-  // Traditional software logos appearing one by one
-  // Start at ~3.5s when voiceover says "Everyone else had to use predefined software"
+  // Traditional software logos appearing one by one (~4s into scene)
   const softwareLogos = [
-    { Logo: MicrosoftLogo, name: "Microsoft", delay: 3.5 },
-    { Logo: SalesforceLogo, name: "Salesforce", delay: 3.65 },
-    { Logo: SAPLogo, name: "SAP", delay: 3.8 },
-    { Logo: OracleLogo, name: "Oracle", delay: 3.95 },
-    { Logo: AdobeLogo, name: "Adobe", delay: 4.1 },
-    { Logo: SlackLogo, name: "Slack", delay: 4.25 },
-    { Logo: NotionLogo, name: "Notion", delay: 4.4 },
-    { Logo: GoogleLogo, name: "Google", delay: 4.55 },
-    { Logo: DropboxLogo, name: "Dropbox", delay: 4.7 },
-    { Logo: AirtableLogo, name: "Airtable", delay: 4.85 },
+    { Logo: MicrosoftLogo, name: "Microsoft", delay: 4.0 },
+    { Logo: SalesforceLogo, name: "Salesforce", delay: 4.15 },
+    { Logo: SAPLogo, name: "SAP", delay: 4.3 },
+    { Logo: OracleLogo, name: "Oracle", delay: 4.45 },
+    { Logo: AdobeLogo, name: "Adobe", delay: 4.6 },
+    { Logo: SlackLogo, name: "Slack", delay: 4.75 },
+    { Logo: NotionLogo, name: "Notion", delay: 4.9 },
+    { Logo: GoogleLogo, name: "Google", delay: 5.05 },
+    { Logo: DropboxLogo, name: "Dropbox", delay: 5.2 },
+    { Logo: AirtableLogo, name: "Airtable", delay: 5.35 },
   ];
 
   return (
@@ -378,7 +379,7 @@ const ProblemScene = ({ frame, fps, sceneDuration }: { frame: number; fps: numbe
           marginTop: 24,
           textAlign: "center",
           maxWidth: 600,
-          opacity: interpolate(frame, [fps * 1.2, fps * 1.7], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          opacity: interpolate(frame, [fps * 0.8, fps * 1.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
         }}>
           Everyone else had to use predefined software<br />or ask a programmer friend for help.
         </p>
@@ -387,19 +388,21 @@ const ProblemScene = ({ frame, fps, sceneDuration }: { frame: number; fps: numbe
   );
 };
 
-// ============ SCENE 2: THE CHANGE ============
+// ============ SCENE 2: THE CHANGE (10-17s) ============
+// Script: "Everything changed with code agents. Initially, it sounds like it's for programmers,
+// but it's actually for everyone."
 const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
   const entrance = spring({ frame, fps, config: { damping: 14, stiffness: 80 } });
   const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   const logos = [
-    { Logo: ClaudeLogo, name: "Claude Code", delay: 0.2 },
-    { Logo: GeminiLogo, name: "Gemini CLI", delay: 0.4 },
-    { Logo: OpenAILogo, name: "OpenAI Codex", delay: 0.6 },
-    { Logo: CursorLogo, name: "Cursor", delay: 0.8 },
-    { Logo: CopilotLogo, name: "GitHub Copilot", delay: 1.0 },
-    { Logo: WindsurfLogo, name: "Windsurf", delay: 1.2 },
-    { Logo: OpenCodeLogo, name: "OpenCode", delay: 1.4 },
+    { Logo: ClaudeLogo, name: "Claude Code", delay: 0.3 },
+    { Logo: GeminiLogo, name: "Gemini CLI", delay: 0.5 },
+    { Logo: OpenAILogo, name: "OpenAI Codex", delay: 0.7 },
+    { Logo: CursorLogo, name: "Cursor", delay: 0.9 },
+    { Logo: CopilotLogo, name: "GitHub Copilot", delay: 1.1 },
+    { Logo: WindsurfLogo, name: "Windsurf", delay: 1.3 },
+    { Logo: OpenCodeLogo, name: "OpenCode", delay: 1.5 },
   ];
 
   return (
@@ -411,7 +414,7 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: 40,
+        gap: 30,
       }}>
         <h1 style={{
           fontFamily: "system-ui",
@@ -426,7 +429,7 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
           Everything changed with <span style={{ color: "#3b82f6" }}>Code Agents</span>
         </h1>
 
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 32, marginTop: 20, maxWidth: 900 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 28, marginTop: 20, maxWidth: 850 }}>
           {logos.map(({ Logo, name, delay }) => {
             const logoEntrance = spring({ frame: frame - fps * delay, fps, config: { damping: 12 } });
             return (
@@ -442,29 +445,239 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                   transform: `scale(${interpolate(logoEntrance, [0, 1], [0.5, 1])})`,
                 }}
               >
-                <Logo size={48} />
+                <Logo size={44} />
                 <span style={{ fontFamily: "system-ui", fontSize: 12, color: "#6b7280", textAlign: "center" }}>{name}</span>
               </div>
             );
           })}
         </div>
 
+        {/* "Actually for everyone" message */}
         <p style={{
           fontFamily: "system-ui",
-          fontSize: 22,
+          fontSize: 24,
           color: "#6b7280",
-          marginTop: 20,
+          marginTop: 30,
           textAlign: "center",
-          opacity: interpolate(frame, [fps * 1.5, fps * 2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          opacity: interpolate(frame, [fps * 3, fps * 3.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
         }}>
-          It sounds like it's for programmers—but it's actually for <span style={{ color: "#10b981" }}>everyone</span>.
+          Initially for programmers—but actually for <span style={{ color: "#10b981", fontWeight: 600 }}>everyone</span>
         </p>
       </div>
     </AbsoluteFill>
   );
 };
 
-// ============ SCENE 3: REBYTE'S MISSION - Each Agent Gets Its Own Runtime ============
+// ============ SCENE 3: REBYTE MISSION (17-30s) ============
+// Script: "Rebyte was born to bridge the gap. We took those state-of-the-art code agents
+// and run them in the cloud, equipped those agents with highly specialized skills.
+// Those code agents actually become generic problem solvers for every task."
+const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  // Skills to show
+  const skills = [
+    { name: "form-builder", icon: "📝", desc: "Build interactive forms" },
+    { name: "spreadsheet-builder", icon: "📊", desc: "Create spreadsheets" },
+    { name: "web-scraper", icon: "🌐", desc: "Extract web data" },
+    { name: "sec-edgar", icon: "📈", desc: "Financial research" },
+    { name: "code-review", icon: "🔍", desc: "Review pull requests" },
+    { name: "deploy", icon: "🚀", desc: "Deploy to production" },
+  ];
+
+  // Code agents
+  const agents = [
+    { Logo: ClaudeLogo, name: "Claude", color: "#D97706" },
+    { Logo: GeminiLogo, name: "Gemini", color: "#3186FF" },
+    { Logo: OpenAILogo, name: "Codex", color: "#10A37F" },
+  ];
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#f8fafc", opacity: exitOpacity }}>
+      {/* Title: Rebyte was born to bridge the gap */}
+      <div style={{
+        position: "absolute",
+        top: 40,
+        left: 0,
+        right: 0,
+        textAlign: "center",
+        opacity: interpolate(frame, [fps * 0.2, fps * 0.7], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginBottom: 12 }}>
+          <RebyteLogo size={56} color="#10b981" innerColor="#ffffff" />
+          <span style={{ fontFamily: "system-ui", fontSize: 40, fontWeight: 700, color: "#10b981" }}>Rebyte</span>
+        </div>
+        <h1 style={{
+          fontFamily: "system-ui",
+          fontSize: 36,
+          fontWeight: 600,
+          color: "#1f2937",
+          margin: 0,
+        }}>
+          Born to bridge the gap
+        </h1>
+      </div>
+
+      {/* Main visualization: Agents + Skills + Cloud */}
+      <div style={{
+        position: "absolute",
+        top: 180,
+        left: 0,
+        right: 0,
+        bottom: 60,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        gap: 60,
+        padding: "0 60px",
+      }}>
+        {/* Left: State-of-the-art code agents */}
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 16,
+          opacity: interpolate(frame, [fps * 1, fps * 1.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+        }}>
+          <span style={{
+            fontFamily: "system-ui",
+            fontSize: 14,
+            color: "#6b7280",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+          }}>
+            State-of-the-art Agents
+          </span>
+          <div style={{ display: "flex", gap: 20 }}>
+            {agents.map(({ Logo, name, color }, i) => {
+              const agentEntrance = spring({ frame: frame - fps * (1.5 + i * 0.2), fps, config: { damping: 12 } });
+              return (
+                <div key={name} style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 8,
+                  opacity: interpolate(agentEntrance, [0, 1], [0, 1]),
+                  transform: `scale(${interpolate(agentEntrance, [0, 1], [0.8, 1])})`,
+                }}>
+                  <div style={{
+                    width: 70,
+                    height: 70,
+                    borderRadius: 16,
+                    backgroundColor: "white",
+                    border: `3px solid ${color}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: `0 8px 20px ${color}30`,
+                  }}>
+                    <Logo size={36} />
+                  </div>
+                  <span style={{ fontFamily: "system-ui", fontSize: 12, color: "#374151", fontWeight: 500 }}>{name}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Center: Cloud symbol with "+" */}
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 16,
+          marginTop: 30,
+          opacity: interpolate(frame, [fps * 2.5, fps * 3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+        }}>
+          <div style={{
+            width: 100,
+            height: 100,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #3b82f6 0%, #10b981 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 15px 40px rgba(59, 130, 246, 0.3)",
+          }}>
+            <svg width="50" height="50" viewBox="0 0 24 24" fill="white">
+              <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+            </svg>
+          </div>
+          <span style={{
+            fontFamily: "system-ui",
+            fontSize: 14,
+            color: "#3b82f6",
+            fontWeight: 600,
+          }}>
+            Running in Cloud
+          </span>
+        </div>
+
+        {/* Right: Highly specialized skills */}
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 16,
+          opacity: interpolate(frame, [fps * 3.5, fps * 4], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+        }}>
+          <span style={{
+            fontFamily: "system-ui",
+            fontSize: 14,
+            color: "#6b7280",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+          }}>
+            Specialized Skills
+          </span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {skills.slice(0, 4).map((skill, i) => {
+              const skillEntrance = spring({ frame: frame - fps * (4 + i * 0.2), fps, config: { damping: 12 } });
+              return (
+                <div key={skill.name} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "8px 16px",
+                  backgroundColor: "#ecfdf5",
+                  borderRadius: 8,
+                  border: "1px solid #a7f3d0",
+                  opacity: interpolate(skillEntrance, [0, 1], [0, 1]),
+                  transform: `translateX(${interpolate(skillEntrance, [0, 1], [20, 0])}px)`,
+                }}>
+                  <span style={{ fontSize: 18 }}>{skill.icon}</span>
+                  <span style={{ fontFamily: "monospace", fontSize: 13, color: "#059669" }}>{skill.name}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom tagline */}
+      <div style={{
+        position: "absolute",
+        bottom: 50,
+        left: 0,
+        right: 0,
+        textAlign: "center",
+        opacity: interpolate(frame, [fps * 6, fps * 6.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+      }}>
+        <p style={{
+          fontFamily: "system-ui",
+          fontSize: 22,
+          color: "#1f2937",
+          fontWeight: 500,
+          margin: 0,
+        }}>
+          Code agents become <span style={{ color: "#10b981", fontWeight: 700 }}>generic problem solvers</span> for every task
+        </p>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// ============ LEGACY: REBYTE'S MISSION - Each Agent Gets Its Own Runtime ============
 const MissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
   const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
@@ -773,23 +986,66 @@ const TaskScene = ({
   );
 };
 
-// ============ SCENE 4: SURVEY CASE STUDY (Narrative) ============
-const SurveyCaseScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
-  // Phase timings within the 22-second scene
-  const phases = {
-    oldWayIntro: { start: 0, end: fps * 2 },           // 0-2s: "The old way..."
-    googleSearch: { start: fps * 2, end: fps * 5 },    // 2-5s: Google search animation
-    saasProducts: { start: fps * 5, end: fps * 8 },    // 5-8s: SaaS products with pricing
-    transition: { start: fps * 8, end: fps * 10 },     // 8-10s: "There's a better way"
-    skillSelection: { start: fps * 10, end: fps * 14 }, // 10-14s: Select skill (KEY STEP!)
-    rebytePrompt: { start: fps * 14, end: fps * 17 },  // 14-17s: Type the prompt
-    agentWorking: { start: fps * 17, end: fps * 19 },  // 17-19s: Agent processing
-    result: { start: fps * 19, end: fps * 22 },        // 19-22s: Show the live form
-  };
-
+// ============ SCENE 3: SURVEY INTRO (10-14s) ============
+const SurveyIntroScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const entrance = spring({ frame, fps, config: { damping: 14, stiffness: 80 } });
   const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
-  // SaaS products for the "old way"
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#f8fafc", opacity: exitOpacity }}>
+      <div style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 30,
+        opacity: interpolate(entrance, [0, 1], [0, 1]),
+        transform: `translateY(${interpolate(entrance, [0, 1], [30, 0])}px)`,
+      }}>
+        <div style={{
+          padding: "12px 24px",
+          backgroundColor: "#ecfdf5",
+          borderRadius: 8,
+          border: "1px solid #a7f3d0",
+        }}>
+          <span style={{ fontFamily: "system-ui", fontSize: 14, color: "#059669", fontWeight: 600 }}>
+            Let me show you
+          </span>
+        </div>
+        <h1 style={{
+          fontFamily: "system-ui",
+          fontSize: 48,
+          fontWeight: 700,
+          color: "#1f2937",
+          margin: 0,
+          textAlign: "center",
+          maxWidth: 900,
+          lineHeight: 1.3,
+        }}>
+          Say your marketing team needs<br />
+          <span style={{ color: "#3b82f6" }}>a survey form</span>
+        </h1>
+        <p style={{
+          fontFamily: "system-ui",
+          fontSize: 22,
+          color: "#6b7280",
+          margin: 0,
+          textAlign: "center",
+          opacity: interpolate(frame, [fps * 1.5, fps * 2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+        }}>
+          How would you typically do this?
+        </p>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// ============ SCENE 4: SURVEY OLD WAY (14-22s) ============
+const SurveyOldWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
   const saasProducts = [
     { name: "Typeform", price: "$25/mo", color: "#262627" },
     { name: "SurveyMonkey", price: "$32/mo", color: "#00BF6F" },
@@ -797,166 +1053,415 @@ const SurveyCaseScene = ({ frame, fps, sceneDuration }: { frame: number; fps: nu
     { name: "JotForm", price: "$34/mo", color: "#FF6100" },
   ];
 
-  // The prompt text
-  const promptText = "Build a survey for our marketing team to understand how developers use coding agents. Ask about: which tools (Claude Code, Cursor, Copilot), frequency of use, common tasks, and satisfaction rating. Make it live.";
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#f8fafc", opacity: exitOpacity }}>
+      {/* "The old way" title */}
+      <div style={{
+        position: "absolute",
+        top: 40,
+        left: 0,
+        right: 0,
+        textAlign: "center",
+        opacity: interpolate(frame, [0, fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+      }}>
+        <span style={{
+          fontFamily: "system-ui",
+          fontSize: 16,
+          color: "#9ca3af",
+          textTransform: "uppercase",
+          letterSpacing: 2,
+        }}>
+          The Old Way
+        </span>
+      </div>
 
-  // Agent actions
+      {/* Google Search Box */}
+      <div style={{
+        position: "absolute",
+        top: 100,
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: 600,
+        opacity: interpolate(frame, [fps * 0.3, fps * 0.8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+      }}>
+        {/* Google Logo */}
+        <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <span style={{ fontFamily: "system-ui", fontSize: 48, fontWeight: 400 }}>
+            <span style={{ color: "#4285F4" }}>G</span>
+            <span style={{ color: "#EA4335" }}>o</span>
+            <span style={{ color: "#FBBC05" }}>o</span>
+            <span style={{ color: "#4285F4" }}>g</span>
+            <span style={{ color: "#34A853" }}>l</span>
+            <span style={{ color: "#EA4335" }}>e</span>
+          </span>
+        </div>
+        {/* Search Bar */}
+        <div style={{
+          backgroundColor: "white",
+          borderRadius: 24,
+          padding: "14px 24px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          border: "1px solid #dfe1e5",
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+        }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#9aa0a6">
+            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+          <span style={{ fontFamily: "system-ui", fontSize: 16, color: "#202124" }}>
+            {"best survey builder tool".slice(0, Math.floor(interpolate(frame, [fps * 1, fps * 2.5], [0, 25], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })))}
+            <span style={{ opacity: Math.sin(frame / 4) > 0 ? 1 : 0, color: "#202124" }}>|</span>
+          </span>
+        </div>
+      </div>
+
+      {/* SaaS Products Grid */}
+      <div style={{
+        position: "absolute",
+        top: 280,
+        left: 0,
+        right: 0,
+        display: "flex",
+        justifyContent: "center",
+        gap: 24,
+        opacity: interpolate(frame, [fps * 3, fps * 3.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+      }}>
+        {saasProducts.map((product, i) => {
+          const productDelay = fps * 3 + i * fps * 0.3;
+          const productEntrance = spring({ frame: frame - productDelay, fps, config: { damping: 12 } });
+          return (
+            <div key={product.name} style={{
+              backgroundColor: "white",
+              borderRadius: 16,
+              padding: 24,
+              width: 180,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+              border: "1px solid #e5e7eb",
+              opacity: interpolate(productEntrance, [0, 1], [0, 1]),
+              transform: `translateY(${interpolate(productEntrance, [0, 1], [20, 0])}px)`,
+            }}>
+              <div style={{
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                backgroundColor: product.color,
+                marginBottom: 16,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}>
+                <span style={{ color: "white", fontWeight: 700, fontSize: 18 }}>{product.name[0]}</span>
+              </div>
+              <div style={{ fontFamily: "system-ui", fontSize: 16, fontWeight: 600, color: "#1f2937", marginBottom: 8 }}>
+                {product.name}
+              </div>
+              <div style={{
+                fontFamily: "system-ui",
+                fontSize: 20,
+                fontWeight: 700,
+                color: "#ef4444",
+              }}>
+                {product.price}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Pain point text */}
+      <div style={{
+        position: "absolute",
+        bottom: 80,
+        left: 0,
+        right: 0,
+        textAlign: "center",
+        opacity: interpolate(frame, [fps * 5, fps * 5.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+      }}>
+        <p style={{
+          fontFamily: "system-ui",
+          fontSize: 20,
+          color: "#6b7280",
+        }}>
+          Sign up, learn the tool, pay monthly fees...
+        </p>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// ============ SCENE 6: SURVEY NEW WAY (43-65s) ============
+// Script: "The new way? Just combine a code agent with a skill that knows how to build
+// world-class interactive forms, then tell the agent what you like, then wait for the magic
+// to happen. The code agent will actually do research, build, deploy, and leverage the most
+// expertise—and you get exactly what you needed. If it's not, ask the code agent to fix it."
+const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  // Phase timings within the 22-second scene
+  const phases = {
+    transition: { start: 0, end: fps * 3 },              // 0-3s: "The new way?"
+    combineSkill: { start: fps * 3, end: fps * 8 },      // 3-8s: Combine agent + skill
+    tellAgent: { start: fps * 8, end: fps * 12 },        // 8-12s: Tell agent what you want
+    agentWorking: { start: fps * 12, end: fps * 17 },    // 12-17s: Research, build, deploy
+    formSteps: { start: fps * 17, end: fps * 22 },       // 17-22s: Show result + "fix it" option
+  };
+
+  const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  // Form step carousel
+  const formSteps = [
+    "form-step0-intro.png",
+    "form-step1-coverage.png",
+    "form-step2-property.png",
+    "form-step3-deductible.png",
+    "form-step4-contact.png",
+  ];
+
   const agentActions = [
-    { text: "Reading form-builder skill...", icon: "📖" },
-    { text: "Creating form schema...", icon: "⚙️" },
+    { text: "Researching best form practices...", icon: "🔍" },
+    { text: "Building form structure...", icon: "⚙️" },
     { text: "Deploying to cloud...", icon: "☁️" },
     { text: "Form is live!", icon: "✅" },
   ];
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#f8fafc", opacity: exitOpacity }}>
-      {/* ===== PART 1: THE OLD WAY (0-8s) ===== */}
-      {frame < phases.transition.start && (
+      {/* Transition: "The new way?" */}
+      {frame < phases.combineSkill.start && (
+        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+          <div style={{
+            opacity: interpolate(frame, [0, fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            transform: `scale(${interpolate(frame, [0, fps * 0.5], [0.8, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+          }}>
+            <h1 style={{
+              fontFamily: "system-ui",
+              fontSize: 52,
+              fontWeight: 700,
+              color: "#1f2937",
+              textAlign: "center",
+            }}>
+              The <span style={{ color: "#10b981" }}>new</span> way?
+            </h1>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Combine Skill Phase: "Just combine a code agent with a skill" */}
+      {frame >= phases.combineSkill.start && frame < phases.tellAgent.start && (
         <AbsoluteFill>
-          {/* "The old way" title */}
+          <Img
+            src={staticFile("rebyte-form-task.png")}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+          {/* Step indicator */}
+          <div style={{
+            position: "absolute",
+            top: 20,
+            left: 20,
+            padding: "10px 20px",
+            backgroundColor: "rgba(15, 23, 42, 0.95)",
+            borderRadius: 8,
+            opacity: interpolate(frame, [phases.combineSkill.start + fps * 0.3, phases.combineSkill.start + fps * 0.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#10b981" }}>
+              Combine Agent + Skill
+            </span>
+          </div>
+          {/* Key message: World-class forms */}
+          <div style={{
+            position: "absolute",
+            bottom: 60,
+            left: "50%",
+            transform: "translateX(-50%)",
+            padding: "20px 32px",
+            backgroundColor: "rgba(15, 23, 42, 0.98)",
+            borderRadius: 16,
+            border: "2px solid #10b981",
+            maxWidth: 700,
+            textAlign: "center",
+            opacity: interpolate(frame, [phases.combineSkill.start + fps * 1, phases.combineSkill.start + fps * 1.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            <div style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.5 }}>
+              Just combine a code agent with a skill that knows how to build<br/>
+              <span style={{ color: "#10b981", fontWeight: 700, fontSize: 22 }}>world-class interactive forms</span>
+            </div>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Tell Agent Phase: "Tell the agent what you like" */}
+      {frame >= phases.tellAgent.start && frame < phases.agentWorking.start && (
+        <AbsoluteFill>
+          <Img
+            src={staticFile("rebyte-input-typed.png")}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+          {/* Step indicator */}
+          <div style={{
+            position: "absolute",
+            top: 20,
+            left: 20,
+            padding: "10px 20px",
+            backgroundColor: "rgba(15, 23, 42, 0.95)",
+            borderRadius: 8,
+          }}>
+            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#10b981" }}>
+              Tell the agent what you want
+            </span>
+          </div>
+          <div style={{
+            position: "absolute",
+            bottom: 60,
+            left: "50%",
+            transform: "translateX(-50%)",
+            padding: "16px 28px",
+            backgroundColor: "rgba(15, 23, 42, 0.95)",
+            borderRadius: 12,
+          }}>
+            <span style={{ fontFamily: "system-ui", fontSize: 16, color: "#e2e8f0" }}>
+              Describe what you need in plain English...
+            </span>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Agent Working Phase */}
+      {frame >= phases.agentWorking.start && frame < phases.formSteps.start && (
+        <AbsoluteFill>
+          <Img
+            src={staticFile("rebyte-input-typed.png")}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+          {/* Agent Working Panel */}
+          <div style={{
+            position: "absolute",
+            bottom: 40,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 500,
+            padding: 24,
+            backgroundColor: "rgba(15, 23, 42, 0.98)",
+            borderRadius: 16,
+            border: "1px solid #334155",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+          }}>
+            <div style={{ fontFamily: "system-ui", fontSize: 16, color: "#10b981", marginBottom: 16, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+              <span>⚙️</span>
+              Agent Working...
+            </div>
+            {agentActions.map((action, i) => {
+              const actionStart = phases.agentWorking.start + i * fps * 1;
+              const isActive = frame >= actionStart;
+              const actionProgress = interpolate(frame, [actionStart, actionStart + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+              return (
+                <div key={i} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  marginBottom: 10,
+                  opacity: isActive ? actionProgress : 0.3,
+                }}>
+                  <span style={{ fontSize: 18 }}>{action.icon}</span>
+                  <span style={{ fontFamily: "system-ui", fontSize: 14, color: isActive ? "#e2e8f0" : "#64748b" }}>
+                    {action.text}
+                  </span>
+                  {isActive && actionProgress >= 1 && (
+                    <span style={{ color: "#10b981", marginLeft: "auto", fontSize: 16 }}>✓</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Form Steps Carousel */}
+      {frame >= phases.formSteps.start && (
+        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+          {/* Success badge */}
           <div style={{
             position: "absolute",
             top: 40,
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            opacity: interpolate(frame, [0, fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-          }}>
-            <span style={{
-              fontFamily: "system-ui",
-              fontSize: 16,
-              color: "#9ca3af",
-              textTransform: "uppercase",
-              letterSpacing: 2,
-            }}>
-              The Old Way
-            </span>
-          </div>
-
-          {/* Google Search Box */}
-          <div style={{
-            position: "absolute",
-            top: 120,
             left: "50%",
             transform: "translateX(-50%)",
-            width: 600,
-            opacity: interpolate(frame, [phases.googleSearch.start - fps * 0.3, phases.googleSearch.start], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "12px 24px",
+            backgroundColor: "#10b981",
+            borderRadius: 50,
+            boxShadow: "0 8px 30px rgba(16, 185, 129, 0.5)",
           }}>
-            {/* Google Logo */}
-            <div style={{ textAlign: "center", marginBottom: 24 }}>
-              <span style={{ fontFamily: "system-ui", fontSize: 48, fontWeight: 400 }}>
-                <span style={{ color: "#4285F4" }}>G</span>
-                <span style={{ color: "#EA4335" }}>o</span>
-                <span style={{ color: "#FBBC05" }}>o</span>
-                <span style={{ color: "#4285F4" }}>g</span>
-                <span style={{ color: "#34A853" }}>l</span>
-                <span style={{ color: "#EA4335" }}>e</span>
-              </span>
-            </div>
-            {/* Search Bar */}
-            <div style={{
-              backgroundColor: "white",
-              borderRadius: 24,
-              padding: "14px 24px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              border: "1px solid #dfe1e5",
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-            }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="#9aa0a6">
-                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-              </svg>
-              <span style={{ fontFamily: "system-ui", fontSize: 16, color: "#202124" }}>
-                {"best survey builder tool".slice(0, Math.floor(interpolate(frame, [phases.googleSearch.start, phases.googleSearch.end - fps * 0.5], [0, 25], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })))}
-                <span style={{ opacity: Math.sin(frame / 4) > 0 ? 1 : 0, color: "#202124" }}>|</span>
-              </span>
-            </div>
+            <span style={{ fontSize: 20 }}>✅</span>
+            <span style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 700, color: "white" }}>Form is Live!</span>
           </div>
 
-          {/* SaaS Products Grid */}
+          {/* Form steps carousel */}
           <div style={{
-            position: "absolute",
-            top: 280,
-            left: 0,
-            right: 0,
             display: "flex",
-            justifyContent: "center",
-            gap: 24,
-            opacity: interpolate(frame, [phases.saasProducts.start, phases.saasProducts.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            gap: 20,
+            padding: "0 40px",
+            marginTop: 60,
           }}>
-            {saasProducts.map((product, i) => {
-              const productDelay = phases.saasProducts.start + i * fps * 0.3;
-              const productEntrance = spring({ frame: frame - productDelay, fps, config: { damping: 12 } });
+            {formSteps.map((step, i) => {
+              const stepEntrance = spring({ frame: frame - phases.formSteps.start - i * fps * 0.2, fps, config: { damping: 12 } });
               return (
-                <div key={product.name} style={{
-                  backgroundColor: "white",
-                  borderRadius: 16,
-                  padding: 24,
-                  width: 200,
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                  border: "1px solid #e5e7eb",
-                  opacity: interpolate(productEntrance, [0, 1], [0, 1]),
-                  transform: `translateY(${interpolate(productEntrance, [0, 1], [20, 0])}px)`,
+                <div key={step} style={{
+                  width: 220,
+                  height: 320,
+                  borderRadius: 12,
+                  overflow: "hidden",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+                  border: "2px solid #e5e7eb",
+                  opacity: interpolate(stepEntrance, [0, 1], [0, 1]),
+                  transform: `translateY(${interpolate(stepEntrance, [0, 1], [30, 0])}px)`,
                 }}>
-                  <div style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 12,
-                    backgroundColor: product.color,
-                    marginBottom: 16,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}>
-                    <span style={{ color: "white", fontWeight: 700, fontSize: 18 }}>{product.name[0]}</span>
-                  </div>
-                  <div style={{ fontFamily: "system-ui", fontSize: 16, fontWeight: 600, color: "#1f2937", marginBottom: 8 }}>
-                    {product.name}
-                  </div>
-                  <div style={{
-                    fontFamily: "system-ui",
-                    fontSize: 20,
-                    fontWeight: 700,
-                    color: "#ef4444",
-                  }}>
-                    {product.price}
-                  </div>
+                  <Img src={staticFile(step)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
               );
             })}
           </div>
 
-          {/* Pain point text */}
+          {/* Caption */}
           <div style={{
             position: "absolute",
-            bottom: 80,
+            bottom: 50,
             left: 0,
             right: 0,
             textAlign: "center",
-            opacity: interpolate(frame, [phases.saasProducts.start + fps * 1, phases.saasProducts.end], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
-            <p style={{
-              fontFamily: "system-ui",
-              fontSize: 20,
-              color: "#6b7280",
-            }}>
-              Sign up, learn the tool, pay monthly fees...
+            <p style={{ fontFamily: "system-ui", fontSize: 18, color: "#6b7280" }}>
+              Professional multi-step form—deployed live in seconds
             </p>
           </div>
         </AbsoluteFill>
       )}
+    </AbsoluteFill>
+  );
+};
 
-      {/* ===== PART 2: TRANSITION (8-10s) ===== */}
-      {frame >= phases.transition.start && frame < phases.rebytePrompt.start && (
-        <AbsoluteFill style={{
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#f8fafc",
-        }}>
+// ============ SCENE 7: SPREADSHEET BUILDER (65-80s) ============
+// Script: "Tired of spreadsheets? Let the code agent help you. Equip a spreadsheet builder
+// skill with the code agent, let it build world-class collaborative spreadsheets for you.
+// You and the agent can collaborate on the spreadsheet together to make work done much faster than ever before."
+const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  // Phase timings within the 15-second scene
+  const phases = {
+    intro: { start: 0, end: fps * 3 },                    // 0-3s: "Tired of spreadsheets?"
+    taskView: { start: fps * 3, end: fps * 7 },           // 3-7s: Equip spreadsheet-builder skill
+    building: { start: fps * 7, end: fps * 10 },          // 7-10s: Building spreadsheet
+    result: { start: fps * 10, end: fps * 15 },           // 10-15s: Collaborate together
+  };
+
+  const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#f8fafc", opacity: exitOpacity }}>
+      {/* Intro: "Tired of spreadsheets?" */}
+      {frame < phases.taskView.start && (
+        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
           <div style={{
-            opacity: interpolate(frame, [phases.transition.start, phases.transition.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-            transform: `scale(${interpolate(frame, [phases.transition.start, phases.transition.start + fps * 0.5], [0.8, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+            opacity: interpolate(frame, [0, fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            transform: `scale(${interpolate(frame, [0, fps * 0.5], [0.9, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
           }}>
             <h1 style={{
               fontFamily: "system-ui",
@@ -964,1026 +1469,545 @@ const SurveyCaseScene = ({ frame, fps, sceneDuration }: { frame: number; fps: nu
               fontWeight: 700,
               color: "#1f2937",
               textAlign: "center",
+              margin: 0,
             }}>
-              There's a <span style={{ color: "#10b981" }}>better</span> way
+              Tired of building <span style={{ color: "#10b981" }}>spreadsheets</span>?
+            </h1>
+            <p style={{
+              fontFamily: "system-ui",
+              fontSize: 24,
+              color: "#6b7280",
+              textAlign: "center",
+              marginTop: 20,
+              opacity: interpolate(frame, [fps * 1.5, fps * 2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}>
+              Let the code agent help you build collaborative spreadsheets
+            </p>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Task View with spreadsheet-builder skill */}
+      {frame >= phases.taskView.start && frame < phases.building.start && (
+        <AbsoluteFill>
+          <Img
+            src={staticFile("rebyte-spreadsheet-task.png")}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+          {/* Skill badge */}
+          <div style={{
+            position: "absolute",
+            top: 20,
+            left: 20,
+            padding: "10px 20px",
+            backgroundColor: "rgba(15, 23, 42, 0.95)",
+            borderRadius: 8,
+            opacity: interpolate(frame, [phases.taskView.start + fps * 0.5, phases.taskView.start + fps * 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#10b981" }}>
+              Using spreadsheet-builder Skill
+            </span>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Building phase */}
+      {frame >= phases.building.start && frame < phases.result.start && (
+        <AbsoluteFill>
+          <Img
+            src={staticFile("rebyte-spreadsheet-task.png")}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+          {/* Building indicator */}
+          <div style={{
+            position: "absolute",
+            bottom: 40,
+            left: "50%",
+            transform: "translateX(-50%)",
+            padding: "16px 32px",
+            backgroundColor: "rgba(15, 23, 42, 0.98)",
+            borderRadius: 12,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}>
+            <div style={{
+              width: 20,
+              height: 20,
+              borderRadius: "50%",
+              border: "3px solid #10b981",
+              borderTopColor: "transparent",
+              animation: "spin 1s linear infinite",
+            }} />
+            <span style={{ fontFamily: "system-ui", fontSize: 16, color: "#e2e8f0" }}>
+              Building your spreadsheet...
+            </span>
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Result: Show live spreadsheet with collaboration */}
+      {frame >= phases.result.start && (
+        <AbsoluteFill style={{ padding: 40 }}>
+          <div style={{
+            display: "flex",
+            gap: 30,
+            height: "100%",
+          }}>
+            {/* Main spreadsheet view */}
+            <div style={{
+              flex: 2,
+              borderRadius: 16,
+              overflow: "hidden",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+              border: "2px solid #10b981",
+              opacity: interpolate(frame, [phases.result.start, phases.result.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+              transform: `translateY(${interpolate(frame, [phases.result.start, phases.result.start + fps * 0.5], [20, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
+            }}>
+              <Img
+                src={staticFile("spreadsheet-full-view.png")}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </div>
+
+            {/* Side panel with collaboration indicator */}
+            <div style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: 20,
+              opacity: interpolate(frame, [phases.result.start + fps * 0.5, phases.result.start + fps * 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}>
+              {/* Success badge */}
+              <div style={{
+                padding: "16px 24px",
+                backgroundColor: "#ecfdf5",
+                borderRadius: 12,
+                border: "1px solid #a7f3d0",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}>
+                <span style={{ fontSize: 24 }}>✅</span>
+                <span style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 600, color: "#059669" }}>
+                  Spreadsheet Live!
+                </span>
+              </div>
+
+              {/* Collaboration view */}
+              <div style={{
+                flex: 1,
+                borderRadius: 12,
+                overflow: "hidden",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+              }}>
+                <Img
+                  src={staticFile("spreadsheet-collab-view.png")}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
+
+              {/* Collaboration indicator */}
+              <div style={{
+                padding: "12px 20px",
+                backgroundColor: "#f0f9ff",
+                borderRadius: 8,
+                border: "1px solid #bae6fd",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}>
+                <div style={{ display: "flex" }}>
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"][i - 1],
+                      border: "2px solid white",
+                      marginLeft: i > 1 ? -10 : 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 12,
+                      color: "white",
+                      fontWeight: 600,
+                    }}>
+                      {["JD", "AS", "MK", "+4"][i - 1]}
+                    </div>
+                  ))}
+                </div>
+                <span style={{ fontFamily: "system-ui", fontSize: 14, color: "#0369a1" }}>
+                  Shared with team
+                </span>
+              </div>
+            </div>
+          </div>
+        </AbsoluteFill>
+      )}
+    </AbsoluteFill>
+  );
+};
+
+// ============ SCENE 8: CODING CAPABILITIES (80-100s) ============
+// Script: "Also, let's get back to coding itself. We run all those code agents on cloud,
+// each task runs in a pure isolated environment. You can ask it to fix bugs, implement
+// new features, or resolve GitHub issues. You can also assign a single coding task to
+// different agents and pick whichever you think is best."
+const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  // Phase timings within the 20-second scene
+  const phases = {
+    intro: { start: 0, end: fps * 4 },                    // 0-4s: "Let's get back to coding"
+    isolation: { start: fps * 4, end: fps * 8 },          // 4-8s: Pure isolated environment
+    capabilities: { start: fps * 8, end: fps * 14 },      // 8-14s: Fix bugs, features, GitHub issues
+    multiAgent: { start: fps * 14, end: fps * 20 },       // 14-20s: Assign to different agents
+  };
+
+  const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  const capabilities = [
+    { icon: "🐛", title: "Fix Bugs", desc: "Point at any issue, agent fixes it" },
+    { icon: "⚡", title: "Implement Features", desc: "Describe what you want, agent builds it" },
+    { icon: "📋", title: "GitHub Issues", desc: "Import issues, agent works on them" },
+    { icon: "🚀", title: "Deploy to Production", desc: "Test, build, and deploy automatically" },
+  ];
+
+  const agents = [
+    { Logo: ClaudeLogo, name: "Claude Code", color: "#D97706" },
+    { Logo: GeminiLogo, name: "Gemini CLI", color: "#3186FF" },
+    { Logo: OpenAILogo, name: "OpenAI Codex", color: "#10A37F" },
+  ];
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#0f172a", opacity: exitOpacity }}>
+      {/* Intro: "Let's get back to coding" */}
+      {frame < phases.isolation.start && (
+        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+          <div style={{
+            opacity: interpolate(frame, [0, fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            transform: `scale(${interpolate(frame, [0, fps * 0.5], [0.9, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+          }}>
+            <h1 style={{
+              fontFamily: "system-ui",
+              fontSize: 52,
+              fontWeight: 700,
+              color: "#f8fafc",
+              textAlign: "center",
+              margin: 0,
+            }}>
+              Also, let's get back to<br />
+              <span style={{ color: "#3b82f6" }}>coding itself</span>
             </h1>
           </div>
         </AbsoluteFill>
       )}
 
-      {/* ===== PART 3: THE NEW WAY - REBYTE (10-22s) ===== */}
-      {frame >= phases.skillSelection.start && (
-        <AbsoluteFill style={{ backgroundColor: "#f8fafc" }}>
-          {/* Sub-phases within the Rebyte section */}
-          {(() => {
-            const skillStart = phases.skillSelection.start;
-            // Phase 1: Show skills dialog (0-2s) - "First, select a skill"
-            const showSkillsDialog = frame >= skillStart && frame < skillStart + fps * 2;
-            // Phase 2: Show skill selected with explanation (2-4s)
-            const showSkillSelected = frame >= skillStart + fps * 2 && frame < phases.rebytePrompt.start;
-            // Phase 3: Show typing the prompt (rebytePrompt phase)
-            const showTyping = frame >= phases.rebytePrompt.start && frame < phases.agentWorking.start;
-            // Phase 4: Agent working
-            const showAgentWorking = frame >= phases.agentWorking.start && frame < phases.result.start;
-            // Phase 5: Result
-            const showResult = frame >= phases.result.start;
-
-            return (
-              <>
-                {/* Screenshot container */}
-                <div style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  opacity: interpolate(frame, [skillStart, skillStart + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-                }}>
-                  {/* Phase 1: Skills dialog - selecting a skill */}
-                  {showSkillsDialog && (
-                    <Img
-                      src={staticFile("rebyte-skill-selected.png")}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
-                    />
-                  )}
-
-                  {/* Phase 2: Skill attached to input */}
-                  {showSkillSelected && (
-                    <Img
-                      src={staticFile("rebyte-input-with-skill.png")}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
-                    />
-                  )}
-
-                  {/* Phase 3+: Input with typed prompt */}
-                  {(showTyping || showAgentWorking || showResult) && (
-                    <Img
-                      src={staticFile("rebyte-input-typed.png")}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
-                    />
-                  )}
+      {/* Isolation: Pure isolated environment */}
+      {frame >= phases.isolation.start && frame < phases.capabilities.start && (
+        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+          <div style={{
+            opacity: interpolate(frame, [phases.isolation.start, phases.isolation.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 20,
+              padding: "28px 44px",
+              backgroundColor: "#1e293b",
+              borderRadius: 16,
+              border: "2px solid #3b82f6",
+            }}>
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="#3b82f6">
+                <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+              </svg>
+              <div>
+                <div style={{ fontFamily: "system-ui", fontSize: 26, fontWeight: 700, color: "#f8fafc" }}>
+                  We run all code agents on <span style={{ color: "#3b82f6" }}>cloud</span>
                 </div>
-
-                {/* Step indicator - top left */}
-                <div style={{
-                  position: "absolute",
-                  top: 20,
-                  left: 20,
-                  padding: "10px 20px",
-                  backgroundColor: "rgba(15, 23, 42, 0.95)",
-                  borderRadius: 8,
-                  opacity: interpolate(frame, [skillStart + fps * 0.3, skillStart + fps * 0.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-                }}>
-                  <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#10b981" }}>
-                    {showSkillsDialog ? "Step 1: Select a Skill" :
-                     showSkillSelected ? "Step 2: Skill Attached" :
-                     showTyping ? "Step 3: Describe Your Task" :
-                     showAgentWorking ? "Agent Applying Skill..." :
-                     "Done!"}
-                  </span>
+                <div style={{ fontFamily: "system-ui", fontSize: 18, color: "#94a3b8", marginTop: 8 }}>
+                  Each task runs in a <span style={{ color: "#10b981", fontWeight: 600 }}>pure isolated environment</span>
                 </div>
+              </div>
+            </div>
+          </div>
+        </AbsoluteFill>
+      )}
 
-                {/* "With Rebyte" label - top right */}
-                <div style={{
-                  position: "absolute",
-                  top: 20,
-                  right: 20,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "8px 16px",
-                  backgroundColor: "#10b981",
-                  borderRadius: 8,
-                  opacity: interpolate(frame, [skillStart + fps * 0.3, skillStart + fps * 0.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.4)",
+      {/* Capabilities Grid: Fix bugs, features, GitHub issues */}
+      {frame >= phases.capabilities.start && frame < phases.multiAgent.start && (
+        <AbsoluteFill style={{ padding: 60 }}>
+          <h2 style={{
+            fontFamily: "system-ui",
+            fontSize: 36,
+            fontWeight: 700,
+            color: "#f8fafc",
+            marginBottom: 40,
+            opacity: interpolate(frame, [phases.capabilities.start, phases.capabilities.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            What code agents can do
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24 }}>
+            {capabilities.map((cap, i) => {
+              const capEntrance = spring({ frame: frame - phases.capabilities.start - i * fps * 0.4, fps, config: { damping: 12 } });
+              return (
+                <div key={cap.title} style={{
+                  backgroundColor: "#1e293b",
+                  borderRadius: 16,
+                  padding: 28,
+                  border: "1px solid #334155",
+                  opacity: interpolate(capEntrance, [0, 1], [0, 1]),
+                  transform: `translateY(${interpolate(capEntrance, [0, 1], [20, 0])}px)`,
                 }}>
-                  <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "white" }}>With Rebyte</span>
-                </div>
-
-                {/* KEY MESSAGE: Why skills matter - shown during skill dialog phase */}
-                {showSkillsDialog && (
-                  <div style={{
-                    position: "absolute",
-                    bottom: 60,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    padding: "20px 32px",
-                    backgroundColor: "rgba(15, 23, 42, 0.98)",
-                    borderRadius: 16,
-                    border: "2px solid #10b981",
-                    maxWidth: 600,
-                    textAlign: "center",
-                    opacity: interpolate(frame, [skillStart + fps * 0.8, skillStart + fps * 1.2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-                    boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
-                  }}>
-                    <div style={{ fontFamily: "system-ui", fontSize: 20, fontWeight: 700, color: "#10b981", marginBottom: 10 }}>
-                      Skills are the Secret
-                    </div>
-                    <div style={{ fontFamily: "system-ui", fontSize: 15, color: "#e2e8f0", lineHeight: 1.5 }}>
-                      A code agent alone can't reliably build forms.<br/>
-                      <span style={{ color: "#10b981", fontWeight: 600 }}>form-builder</span> skill teaches it exactly how.
-                    </div>
-                  </div>
-                )}
-
-                {/* Skill explanation - shown when skill is attached */}
-                {showSkillSelected && (
-                  <div style={{
-                    position: "absolute",
-                    bottom: 60,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    padding: "16px 28px",
-                    backgroundColor: "rgba(15, 23, 42, 0.98)",
-                    borderRadius: 12,
-                    border: "1px solid #10b981",
-                    maxWidth: 500,
-                    textAlign: "center",
-                    opacity: interpolate(frame, [skillStart + fps * 2.3, skillStart + fps * 2.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-                  }}>
-                    <div style={{ fontFamily: "system-ui", fontSize: 14, color: "#e2e8f0", lineHeight: 1.4 }}>
-                      Now the agent has <span style={{ color: "#10b981", fontWeight: 600 }}>specialized knowledge</span> for building professional, multi-step surveys
-                    </div>
-                  </div>
-                )}
-
-                {/* Typing phase indicator */}
-                {showTyping && (
-                  <div style={{
-                    position: "absolute",
-                    bottom: 60,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    padding: "12px 24px",
-                    backgroundColor: "rgba(15, 23, 42, 0.95)",
-                    borderRadius: 8,
-                    opacity: interpolate(frame, [phases.rebytePrompt.start, phases.rebytePrompt.start + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-                  }}>
-                    <span style={{ fontFamily: "system-ui", fontSize: 14, color: "#e2e8f0" }}>
-                      Just describe what you want...
-                    </span>
-                  </div>
-                )}
-
-                {/* Agent Working Panel */}
-                {showAgentWorking && (
-                  <div style={{
-                    position: "absolute",
-                    bottom: 40,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    width: 500,
-                    padding: 24,
-                    backgroundColor: "rgba(15, 23, 42, 0.98)",
-                    borderRadius: 16,
-                    border: "1px solid #334155",
-                    boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
-                    opacity: interpolate(frame, [phases.agentWorking.start, phases.agentWorking.start + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-                  }}>
-                    <div style={{ fontFamily: "system-ui", fontSize: 16, color: "#10b981", marginBottom: 16, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ display: "inline-block", animation: "spin 1s linear infinite" }}>⚙️</span>
-                      Agent Working...
-                    </div>
-                    {agentActions.map((action, i) => {
-                      const actionStart = phases.agentWorking.start + i * fps * 0.5;
-                      const isActive = frame >= actionStart;
-                      const actionProgress = interpolate(frame, [actionStart, actionStart + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-                      return (
-                        <div key={i} style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 12,
-                          marginBottom: 10,
-                          opacity: isActive ? actionProgress : 0.3,
-                          transform: `translateX(${isActive ? 0 : -10}px)`,
-                        }}>
-                          <span style={{ fontSize: 18 }}>{action.icon}</span>
-                          <span style={{ fontFamily: "system-ui", fontSize: 14, color: isActive ? "#e2e8f0" : "#64748b" }}>
-                            {action.text}
-                          </span>
-                          {isActive && actionProgress >= 1 && (
-                            <span style={{ color: "#10b981", marginLeft: "auto", fontSize: 16 }}>✓</span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Result - Success state */}
-                {showResult && (
-                  <>
-                    {/* Success badge */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                     <div style={{
-                      position: "absolute",
-                      top: 80,
-                      left: "50%",
-                      transform: `translateX(-50%) scale(${interpolate(frame, [phases.result.start, phases.result.start + fps * 0.3], [0.5, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+                      width: 56,
+                      height: 56,
+                      borderRadius: 12,
+                      backgroundColor: "#3b82f620",
                       display: "flex",
                       alignItems: "center",
-                      gap: 12,
-                      padding: "16px 32px",
-                      backgroundColor: "#10b981",
-                      borderRadius: 50,
-                      opacity: interpolate(frame, [phases.result.start, phases.result.start + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-                      boxShadow: "0 8px 30px rgba(16, 185, 129, 0.5)",
+                      justifyContent: "center",
+                      fontSize: 28,
                     }}>
-                      <span style={{ fontSize: 24 }}>✅</span>
-                      <span style={{ fontFamily: "system-ui", fontSize: 20, fontWeight: 700, color: "white" }}>Form is Live!</span>
+                      {cap.icon}
+                    </div>
+                    <div>
+                      <div style={{ fontFamily: "system-ui", fontSize: 20, fontWeight: 600, color: "#f8fafc" }}>{cap.title}</div>
+                      <div style={{ fontFamily: "system-ui", fontSize: 14, color: "#94a3b8", marginTop: 4 }}>{cap.desc}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* Multi-Agent: Assign to different agents, pick the best */}
+      {frame >= phases.multiAgent.start && (
+        <AbsoluteFill style={{ padding: 60 }}>
+          <div style={{
+            textAlign: "center",
+            marginBottom: 40,
+            opacity: interpolate(frame, [phases.multiAgent.start, phases.multiAgent.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            <h2 style={{
+              fontFamily: "system-ui",
+              fontSize: 40,
+              fontWeight: 700,
+              color: "#f8fafc",
+              margin: 0,
+            }}>
+              Assign tasks to <span style={{ color: "#10b981" }}>different agents</span>
+            </h2>
+            <p style={{
+              fontFamily: "system-ui",
+              fontSize: 20,
+              color: "#94a3b8",
+              marginTop: 12,
+            }}>
+              Compare results and pick the best solution
+            </p>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "center", gap: 40, marginTop: 40 }}>
+            {agents.map(({ Logo, name, color }, i) => {
+              const agentEntrance = spring({ frame: frame - phases.multiAgent.start - i * fps * 0.3, fps, config: { damping: 12 } });
+              return (
+                <div key={name} style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 20,
+                  opacity: interpolate(agentEntrance, [0, 1], [0, 1]),
+                  transform: `scale(${interpolate(agentEntrance, [0, 1], [0.8, 1])})`,
+                }}>
+                  {/* VM Container */}
+                  <div style={{
+                    width: 200,
+                    height: 240,
+                    backgroundColor: "#1e293b",
+                    borderRadius: 16,
+                    border: `3px solid ${color}`,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    padding: 20,
+                    boxShadow: `0 20px 40px ${color}30`,
+                  }}>
+                    {/* Top bar */}
+                    <div style={{ width: "100%", height: 8, backgroundColor: color, borderRadius: 4, marginBottom: 20 }} />
+
+                    {/* Agent logo */}
+                    <div style={{
+                      width: 70,
+                      height: 70,
+                      borderRadius: 12,
+                      backgroundColor: `${color}20`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: 16,
+                    }}>
+                      <Logo size={40} />
                     </div>
 
-                    {/* Show the live form preview */}
-                    <div style={{
-                      position: "absolute",
-                      top: 180,
-                      left: "50%",
-                      transform: `translateX(-50%)`,
-                      width: 700,
-                      height: 450,
-                      borderRadius: 16,
-                      overflow: "hidden",
-                      boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
-                      border: "3px solid #10b981",
-                      opacity: interpolate(frame, [phases.result.start + fps * 0.3, phases.result.start + fps * 0.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-                      transform: `translateX(-50%) translateY(${interpolate(frame, [phases.result.start + fps * 0.3, phases.result.start + fps * 0.6], [20, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
-                    }}>
-                      <Img
-                        src={staticFile("survey-step0-intro.png")}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                    </div>
+                    {/* Agent name */}
+                    <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#f8fafc" }}>{name}</span>
 
-                    {/* "Deployed in seconds" text */}
-                    <div style={{
-                      position: "absolute",
-                      bottom: 40,
-                      left: 0,
-                      right: 0,
-                      textAlign: "center",
-                      opacity: interpolate(frame, [phases.result.start + fps * 0.8, phases.result.start + fps * 1.1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+                    {/* VM label */}
+                    <span style={{
+                      marginTop: 12,
+                      fontFamily: "monospace",
+                      fontSize: 11,
+                      color: "#64748b",
+                      backgroundColor: "#0f172a",
+                      padding: "4px 10px",
+                      borderRadius: 4,
                     }}>
-                      <p style={{ fontFamily: "system-ui", fontSize: 18, color: "#6b7280" }}>
-                        Deployed live in seconds—no coding required
-                      </p>
-                    </div>
-                  </>
-                )}
-              </>
-            );
-          })()}
+                      isolated-vm-{i + 1}
+                    </span>
+                  </div>
+
+                  {/* Task indicator */}
+                  <div style={{
+                    padding: "8px 16px",
+                    backgroundColor: `${color}20`,
+                    borderRadius: 8,
+                    border: `1px solid ${color}50`,
+                  }}>
+                    <span style={{ fontFamily: "system-ui", fontSize: 13, color: color }}>
+                      Working on task...
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </AbsoluteFill>
+      )}
+
+    </AbsoluteFill>
+  );
+};
+
+// ============ SCENE 9: OUTRO (100-112s) ============
+// Script: "See what's possible. Real results from real users. Rebyte. Vibe working with skilled code agents."
+const OutroScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  // Phase timings within the 12-second scene
+  const phases = {
+    examples: { start: 0, end: fps * 6 },                 // 0-6s: "See what's possible" + example carousel
+    cta: { start: fps * 6, end: fps * 12 },               // 6-12s: Rebyte CTA
+  };
+
+  const examples = [
+    { src: "example-insurance-form.png", title: "Insurance Form Builder" },
+    { src: "example-crypto-analysis.png", title: "Crypto Analysis" },
+    { src: "spreadsheet-dashboard.png", title: "Data Dashboard" },
+  ];
+
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#f8fafc" }}>
+      {/* Examples carousel */}
+      {frame < phases.cta.start && (
+        <AbsoluteFill style={{ padding: 60 }}>
+          <div style={{
+            textAlign: "center",
+            marginBottom: 40,
+            opacity: interpolate(frame, [0, fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            <h1 style={{
+              fontFamily: "system-ui",
+              fontSize: 48,
+              fontWeight: 700,
+              color: "#1f2937",
+              margin: 0,
+            }}>
+              See what's <span style={{ color: "#10b981" }}>possible</span>
+            </h1>
+            <p style={{
+              fontFamily: "system-ui",
+              fontSize: 20,
+              color: "#6b7280",
+              marginTop: 12,
+            }}>
+              Real results from real users
+            </p>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "center", gap: 30 }}>
+            {examples.map((ex, i) => {
+              const exEntrance = spring({ frame: frame - fps * (0.5 + i * 0.3), fps, config: { damping: 12 } });
+              return (
+                <div key={ex.src} style={{
+                  width: 350,
+                  opacity: interpolate(exEntrance, [0, 1], [0, 1]),
+                  transform: `translateY(${interpolate(exEntrance, [0, 1], [30, 0])}px)`,
+                }}>
+                  <div style={{
+                    borderRadius: 16,
+                    overflow: "hidden",
+                    boxShadow: "0 15px 40px rgba(0,0,0,0.12)",
+                    border: "1px solid #e5e7eb",
+                  }}>
+                    <Img src={staticFile(ex.src)} style={{ width: "100%", height: 240, objectFit: "cover" }} />
+                  </div>
+                  <p style={{
+                    fontFamily: "system-ui",
+                    fontSize: 14,
+                    color: "#6b7280",
+                    textAlign: "center",
+                    marginTop: 12,
+                  }}>
+                    {ex.title}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* CTA */}
+      {frame >= phases.cta.start && (
+        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 24,
+            opacity: interpolate(frame, [phases.cta.start, phases.cta.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            transform: `scale(${interpolate(frame, [phases.cta.start, phases.cta.start + fps * 0.5], [0.9, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
+          }}>
+            <div style={{ transform: `scale(${spring({ frame: frame - phases.cta.start, fps, config: { damping: 12 } })})` }}>
+              <RebyteLogo size={100} color="#1f2937" innerColor="#f8fafc" />
+            </div>
+            <h1 style={{
+              fontFamily: "system-ui",
+              fontSize: 56,
+              fontWeight: 700,
+              color: "#1f2937",
+              margin: 0,
+            }}>
+              rebyte.ai
+            </h1>
+            <p style={{
+              fontFamily: "system-ui",
+              fontSize: 24,
+              color: "#6b7280",
+              margin: 0,
+              opacity: interpolate(frame, [phases.cta.start + fps * 1, phases.cta.start + fps * 1.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}>
+              Vibe working with skilled code agents
+            </p>
+          </div>
         </AbsoluteFill>
       )}
     </AbsoluteFill>
   );
 };
 
-// ============ SCENE 4 (OLD): REPETITIVE TASKS (Full-Screen Cards) ============
-const RepetitiveTasksScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
-  const taskDuration = fps * 3.5; // 3.5 seconds per task
-
-  const tasks = [
-    {
-      title: "Deep Research",
-      icon: "🔍",
-      color: "#3b82f6",
-      prompt: "Analyze AAPL investment potential - gather SEC filings from the last 7 years, earnings transcripts, and analyst reports. Extract key revenue trends and growth metrics.",
-      result: {
-        type: "report",
-        title: "AAPL Investment Analysis",
-        items: [
-          { label: "Revenue Growth (7yr)", value: "+142%", trend: "up" },
-          { label: "Services Revenue", value: "$85.2B", trend: "up" },
-          { label: "Gross Margin", value: "44.3%", trend: "up" },
-          { label: "R&D Investment", value: "$29.9B", trend: "up" },
-        ],
-      },
-    },
-    {
-      title: "Build Spreadsheet",
-      icon: "📊",
-      color: "#10b981",
-      prompt: "Create a monthly expense tracker with categories for rent, utilities, groceries, transportation, and entertainment. Add auto-sum formulas and a pie chart for visualization.",
-      result: {
-        type: "spreadsheet",
-        columns: ["Category", "Jan", "Feb", "Mar", "Total"],
-        rows: [
-          ["Rent", "$2,000", "$2,000", "$2,000", "$6,000"],
-          ["Utilities", "$150", "$180", "$140", "$470"],
-          ["Groceries", "$400", "$380", "$420", "$1,200"],
-          ["Transport", "$200", "$220", "$190", "$610"],
-        ],
-      },
-    },
-    {
-      title: "Marketing Survey",
-      icon: "📈",
-      color: "#f59e0b",
-      prompt: "Research competitor pricing for SaaS products in the CRM space. Compare Salesforce, HubSpot, Pipedrive, and Zoho. Include feature comparison and target market analysis.",
-      result: {
-        type: "comparison",
-        items: [
-          { name: "Salesforce", price: "$25-300/user", rating: 4.5 },
-          { name: "HubSpot", price: "$0-120/user", rating: 4.4 },
-          { name: "Pipedrive", price: "$15-99/user", rating: 4.3 },
-          { name: "Zoho CRM", price: "$14-52/user", rating: 4.2 },
-        ],
-      },
-    },
-    {
-      title: "Data Analysis",
-      icon: "📉",
-      color: "#8b5cf6",
-      prompt: "Analyze this cryptocurrency dataset - calculate daily returns, show correlations between BTC, ETH, and SOL. Generate a heatmap and summary statistics.",
-      result: {
-        type: "chart",
-        title: "Crypto Correlation Matrix",
-        correlations: [
-          { pair: "BTC-ETH", value: 0.87 },
-          { pair: "BTC-SOL", value: 0.72 },
-          { pair: "ETH-SOL", value: 0.81 },
-        ],
-      },
-    },
-  ];
-
-  // Determine which task is currently showing
-  const currentTaskIndex = Math.min(Math.floor(frame / taskDuration), tasks.length - 1);
-  const taskFrame = frame - currentTaskIndex * taskDuration;
-
-  return (
-    <AbsoluteFill style={{ backgroundColor: "#f8fafc" }}>
-      {tasks.map((task, index) => {
-        const taskStart = index * taskDuration;
-        const taskEnd = (index + 1) * taskDuration;
-        const isVisible = frame >= taskStart && frame < taskEnd;
-
-        if (!isVisible) return null;
-
-        const localFrame = frame - taskStart;
-
-        // Animation phases
-        const titleEntrance = spring({ frame: localFrame, fps, config: { damping: 14, stiffness: 100 } });
-        const promptStart = fps * 0.4;
-        const promptTypeProgress = interpolate(localFrame, [promptStart, promptStart + fps * 1.2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-        const resultStart = fps * 1.8;
-        const resultEntrance = spring({ frame: localFrame - resultStart, fps, config: { damping: 12, stiffness: 80 } });
-        const exitOpacity = interpolate(localFrame, [taskDuration - fps * 0.3, taskDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-
-        return (
-          <AbsoluteFill key={task.title} style={{ opacity: exitOpacity }}>
-            {/* Task Header */}
-            <div style={{
-              position: "absolute",
-              top: 50,
-              left: 80,
-              right: 80,
-              display: "flex",
-              alignItems: "center",
-              gap: 20,
-              opacity: interpolate(titleEntrance, [0, 1], [0, 1]),
-              transform: `translateY(${interpolate(titleEntrance, [0, 1], [20, 0])}px)`,
-            }}>
-              <div style={{
-                width: 64,
-                height: 64,
-                borderRadius: 16,
-                backgroundColor: `${task.color}20`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 32,
-              }}>
-                {task.icon}
-              </div>
-              <div>
-                <div style={{
-                  fontFamily: "system-ui",
-                  fontSize: 14,
-                  color: "#6b7280",
-                  marginBottom: 4,
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
-                }}>
-                  Repetitive Task
-                </div>
-                <h1 style={{
-                  fontFamily: "system-ui",
-                  fontSize: 36,
-                  fontWeight: 700,
-                  color: "#1f2937",
-                  margin: 0,
-                }}>
-                  {task.title}
-                </h1>
-              </div>
-              <div style={{
-                marginLeft: "auto",
-                padding: "8px 16px",
-                backgroundColor: task.color,
-                borderRadius: 20,
-                fontFamily: "system-ui",
-                fontSize: 14,
-                fontWeight: 600,
-                color: "white",
-              }}>
-                {index + 1} / {tasks.length}
-              </div>
-            </div>
-
-            {/* Prompt Input Area */}
-            <div style={{
-              position: "absolute",
-              top: 160,
-              left: 80,
-              right: 80,
-              opacity: interpolate(localFrame, [promptStart - fps * 0.2, promptStart], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-            }}>
-              <div style={{
-                backgroundColor: "#ffffff",
-                borderRadius: 16,
-                padding: 24,
-                boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-                border: "1px solid #e5e7eb",
-              }}>
-                <div style={{
-                  fontFamily: "system-ui",
-                  fontSize: 12,
-                  color: "#9ca3af",
-                  marginBottom: 12,
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
-                }}>
-                  Your Prompt
-                </div>
-                <div style={{
-                  fontFamily: "system-ui",
-                  fontSize: 18,
-                  color: "#374151",
-                  lineHeight: 1.6,
-                }}>
-                  {task.prompt.slice(0, Math.floor(promptTypeProgress * task.prompt.length))}
-                  <span style={{
-                    opacity: Math.sin(localFrame / 4) > 0 ? 1 : 0,
-                    color: task.color,
-                  }}>|</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Result Area */}
-            <div style={{
-              position: "absolute",
-              top: 340,
-              left: 80,
-              right: 80,
-              bottom: 60,
-              opacity: interpolate(resultEntrance, [0, 1], [0, 1]),
-              transform: `translateY(${interpolate(resultEntrance, [0, 1], [30, 0])}px)`,
-            }}>
-              <div style={{
-                backgroundColor: "#ffffff",
-                borderRadius: 16,
-                padding: 24,
-                height: "100%",
-                boxShadow: "0 8px 30px rgba(0,0,0,0.1)",
-                border: `2px solid ${task.color}30`,
-              }}>
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 20,
-                }}>
-                  <div style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 4,
-                    backgroundColor: "#10b981",
-                  }} />
-                  <span style={{
-                    fontFamily: "system-ui",
-                    fontSize: 12,
-                    color: "#10b981",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                    letterSpacing: 1,
-                  }}>
-                    Result Generated
-                  </span>
-                </div>
-
-                {/* Render different result types */}
-                {task.result.type === "report" && (
-                  <div>
-                    <h3 style={{ fontFamily: "system-ui", fontSize: 20, fontWeight: 600, color: "#1f2937", marginBottom: 20 }}>
-                      {task.result.title}
-                    </h3>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
-                      {task.result.items.map((item, i) => (
-                        <div key={i} style={{
-                          padding: 16,
-                          backgroundColor: "#f9fafb",
-                          borderRadius: 12,
-                          border: "1px solid #e5e7eb",
-                        }}>
-                          <div style={{ fontFamily: "system-ui", fontSize: 13, color: "#6b7280", marginBottom: 4 }}>{item.label}</div>
-                          <div style={{ fontFamily: "system-ui", fontSize: 24, fontWeight: 700, color: task.color }}>{item.value}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {task.result.type === "spreadsheet" && (
-                  <div style={{ fontFamily: "monospace", fontSize: 14 }}>
-                    <div style={{ display: "grid", gridTemplateColumns: `repeat(${task.result.columns.length}, 1fr)`, gap: 1, backgroundColor: "#e5e7eb", borderRadius: 8, overflow: "hidden" }}>
-                      {task.result.columns.map((col, i) => (
-                        <div key={i} style={{ padding: 12, backgroundColor: task.color, color: "white", fontWeight: 600, textAlign: "center" }}>{col}</div>
-                      ))}
-                      {task.result.rows.flat().map((cell, i) => (
-                        <div key={i} style={{ padding: 12, backgroundColor: "white", textAlign: "center", color: "#374151" }}>{cell}</div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {task.result.type === "comparison" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    {task.result.items.map((item, i) => (
-                      <div key={i} style={{
-                        display: "flex",
-                        alignItems: "center",
-                        padding: 16,
-                        backgroundColor: "#f9fafb",
-                        borderRadius: 12,
-                        border: "1px solid #e5e7eb",
-                      }}>
-                        <div style={{ flex: 1, fontFamily: "system-ui", fontSize: 18, fontWeight: 600, color: "#1f2937" }}>{item.name}</div>
-                        <div style={{ fontFamily: "system-ui", fontSize: 16, color: task.color, fontWeight: 500, marginRight: 24 }}>{item.price}</div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          {"★".repeat(Math.floor(item.rating))}
-                          <span style={{ fontFamily: "system-ui", fontSize: 14, color: "#6b7280", marginLeft: 4 }}>{item.rating}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {task.result.type === "chart" && (
-                  <div>
-                    <h3 style={{ fontFamily: "system-ui", fontSize: 20, fontWeight: 600, color: "#1f2937", marginBottom: 20 }}>
-                      {task.result.title}
-                    </h3>
-                    <div style={{ display: "flex", gap: 24, alignItems: "flex-end", height: 180 }}>
-                      {task.result.correlations.map((corr, i) => (
-                        <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                          <div style={{
-                            width: "100%",
-                            height: corr.value * 160,
-                            background: `linear-gradient(180deg, ${task.color} 0%, ${task.color}60 100%)`,
-                            borderRadius: "8px 8px 0 0",
-                            display: "flex",
-                            alignItems: "flex-start",
-                            justifyContent: "center",
-                            paddingTop: 12,
-                          }}>
-                            <span style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 700, color: "white" }}>{corr.value.toFixed(2)}</span>
-                          </div>
-                          <div style={{ fontFamily: "system-ui", fontSize: 14, color: "#6b7280", marginTop: 8 }}>{corr.pair}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </AbsoluteFill>
-        );
-      })}
-    </AbsoluteFill>
-  );
-};
-
-// ============ SCENE 5: COMPLEX CODING TASKS (Full-Screen Cards) ============
-const ComplexCodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
-  const taskDuration = fps * 3.5; // 3.5 seconds per task
-
-  const tasks = [
-    {
-      title: "Import GitHub Repos",
-      icon: "📦",
-      color: "#1f2937",
-      prompt: "Clone the stripe/stripe-node repository, analyze the codebase structure, and explain how webhook signature verification works.",
-      result: {
-        type: "codeStructure",
-        files: [
-          { name: "src/", type: "folder", children: ["Webhooks.ts", "StripeResource.ts", "Error.ts"] },
-          { name: "lib/", type: "folder", children: ["net/", "utils/", "crypto/"] },
-          { name: "types/", type: "folder", children: ["index.d.ts", "Webhooks.d.ts"] },
-        ],
-        insight: "Webhook verification uses HMAC-SHA256 with timestamp validation",
-      },
-    },
-    {
-      title: "Fix Bugs",
-      icon: "🐛",
-      color: "#ef4444",
-      prompt: "Fix issue #234: Login timeout error occurs after 30 seconds of inactivity. Users are logged out unexpectedly during active sessions.",
-      result: {
-        type: "diff",
-        file: "src/auth/session.ts",
-        changes: [
-          { type: "remove", line: "const SESSION_TIMEOUT = 30 * 1000;" },
-          { type: "add", line: "const SESSION_TIMEOUT = 30 * 60 * 1000;" },
-          { type: "remove", line: "if (Date.now() - lastActivity > TIMEOUT) {" },
-          { type: "add", line: "if (Date.now() - lastActivity > TIMEOUT && !isActiveSession) {" },
-        ],
-      },
-    },
-    {
-      title: "Deploy to Production",
-      icon: "🚀",
-      color: "#3b82f6",
-      prompt: "Deploy this Next.js application to Vercel. Set up environment variables for DATABASE_URL, API_KEY, and NEXT_PUBLIC_APP_URL. Enable preview deployments for PRs.",
-      result: {
-        type: "deploy",
-        status: "success",
-        url: "https://my-app.vercel.app",
-        checks: [
-          { name: "Build", status: "passed", time: "45s" },
-          { name: "Tests", status: "passed", time: "1m 23s" },
-          { name: "Lighthouse", status: "passed", score: "98" },
-          { name: "Deploy", status: "passed", time: "12s" },
-        ],
-      },
-    },
-    {
-      title: "Build Features",
-      icon: "⚡",
-      color: "#8b5cf6",
-      prompt: "Add a dark mode toggle to the settings page. It should persist user preference in localStorage and sync with system theme. Include smooth transitions.",
-      result: {
-        type: "feature",
-        component: "ThemeToggle",
-        preview: {
-          hasToggle: true,
-          modes: ["light", "dark", "system"],
-        },
-        files: ["components/ThemeToggle.tsx", "hooks/useTheme.ts", "styles/theme.css"],
-      },
-    },
-  ];
-
-  return (
-    <AbsoluteFill style={{ backgroundColor: "#0f172a" }}>
-      {tasks.map((task, index) => {
-        const taskStart = index * taskDuration;
-        const taskEnd = (index + 1) * taskDuration;
-        const isVisible = frame >= taskStart && frame < taskEnd;
-
-        if (!isVisible) return null;
-
-        const localFrame = frame - taskStart;
-
-        // Animation phases
-        const titleEntrance = spring({ frame: localFrame, fps, config: { damping: 14, stiffness: 100 } });
-        const promptStart = fps * 0.4;
-        const promptTypeProgress = interpolate(localFrame, [promptStart, promptStart + fps * 1.2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-        const resultStart = fps * 1.8;
-        const resultEntrance = spring({ frame: localFrame - resultStart, fps, config: { damping: 12, stiffness: 80 } });
-        const exitOpacity = interpolate(localFrame, [taskDuration - fps * 0.3, taskDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-
-        return (
-          <AbsoluteFill key={task.title} style={{ opacity: exitOpacity }}>
-            {/* Task Header */}
-            <div style={{
-              position: "absolute",
-              top: 50,
-              left: 80,
-              right: 80,
-              display: "flex",
-              alignItems: "center",
-              gap: 20,
-              opacity: interpolate(titleEntrance, [0, 1], [0, 1]),
-              transform: `translateY(${interpolate(titleEntrance, [0, 1], [20, 0])}px)`,
-            }}>
-              <div style={{
-                width: 64,
-                height: 64,
-                borderRadius: 16,
-                backgroundColor: `${task.color}40`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 32,
-              }}>
-                {task.icon}
-              </div>
-              <div>
-                <div style={{
-                  fontFamily: "system-ui",
-                  fontSize: 14,
-                  color: "#94a3b8",
-                  marginBottom: 4,
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
-                }}>
-                  Complex Coding
-                </div>
-                <h1 style={{
-                  fontFamily: "system-ui",
-                  fontSize: 36,
-                  fontWeight: 700,
-                  color: "#f8fafc",
-                  margin: 0,
-                }}>
-                  {task.title}
-                </h1>
-              </div>
-              <div style={{
-                marginLeft: "auto",
-                padding: "8px 16px",
-                backgroundColor: task.color,
-                borderRadius: 20,
-                fontFamily: "system-ui",
-                fontSize: 14,
-                fontWeight: 600,
-                color: "white",
-              }}>
-                {index + 1} / {tasks.length}
-              </div>
-            </div>
-
-            {/* Terminal-style Prompt */}
-            <div style={{
-              position: "absolute",
-              top: 160,
-              left: 80,
-              right: 80,
-              opacity: interpolate(localFrame, [promptStart - fps * 0.2, promptStart], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-            }}>
-              <div style={{
-                backgroundColor: "#1e293b",
-                borderRadius: 12,
-                overflow: "hidden",
-                border: "1px solid #334155",
-              }}>
-                {/* Terminal header */}
-                <div style={{
-                  padding: "10px 16px",
-                  backgroundColor: "#334155",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                }}>
-                  <div style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: "#ef4444" }} />
-                  <div style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: "#f59e0b" }} />
-                  <div style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: "#22c55e" }} />
-                  <span style={{ marginLeft: 12, fontFamily: "monospace", fontSize: 12, color: "#94a3b8" }}>rebyte-agent</span>
-                </div>
-                {/* Terminal content */}
-                <div style={{ padding: 20 }}>
-                  <div style={{ fontFamily: "monospace", fontSize: 14, color: "#22c55e", marginBottom: 8 }}>
-                    <span style={{ color: "#3b82f6" }}>→</span> Task:
-                  </div>
-                  <div style={{ fontFamily: "system-ui", fontSize: 16, color: "#e2e8f0", lineHeight: 1.6 }}>
-                    {task.prompt.slice(0, Math.floor(promptTypeProgress * task.prompt.length))}
-                    <span style={{ opacity: Math.sin(localFrame / 4) > 0 ? 1 : 0, color: "#22c55e" }}>▊</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Result Area */}
-            <div style={{
-              position: "absolute",
-              top: 340,
-              left: 80,
-              right: 80,
-              bottom: 60,
-              opacity: interpolate(resultEntrance, [0, 1], [0, 1]),
-              transform: `translateY(${interpolate(resultEntrance, [0, 1], [30, 0])}px)`,
-            }}>
-              <div style={{
-                backgroundColor: "#1e293b",
-                borderRadius: 12,
-                padding: 24,
-                height: "100%",
-                border: `2px solid ${task.color}60`,
-              }}>
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 20,
-                }}>
-                  <div style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "#22c55e" }} />
-                  <span style={{ fontFamily: "monospace", fontSize: 12, color: "#22c55e", fontWeight: 600, textTransform: "uppercase", letterSpacing: 1 }}>
-                    Task Complete
-                  </span>
-                </div>
-
-                {/* Code Structure Result */}
-                {task.result.type === "codeStructure" && (
-                  <div style={{ display: "flex", gap: 40 }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: "monospace", fontSize: 13, color: "#94a3b8", marginBottom: 12 }}>Project Structure:</div>
-                      {task.result.files?.map((folder, i) => (
-                        <div key={i} style={{ marginBottom: 12 }}>
-                          <div style={{ fontFamily: "monospace", fontSize: 14, color: "#f59e0b" }}>📁 {folder.name}</div>
-                          <div style={{ paddingLeft: 20 }}>
-                            {folder.children?.map((file, j) => (
-                              <div key={j} style={{ fontFamily: "monospace", fontSize: 13, color: "#e2e8f0" }}>└─ {file}</div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div style={{ flex: 1, padding: 20, backgroundColor: "#0f172a", borderRadius: 8, border: "1px solid #334155" }}>
-                      <div style={{ fontFamily: "monospace", fontSize: 13, color: "#94a3b8", marginBottom: 8 }}>Analysis:</div>
-                      <div style={{ fontFamily: "system-ui", fontSize: 16, color: "#22c55e", lineHeight: 1.6 }}>{task.result.insight}</div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Diff Result */}
-                {task.result.type === "diff" && (
-                  <div>
-                    <div style={{ fontFamily: "monospace", fontSize: 13, color: "#94a3b8", marginBottom: 12 }}>{task.result.file}</div>
-                    <div style={{ backgroundColor: "#0f172a", borderRadius: 8, padding: 16, fontFamily: "monospace", fontSize: 14 }}>
-                      {task.result.changes?.map((change, i) => (
-                        <div key={i} style={{
-                          color: change.type === "add" ? "#22c55e" : "#ef4444",
-                          backgroundColor: change.type === "add" ? "#22c55e15" : "#ef444415",
-                          padding: "4px 8px",
-                          marginBottom: 2,
-                          borderRadius: 4,
-                        }}>
-                          {change.type === "add" ? "+ " : "- "}{change.line}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Deploy Result */}
-                {task.result.type === "deploy" && (
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-                      <div style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: "#22c55e" }} />
-                      <span style={{ fontFamily: "system-ui", fontSize: 18, color: "#22c55e", fontWeight: 600 }}>Deployed Successfully</span>
-                      <span style={{ fontFamily: "monospace", fontSize: 14, color: "#3b82f6", marginLeft: 12 }}>{task.result.url}</span>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
-                      {task.result.checks?.map((check, i) => (
-                        <div key={i} style={{
-                          padding: 16,
-                          backgroundColor: "#0f172a",
-                          borderRadius: 8,
-                          border: "1px solid #334155",
-                          textAlign: "center",
-                        }}>
-                          <div style={{ fontFamily: "system-ui", fontSize: 13, color: "#94a3b8", marginBottom: 4 }}>{check.name}</div>
-                          <div style={{ fontFamily: "monospace", fontSize: 16, color: "#22c55e", fontWeight: 600 }}>
-                            {check.score || check.time}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Feature Result */}
-                {task.result.type === "feature" && (
-                  <div style={{ display: "flex", gap: 40 }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: "monospace", fontSize: 13, color: "#94a3b8", marginBottom: 12 }}>Component: {task.result.component}</div>
-                      <div style={{ fontFamily: "monospace", fontSize: 13, color: "#94a3b8", marginBottom: 8 }}>Files created:</div>
-                      {task.result.files?.map((file, i) => (
-                        <div key={i} style={{ fontFamily: "monospace", fontSize: 14, color: "#e2e8f0", marginBottom: 4 }}>
-                          📄 {file}
-                        </div>
-                      ))}
-                    </div>
-                    <div style={{ flex: 1, padding: 24, backgroundColor: "#0f172a", borderRadius: 12, border: "1px solid #334155", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                      <div style={{ fontFamily: "system-ui", fontSize: 13, color: "#94a3b8", marginBottom: 16 }}>Preview</div>
-                      <div style={{ display: "flex", gap: 8, backgroundColor: "#1e293b", padding: 8, borderRadius: 24 }}>
-                        {task.result.preview?.modes?.map((mode, i) => (
-                          <div key={i} style={{
-                            padding: "8px 16px",
-                            borderRadius: 16,
-                            backgroundColor: mode === "dark" ? "#8b5cf6" : "transparent",
-                            fontFamily: "system-ui",
-                            fontSize: 14,
-                            color: mode === "dark" ? "white" : "#94a3b8",
-                          }}>
-                            {mode}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </AbsoluteFill>
-        );
-      })}
-    </AbsoluteFill>
-  );
-};
-
-// ============ SCENE 6: CLOUD & SKILLS ============
-const CloudSkillsScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
-  const entrance = spring({ frame, fps, config: { damping: 14, stiffness: 80 } });
-  const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-
-  const skills = [
-    { name: "sec-edgar-skill", icon: "📊" },
-    { name: "market-data", icon: "📈" },
-    { name: "form-builder", icon: "📝" },
-    { name: "web-scraper", icon: "🌐" },
-  ];
-
-  return (
-    <AbsoluteFill style={{ backgroundColor: "#f1f5f9", opacity: exitOpacity }}>
-      <div style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        gap: 40,
-        padding: 60,
-        opacity: interpolate(entrance, [0, 1], [0, 1]),
-      }}>
-        {/* Left: Screenshot */}
-        <div style={{
-          flex: 1,
-          borderRadius: 20,
-          overflow: "hidden",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.12)",
-        }}>
-          <Img src={staticFile("rebyte-cloud-native.png")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        </div>
-
-        {/* Right: Skills */}
-        <div style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          gap: 24,
-        }}>
-          <h2 style={{
-            fontFamily: "system-ui",
-            fontSize: 36,
-            fontWeight: 700,
-            color: "#1f2937",
-            margin: 0,
-          }}>
-            Cloud VMs + <span style={{ color: "#10b981" }}>Human-Level Skills</span>
-          </h2>
-          <p style={{
-            fontFamily: "system-ui",
-            fontSize: 18,
-            color: "#6b7280",
-            margin: 0,
-            lineHeight: 1.6,
-          }}>
-            Each task runs in an isolated environment.<br />
-            Skills give agents specialized knowledge.
-          </p>
-
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 16 }}>
-            {skills.map((skill, i) => {
-              const skillEntrance = spring({ frame: frame - fps * (0.5 + i * 0.15), fps, config: { damping: 12 } });
-              return (
-                <div
-                  key={skill.name}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "10px 16px",
-                    backgroundColor: "#d1fae5",
-                    borderRadius: 8,
-                    border: "1px solid #a7f3d0",
-                    opacity: interpolate(skillEntrance, [0, 1], [0, 1]),
-                    transform: `translateY(${interpolate(skillEntrance, [0, 1], [10, 0])}px)`,
-                  }}
-                >
-                  <span>{skill.icon}</span>
-                  <span style={{ fontFamily: "monospace", fontSize: 14, color: "#059669" }}>{skill.name}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </AbsoluteFill>
-  );
-};
-
-// ============ SCENE 8: CTA ============
+// ============ LEGACY: CTAScene (kept for reference, replaced by OutroScene) ============
 const CTAScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
   const logoScale = spring({ frame, fps, config: { damping: 12, stiffness: 100 } });
   const textOpacity = interpolate(frame, [fps * 0.5, fps * 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });

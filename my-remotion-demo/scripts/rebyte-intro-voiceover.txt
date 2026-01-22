@@ -1,10 +1,3 @@
-# Rebyte Intro Voiceover Script
-# Word count: ~280 words
-# Estimated duration: ~112 seconds (at 150 wpm speaking rate)
-# Last updated: 2024-01-21
-
----
-
 Previously, only programmers could code. Everyone else had to use predefined software or, if you really needed customized software, ask a programmer for help.
 
 Everything changed with code agents. Initially, it sounds like it's for programmers, but it's actually for everyone.
@@ -19,8 +12,8 @@ The new way? Just combine a code agent with a skill that knows how to build worl
 
 Tired of spreadsheets? Let the code agent help you. Equip a spreadsheet builder skill with the code agent, let it build world-class collaborative spreadsheets for you. You and the agent can collaborate on the spreadsheet together to make work done much faster than ever before.
 
-Also, let's get back to coding itself. We run all those code agents on cloud, each task runs in a pure isolated environment. You can ask it to fix bugs, implement new features, or resolve GitHub issues. You can also assign a single coding task to different agents and pick whichever you think is best.
+Back to coding. On your local machine, running multiple agents means complex setups—worktrees, separate environments—just to avoid conflicts. The new way? It's all in the cloud. Each task runs in complete isolation. Develop features, run unit tests, start servers—all independently.
 
-See what's possible. Real results from real users.
+These are just the beginning. Unleash your imagination with Rebyte, and unleash the full potential of code agents.
 
 Rebyte. Vibe working with skilled code agents.
