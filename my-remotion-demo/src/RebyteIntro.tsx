@@ -273,10 +273,10 @@ export const RebyteIntro = () => {
     surveyIntro:  { start: 932,  duration: 200 },   // 6.7s - "Let me show you..."
     oldWay:       { start: 1132, duration: 219 },   // 7.3s - "The old way?..."
     newWay:       { start: 1351, duration: 764 },   // 25.5s - "The new way?..."
-    spreadsheet:  { start: 2115, duration: 512 },   // 17.1s - "Tired of spreadsheets?..."
-    coding:       { start: 2627, duration: 516 },   // 17.2s - "Back to coding..."
-    outro:        { start: 3143, duration: 214 },   // 7.1s - "These are just the beginning..."
-    tagline:      { start: 3357, duration: 87 },    // 2.9s - "Rebyte. Vibe working..."
+    spreadsheet:  { start: 2115, duration: 503 },   // 16.75s - "Say you need a spreadsheet..."
+    coding:       { start: 2618, duration: 516 },   // 17.2s - "Back to coding..."
+    outro:        { start: 3134, duration: 214 },   // 7.1s - "These are just the beginning..."
+    tagline:      { start: 3348, duration: 87 },    // 2.9s - "Rebyte. Vibe working..."
   };
 
   return (
@@ -1476,57 +1476,66 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
 // skill with the code agent, let it build world-class collaborative spreadsheets for you.
 // You and the agent can collaborate on the spreadsheet together to make work done much faster than ever before."
 const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
-  // Phase timings within the 15-second scene
+  // Phase timings for ~16.75 seconds
+  // Script: "Say you need a spreadsheet to track your project timeline. Instead of building it manually,
+  // combine a code agent with the spreadsheet skill. The agent will write the necessary code,
+  // create the spreadsheet structure, and even fill in sample data for you. Done in seconds."
   const phases = {
-    intro: { start: 0, end: fps * 3 },                    // 0-3s: "Tired of spreadsheets?"
-    taskView: { start: fps * 3, end: fps * 7 },           // 3-7s: Equip spreadsheet-builder skill
-    building: { start: fps * 7, end: fps * 10 },          // 7-10s: Building spreadsheet
-    result: { start: fps * 10, end: fps * 15 },           // 10-15s: Collaborate together
+    prompt: { start: 0, end: fps * 4 },                   // 0-4s: Zoom to user prompt
+    agentWorking: { start: fps * 4, end: fps * 11 },      // 4-11s: Pan to show execution steps
+    result: { start: fps * 11, end: fps * 17 },           // 11-17s: Show final spreadsheet
   };
 
   const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
+  // Image dimensions: 2800x1618, viewport: 1280x720
+  // Using transform-origin to set focal point, then just scale
+  //
+  // Layout analysis (from screenshot):
+  // - Prompt bubble: TOP-RIGHT area (user message with avatar on right, ~72% from left, ~4% from top)
+  // - Execution steps: LEFT side (~18% from left, ~12-20% from top)
+  // - Spreadsheet embed: CENTER-LEFT area (~35% from left, ~30% from top)
+
+  // Phase 1: Zoom into prompt area (TOP-RIGHT where user message is)
+  const phase1Scale = interpolate(frame, [0, fps * 0.5, fps * 3.5], [1, 1, 2.5], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const phase1OriginX = 72; // prompt is at far right (user message bubble)
+  const phase1OriginY = 4;  // prompt is at very top
+
+  // Phase 2: Pan to execution steps (LEFT side, below prompt)
+  const phase2Scale = interpolate(frame, [phases.agentWorking.start, phases.agentWorking.end], [2.5, 2.2], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const phase2OriginX = interpolate(frame, [phases.agentWorking.start, phases.agentWorking.start + fps * 2], [72, 18], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const phase2OriginY = interpolate(frame, [phases.agentWorking.start, phases.agentWorking.start + fps * 2, phases.agentWorking.end], [4, 14, 28], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+  // Determine current values based on phase
+  let scale = phase1Scale;
+  let originX = phase1OriginX;
+  let originY = phase1OriginY;
+
+  if (frame >= phases.agentWorking.start && frame < phases.result.start) {
+    scale = phase2Scale;
+    originX = phase2OriginX;
+    originY = phase2OriginY;
+  }
+
   return (
     <AbsoluteFill style={{ backgroundColor: "#f8fafc", opacity: exitOpacity }}>
-      {/* Intro: "Tired of spreadsheets?" */}
-      {frame < phases.taskView.start && (
-        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
-          <div style={{
-            opacity: interpolate(frame, [0, fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-            transform: `scale(${interpolate(frame, [0, fps * 0.5], [0.9, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
-          }}>
-            <h1 style={{
-              fontFamily: "system-ui",
-              fontSize: 48,
-              fontWeight: 700,
-              color: "#1f2937",
-              textAlign: "center",
-              margin: 0,
-            }}>
-              Tired of building <span style={{ color: "#374151" }}>spreadsheets</span>?
-            </h1>
-            <p style={{
-              fontFamily: "system-ui",
-              fontSize: 24,
-              color: "#6b7280",
-              textAlign: "center",
-              marginTop: 20,
-              opacity: interpolate(frame, [fps * 1.5, fps * 2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-            }}>
-              Let the code agent help you build collaborative spreadsheets
-            </p>
-          </div>
-        </AbsoluteFill>
-      )}
-
-      {/* Task View with spreadsheet-builder skill */}
-      {frame >= phases.taskView.start && frame < phases.building.start && (
-        <AbsoluteFill>
+      {/* Phases 1-2: Show full Rebyte task page with zoom/pan */}
+      {frame < phases.result.start && (
+        <AbsoluteFill style={{ overflow: "hidden" }}>
           <Img
-            src={staticFile("sections/07-spreadsheet/assets/rebyte-spreadsheet-task.png")}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            src={staticFile("sections/07-spreadsheet/assets/rebyte-task-full.png")}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transform: `scale(${scale})`,
+              transformOrigin: `${originX}% ${originY}%`,
+            }}
           />
-          {/* Skill badge */}
+          {/* Phase indicator overlay */}
           <div style={{
             position: "absolute",
             top: 20,
@@ -1536,147 +1545,55 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
             borderRadius: 8,
             border: "1px solid #e5e7eb",
             boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-            opacity: interpolate(frame, [phases.taskView.start + fps * 0.5, phases.taskView.start + fps * 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            opacity: interpolate(frame, [fps * 0.5, fps * 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
             <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#1f2937" }}>
-              Using spreadsheet-builder Skill
+              {frame < phases.agentWorking.start ? "📝 User Request" : "⚙️ Agent Working..."}
             </span>
           </div>
         </AbsoluteFill>
       )}
 
-      {/* Building phase */}
-      {frame >= phases.building.start && frame < phases.result.start && (
-        <AbsoluteFill>
-          <Img
-            src={staticFile("sections/07-spreadsheet/assets/rebyte-spreadsheet-task.png")}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          />
-          {/* Building indicator */}
-          <div style={{
-            position: "absolute",
-            bottom: 40,
-            left: "50%",
-            transform: "translateX(-50%)",
-            padding: "16px 32px",
-            backgroundColor: "rgba(255, 255, 255, 0.98)",
-            borderRadius: 12,
-            border: "1px solid #e5e7eb",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-          }}>
-            <div style={{
-              width: 20,
-              height: 20,
-              borderRadius: "50%",
-              border: "3px solid #d1d5db",
-              borderTopColor: "#3b82f6",
-              animation: "spin 1s linear infinite",
-            }} />
-            <span style={{ fontFamily: "system-ui", fontSize: 16, color: "#374151" }}>
-              Building your spreadsheet...
-            </span>
-          </div>
-        </AbsoluteFill>
-      )}
-
-      {/* Result: Show live spreadsheet with collaboration */}
+      {/* Phase 3: Show final spreadsheet result */}
       {frame >= phases.result.start && (
-        <AbsoluteFill style={{ padding: 40 }}>
+        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", padding: 30 }}>
           <div style={{
             display: "flex",
-            gap: 30,
-            height: "100%",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 16,
+            width: "100%",
           }}>
-            {/* Main spreadsheet view */}
+            {/* Success message */}
             <div style={{
-              flex: 2,
-              borderRadius: 16,
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "12px 24px",
+              backgroundColor: "#ecfdf5",
+              borderRadius: 999,
+              border: "1px solid #a7f3d0",
+              opacity: interpolate(frame, [phases.result.start, phases.result.start + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            }}>
+              <span style={{ fontSize: 20 }}>✅</span>
+              <span style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 600, color: "#059669" }}>
+                Done in seconds!
+              </span>
+            </div>
+            {/* Full spreadsheet screenshot */}
+            <div style={{
+              borderRadius: 12,
               overflow: "hidden",
               boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
-              border: "2px solid #374151",
-              opacity: interpolate(frame, [phases.result.start, phases.result.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-              transform: `translateY(${interpolate(frame, [phases.result.start, phases.result.start + fps * 0.5], [20, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
+              border: "2px solid #e5e7eb",
+              maxWidth: 1100,
+              opacity: interpolate(frame, [phases.result.start + fps * 0.3, phases.result.start + fps * 0.8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+              transform: `scale(${interpolate(frame, [phases.result.start + fps * 0.3, phases.result.start + fps * 0.8], [0.95, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
             }}>
               <Img
-                src={staticFile("sections/07-spreadsheet/assets/spreadsheet-full-view.png")}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                src={staticFile("sections/07-spreadsheet/assets/spreadsheet-result.png")}
+                style={{ width: "100%", height: "auto", display: "block" }}
               />
-            </div>
-
-            {/* Side panel with collaboration indicator */}
-            <div style={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              gap: 20,
-              opacity: interpolate(frame, [phases.result.start + fps * 0.5, phases.result.start + fps * 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-            }}>
-              {/* Success badge */}
-              <div style={{
-                padding: "16px 24px",
-                backgroundColor: "#ecfdf5",
-                borderRadius: 12,
-                border: "1px solid #a7f3d0",
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-              }}>
-                <span style={{ fontSize: 24 }}>✅</span>
-                <span style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 600, color: "#059669" }}>
-                  Spreadsheet Live!
-                </span>
-              </div>
-
-              {/* Collaboration view */}
-              <div style={{
-                flex: 1,
-                borderRadius: 12,
-                overflow: "hidden",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-              }}>
-                <Img
-                  src={staticFile("sections/07-spreadsheet/assets/spreadsheet-collab-view.png")}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              </div>
-
-              {/* Collaboration indicator */}
-              <div style={{
-                padding: "12px 20px",
-                backgroundColor: "#f0f9ff",
-                borderRadius: 8,
-                border: "1px solid #bae6fd",
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-              }}>
-                <div style={{ display: "flex" }}>
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: "50%",
-                      backgroundColor: ["#374151", "#374151", "#f59e0b", "#ef4444"][i - 1],
-                      border: "2px solid white",
-                      marginLeft: i > 1 ? -10 : 0,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 12,
-                      color: "white",
-                      fontWeight: 600,
-                    }}>
-                      {["JD", "AS", "MK", "+4"][i - 1]}
-                    </div>
-                  ))}
-                </div>
-                <span style={{ fontFamily: "system-ui", fontSize: 14, color: "#0369a1" }}>
-                  Shared with team
-                </span>
-              </div>
             </div>
           </div>
         </AbsoluteFill>
@@ -1691,33 +1608,76 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
 // new features, or resolve GitHub issues. You can also assign a single coding task to
 // different agents and pick whichever you think is best."
 const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
-  // Phase timings within the 20-second scene
+  // Two-part narrative: ~17.2 seconds total
+  // Part 1 (0-9s): The Problem - Local machine limitations
+  // Part 2 (9-17s): The Solution - Cloud isolation
   const phases = {
-    intro: { start: 0, end: fps * 4 },                    // 0-4s: "Let's get back to coding"
-    isolation: { start: fps * 4, end: fps * 8 },          // 4-8s: Pure isolated environment
-    capabilities: { start: fps * 8, end: fps * 14 },      // 8-14s: Fix bugs, features, GitHub issues
-    multiAgent: { start: fps * 14, end: fps * 20 },       // 14-20s: Assign to different agents
+    // Part 1: The Problem
+    intro: { start: 0, end: fps * 2 },                      // 0-2s: "Back to coding"
+    localSetup: { start: fps * 2, end: fps * 5 },           // 2-5s: Show local machine with agents
+    conflicts: { start: fps * 5, end: fps * 9 },            // 5-9s: Show conflicts/errors
+    // Part 2: The Solution
+    transition: { start: fps * 9, end: fps * 10 },          // 9-10s: Transition to cloud
+    cloudIsolation: { start: fps * 10, end: fps * 17 },     // 10-17s: Show isolated VMs
   };
 
   const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
-  const capabilities = [
-    { icon: "🐛", title: "Fix Bugs", desc: "Point at any issue, agent fixes it" },
-    { icon: "⚡", title: "Implement Features", desc: "Describe what you want, agent builds it" },
-    { icon: "📋", title: "GitHub Issues", desc: "Import issues, agent works on them" },
-    { icon: "🚀", title: "Deploy to Production", desc: "Test, build, and deploy automatically" },
+  // Agents trying to run locally
+  const localAgents = [
+    { name: "Agent 1", task: "npm run dev", color: "#D97706" },
+    { name: "Agent 2", task: "npm test", color: "#3186FF" },
+    { name: "Agent 3", task: "npm run dev", color: "#10A37F" },
   ];
 
-  const agents = [
-    { Logo: ClaudeLogo, name: "Claude Code", color: "#D97706" },
-    { Logo: GeminiLogo, name: "Gemini CLI", color: "#3186FF" },
-    { Logo: OpenAILogo, name: "OpenAI Codex", color: "#10A37F" },
+  // Conflict errors that appear
+  const conflicts = [
+    { error: "Error: Port 3000 already in use", icon: "🔴", delay: 0 },
+    { error: "Error: Cannot acquire lock on test runner", icon: "🔴", delay: fps * 0.8 },
+    { error: "Error: EADDRINUSE - address already in use", icon: "🔴", delay: fps * 1.6 },
+  ];
+
+  // Cloud VMs with different skills - code agent + skill concept
+  const cloudVMs = [
+    {
+      name: "VM 1",
+      skill: "Security Review",
+      command: "Analyzing codebase...",
+      status: "3 vulnerabilities found & fixed",
+      icon: "🔒",
+    },
+    {
+      name: "VM 2",
+      skill: "Next.js Builder",
+      command: "Building application...",
+      status: "Build complete ✓",
+      icon: "⚡",
+    },
+    {
+      name: "VM 3",
+      skill: "Unit Testing",
+      command: "Running test suite...",
+      status: "47/47 tests pass ✓",
+      icon: "🧪",
+    },
+  ];
+
+  // Additional skills to display
+  const codingSkills = [
+    { icon: "🔒", name: "Security Review" },
+    { icon: "⚡", name: "Next.js Builder" },
+    { icon: "🦀", name: "Rust Developer" },
+    { icon: "🐛", name: "Bug Fixer" },
+    { icon: "🧪", name: "Unit Testing" },
+    { icon: "📊", name: "Data Pipeline" },
   ];
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#f8fafc", opacity: exitOpacity }}>
+      {/* ===== PART 1: THE PROBLEM ===== */}
+
       {/* Intro: "Back to coding" */}
-      {frame < phases.isolation.start && (
+      {frame < phases.localSetup.start && (
         <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
           <div style={{
             opacity: interpolate(frame, [0, fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
@@ -1725,214 +1685,274 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
           }}>
             <h1 style={{
               fontFamily: "system-ui",
-              fontSize: 52,
+              fontSize: 56,
               fontWeight: 700,
               color: "#1f2937",
               textAlign: "center",
               margin: 0,
             }}>
-              Back to <span style={{ color: "#374151" }}>coding</span>
+              Back to coding
             </h1>
-            <p style={{
-              fontFamily: "system-ui",
-              fontSize: 22,
-              color: "#6b7280",
-              textAlign: "center",
-              marginTop: 16,
-            }}>
-              On your local machine, running multiple agents means complex setups
-            </p>
           </div>
         </AbsoluteFill>
       )}
 
-      {/* Isolation: Pure isolated environment */}
-      {frame >= phases.isolation.start && frame < phases.capabilities.start && (
-        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+      {/* Local Setup: Show laptop with multiple agents */}
+      {frame >= phases.localSetup.start && frame < phases.transition.start && (
+        <AbsoluteFill style={{ padding: 50 }}>
+          {/* Header */}
           <div style={{
-            opacity: interpolate(frame, [phases.isolation.start, phases.isolation.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+            textAlign: "center",
+            marginBottom: 30,
+            opacity: interpolate(frame, [phases.localSetup.start, phases.localSetup.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
+            <h2 style={{ fontFamily: "system-ui", fontSize: 32, fontWeight: 700, color: "#1f2937", margin: 0 }}>
+              On your local machine...
+            </h2>
+            <p style={{ fontFamily: "system-ui", fontSize: 18, color: "#6b7280", marginTop: 8 }}>
+              Running multiple agents on the same repo
+            </p>
+          </div>
+
+          {/* Laptop container */}
+          <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            gap: 40,
+          }}>
+            {/* Laptop illustration */}
             <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 20,
-              padding: "28px 44px",
-              backgroundColor: "white",
-              borderRadius: 16,
-              border: "2px solid #374151",
-              boxShadow: "0 10px 40px rgba(59, 130, 246, 0.15)",
+              width: 700,
+              backgroundColor: "#1e293b",
+              borderRadius: 12,
+              padding: 20,
+              boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+              opacity: interpolate(frame, [phases.localSetup.start, phases.localSetup.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
             }}>
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="#374151">
-                <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
-              </svg>
-              <div>
-                <div style={{ fontFamily: "system-ui", fontSize: 26, fontWeight: 700, color: "#1f2937" }}>
-                  The new way? It's all in the <span style={{ color: "#374151" }}>cloud</span>
-                </div>
-                <div style={{ fontFamily: "system-ui", fontSize: 18, color: "#6b7280", marginTop: 8 }}>
-                  Each task runs in <span style={{ color: "#374151", fontWeight: 600 }}>complete isolation</span>
+              {/* Terminal header */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#ef4444" }} />
+                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#eab308" }} />
+                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#22c55e" }} />
+                <span style={{ marginLeft: 12, fontFamily: "monospace", fontSize: 12, color: "#94a3b8" }}>Terminal — ~/my-project</span>
+              </div>
+
+              {/* Terminal content - agents trying to run */}
+              <div style={{ fontFamily: "monospace", fontSize: 14, lineHeight: 1.8 }}>
+                {localAgents.map((agent, i) => {
+                  const agentDelay = phases.localSetup.start + fps * 0.3 * i;
+                  const agentOpacity = interpolate(frame, [agentDelay, agentDelay + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+                  return (
+                    <div key={agent.name} style={{ opacity: agentOpacity, marginBottom: 8 }}>
+                      <span style={{ color: "#22c55e" }}>$</span>
+                      <span style={{ color: "#e2e8f0", marginLeft: 8 }}>{agent.task}</span>
+                      <span style={{ color: "#64748b", marginLeft: 16 }}>  # {agent.name}</span>
+                    </div>
+                  );
+                })}
+
+                {/* Error messages */}
+                {frame >= phases.conflicts.start && conflicts.map((conflict, i) => {
+                  const errorDelay = phases.conflicts.start + conflict.delay;
+                  const errorOpacity = interpolate(frame, [errorDelay, errorDelay + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+                  const shake = frame >= errorDelay && frame < errorDelay + fps * 0.5
+                    ? Math.sin((frame - errorDelay) * 0.5) * 3
+                    : 0;
+                  return (
+                    <div key={conflict.error} style={{
+                      opacity: errorOpacity,
+                      marginTop: i === 0 ? 20 : 8,
+                      transform: `translateX(${shake}px)`,
+                      padding: "8px 12px",
+                      backgroundColor: "rgba(239, 68, 68, 0.15)",
+                      borderRadius: 6,
+                      border: "1px solid rgba(239, 68, 68, 0.3)",
+                    }}>
+                      <span style={{ color: "#ef4444" }}>{conflict.icon} {conflict.error}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Side explanation */}
+            {frame >= phases.conflicts.start && (
+              <div style={{
+                width: 320,
+                opacity: interpolate(frame, [phases.conflicts.start, phases.conflicts.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+              }}>
+                <div style={{
+                  backgroundColor: "#fef2f2",
+                  borderRadius: 12,
+                  padding: 24,
+                  border: "2px solid #fecaca",
+                }}>
+                  <h3 style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 700, color: "#991b1b", margin: "0 0 16px 0" }}>
+                    The Problem
+                  </h3>
+                  <div style={{ fontFamily: "system-ui", fontSize: 14, color: "#7f1d1d", lineHeight: 1.6 }}>
+                    <p style={{ margin: "0 0 12px 0" }}>• Same port conflicts</p>
+                    <p style={{ margin: "0 0 12px 0" }}>• Test runner locks</p>
+                    <p style={{ margin: 0 }}>• Resource contention</p>
+                  </div>
                 </div>
               </div>
+            )}
+          </div>
+        </AbsoluteFill>
+      )}
+
+      {/* ===== PART 2: THE SOLUTION ===== */}
+
+      {/* Cloud Isolation */}
+      {frame >= phases.transition.start && (
+        <AbsoluteFill style={{ padding: "30px 50px" }}>
+          {/* Header */}
+          <div style={{
+            textAlign: "center",
+            marginBottom: 24,
+            opacity: interpolate(frame, [phases.transition.start, phases.transition.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            <h2 style={{ fontFamily: "system-ui", fontSize: 32, fontWeight: 700, color: "#1f2937", margin: 0 }}>
+              The new way? <span style={{ color: "#0ea5e9" }}>Cloud isolation</span>
+            </h2>
+            <p style={{ fontFamily: "system-ui", fontSize: 18, color: "#6b7280", marginTop: 8 }}>
+              Each task runs in complete isolation — <span style={{ color: "#0ea5e9", fontWeight: 600 }}>Code Agent + Skill</span>
+            </p>
+          </div>
+
+          {/* Cloud VMs with Skills */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 24 }}>
+            {cloudVMs.map((vm, i) => {
+              const vmDelay = phases.cloudIsolation.start + fps * 0.4 * i;
+              const vmEntrance = spring({ frame: frame - vmDelay, fps, config: { damping: 12 } });
+              return (
+                <div key={vm.name} style={{
+                  width: 320,
+                  backgroundColor: "white",
+                  borderRadius: 16,
+                  border: "2px solid #e5e7eb",
+                  overflow: "hidden",
+                  boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
+                  opacity: interpolate(vmEntrance, [0, 1], [0, 1]),
+                  transform: `translateY(${interpolate(vmEntrance, [0, 1], [30, 0])}px)`,
+                }}>
+                  {/* VM Header with Skill */}
+                  <div style={{
+                    backgroundColor: "#0ea5e9",
+                    padding: "10px 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                        <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+                      </svg>
+                      <span style={{ fontFamily: "system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>
+                        Isolated {vm.name}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* VM Content */}
+                  <div style={{ padding: 16 }}>
+                    {/* Skill badge */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      marginBottom: 12,
+                      padding: "8px 12px",
+                      backgroundColor: "#f0f9ff",
+                      borderRadius: 8,
+                      border: "1px solid #bae6fd",
+                    }}>
+                      <span style={{ fontSize: 20 }}>{vm.icon}</span>
+                      <div>
+                        <div style={{ fontFamily: "system-ui", fontSize: 11, color: "#0369a1", fontWeight: 500 }}>
+                          Code Agent + Skill
+                        </div>
+                        <div style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#0c4a6e" }}>
+                          {vm.skill}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Terminal mini */}
+                    <div style={{
+                      backgroundColor: "#1e293b",
+                      borderRadius: 8,
+                      padding: 12,
+                      marginBottom: 12,
+                    }}>
+                      <div style={{ fontFamily: "monospace", fontSize: 12, color: "#94a3b8" }}>
+                        {vm.command}
+                      </div>
+                    </div>
+
+                    {/* Status */}
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "8px 12px",
+                      backgroundColor: "#ecfdf5",
+                      borderRadius: 8,
+                      border: "1px solid #a7f3d0",
+                    }}>
+                      <span style={{ fontSize: 14 }}>✅</span>
+                      <span style={{ fontFamily: "system-ui", fontSize: 13, fontWeight: 500, color: "#059669" }}>
+                        {vm.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Skills Grid */}
+          <div style={{
+            marginTop: 28,
+            opacity: interpolate(frame, [phases.cloudIsolation.start + fps * 1.5, phases.cloudIsolation.start + fps * 2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+          }}>
+            <div style={{
+              textAlign: "center",
+              marginBottom: 16,
+            }}>
+              <span style={{ fontFamily: "system-ui", fontSize: 14, color: "#6b7280" }}>
+                Available coding skills:
+              </span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
+              {codingSkills.map((skill, i) => {
+                const skillDelay = phases.cloudIsolation.start + fps * 2 + i * fps * 0.15;
+                const skillOpacity = interpolate(frame, [skillDelay, skillDelay + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+                return (
+                  <div key={skill.name} style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "8px 16px",
+                    backgroundColor: "white",
+                    borderRadius: 999,
+                    border: "1px solid #e5e7eb",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                    opacity: skillOpacity,
+                  }}>
+                    <span style={{ fontSize: 16 }}>{skill.icon}</span>
+                    <span style={{ fontFamily: "system-ui", fontSize: 13, fontWeight: 500, color: "#374151" }}>
+                      {skill.name}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </AbsoluteFill>
       )}
-
-      {/* Capabilities Grid: Fix bugs, features, GitHub issues */}
-      {frame >= phases.capabilities.start && frame < phases.multiAgent.start && (
-        <AbsoluteFill style={{ padding: 60 }}>
-          <h2 style={{
-            fontFamily: "system-ui",
-            fontSize: 36,
-            fontWeight: 700,
-            color: "#1f2937",
-            marginBottom: 40,
-            opacity: interpolate(frame, [phases.capabilities.start, phases.capabilities.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-          }}>
-            Develop features, run unit tests, start servers
-          </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24 }}>
-            {capabilities.map((cap, i) => {
-              const capEntrance = spring({ frame: frame - phases.capabilities.start - i * fps * 0.4, fps, config: { damping: 12 } });
-              return (
-                <div key={cap.title} style={{
-                  backgroundColor: "white",
-                  borderRadius: 16,
-                  padding: 28,
-                  border: "1px solid #e5e7eb",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
-                  opacity: interpolate(capEntrance, [0, 1], [0, 1]),
-                  transform: `translateY(${interpolate(capEntrance, [0, 1], [20, 0])}px)`,
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                    <div style={{
-                      width: 56,
-                      height: 56,
-                      borderRadius: 12,
-                      backgroundColor: "#f0f9ff",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 28,
-                    }}>
-                      {cap.icon}
-                    </div>
-                    <div>
-                      <div style={{ fontFamily: "system-ui", fontSize: 20, fontWeight: 600, color: "#1f2937" }}>{cap.title}</div>
-                      <div style={{ fontFamily: "system-ui", fontSize: 14, color: "#6b7280", marginTop: 4 }}>{cap.desc}</div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </AbsoluteFill>
-      )}
-
-      {/* Multi-Agent: All independently */}
-      {frame >= phases.multiAgent.start && (
-        <AbsoluteFill style={{ padding: 60 }}>
-          <div style={{
-            textAlign: "center",
-            marginBottom: 40,
-            opacity: interpolate(frame, [phases.multiAgent.start, phases.multiAgent.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-          }}>
-            <h2 style={{
-              fontFamily: "system-ui",
-              fontSize: 40,
-              fontWeight: 700,
-              color: "#1f2937",
-              margin: 0,
-            }}>
-              All <span style={{ color: "#374151" }}>independently</span>
-            </h2>
-            <p style={{
-              fontFamily: "system-ui",
-              fontSize: 20,
-              color: "#6b7280",
-              marginTop: 12,
-            }}>
-              Each agent runs in its own isolated cloud environment
-            </p>
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "center", gap: 40, marginTop: 40 }}>
-            {agents.map(({ Logo, name, color }, i) => {
-              const agentEntrance = spring({ frame: frame - phases.multiAgent.start - i * fps * 0.3, fps, config: { damping: 12 } });
-              return (
-                <div key={name} style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 20,
-                  opacity: interpolate(agentEntrance, [0, 1], [0, 1]),
-                  transform: `scale(${interpolate(agentEntrance, [0, 1], [0.8, 1])})`,
-                }}>
-                  {/* VM Container */}
-                  <div style={{
-                    width: 200,
-                    height: 240,
-                    backgroundColor: "white",
-                    borderRadius: 16,
-                    border: `3px solid ${color}`,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    padding: 20,
-                    boxShadow: `0 10px 30px ${color}20`,
-                  }}>
-                    {/* Top bar */}
-                    <div style={{ width: "100%", height: 8, backgroundColor: color, borderRadius: 4, marginBottom: 20 }} />
-
-                    {/* Agent logo */}
-                    <div style={{
-                      width: 70,
-                      height: 70,
-                      borderRadius: 12,
-                      backgroundColor: `${color}15`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginBottom: 16,
-                    }}>
-                      <Logo size={40} />
-                    </div>
-
-                    {/* Agent name */}
-                    <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#1f2937" }}>{name}</span>
-
-                    {/* VM label */}
-                    <span style={{
-                      marginTop: 12,
-                      fontFamily: "monospace",
-                      fontSize: 11,
-                      color: "#6b7280",
-                      backgroundColor: "#f1f5f9",
-                      padding: "4px 10px",
-                      borderRadius: 4,
-                    }}>
-                      isolated-vm-{i + 1}
-                    </span>
-                  </div>
-
-                  {/* Task indicator */}
-                  <div style={{
-                    padding: "8px 16px",
-                    backgroundColor: `${color}10`,
-                    borderRadius: 8,
-                    border: `1px solid ${color}30`,
-                  }}>
-                    <span style={{ fontFamily: "system-ui", fontSize: 13, color: color, fontWeight: 500 }}>
-                      Working on task...
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </AbsoluteFill>
-      )}
-
     </AbsoluteFill>
   );
 };
