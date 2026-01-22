@@ -281,6 +281,8 @@ export const RebyteIntro = () => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#f8fafc" }}>
+      {/* Background music bed */}
+      <Audio src={staticFile("audio/bg.mp3")} volume={0.06} />
       {/* Per-section audio files */}
       <Sequence from={sections.intro.start}><Audio src={staticFile("sections/01-intro/audio.mp3")} /></Sequence>
       <Sequence from={sections.change.start}><Audio src={staticFile("sections/02-change/audio.mp3")} /></Sequence>
