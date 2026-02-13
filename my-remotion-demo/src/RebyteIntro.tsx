@@ -10,6 +10,36 @@ import {
 } from "remotion";
 import { Audio } from "@remotion/media";
 
+// ============ RESPONSIVE SCALING SYSTEM ============
+// Base resolution the design was created for
+const BASE_WIDTH = 1280;
+const BASE_HEIGHT = 720;
+
+// Hook to get scaling functions based on current video dimensions
+const useScale = () => {
+  const { width, height } = useVideoConfig();
+
+  // Scale factor based on width (maintains aspect ratio)
+  const scale = width / BASE_WIDTH;
+
+  // Scale a pixel value proportionally
+  const s = (px: number) => px * scale;
+
+  // Scale for width-specific values
+  const sw = (px: number) => (px / BASE_WIDTH) * width;
+
+  // Scale for height-specific values
+  const sh = (px: number) => (px / BASE_HEIGHT) * height;
+
+  // Convert to percentage of width
+  const pw = (px: number) => `${(px / BASE_WIDTH) * 100}%`;
+
+  // Convert to percentage of height
+  const ph = (px: number) => `${(px / BASE_HEIGHT) * 100}%`;
+
+  return { s, sw, sh, pw, ph, scale, width, height };
+};
+
 // ============ LOGOS ============
 const RebyteLogo = ({ size = 80, color = "currentColor", innerColor = "#ffffff" }: { size?: number; color?: string; innerColor?: string }) => (
   <svg viewBox="0 0 32 32" width={size} height={size} aria-label="Rebyte">
@@ -197,6 +227,7 @@ const SoftwareLogoItem = ({
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const { s } = useScale();
 
   const entrance = spring({
     frame: frame - fps * delay,
@@ -206,25 +237,26 @@ const SoftwareLogoItem = ({
 
   const opacity = interpolate(entrance, [0, 1], [0, 0.7]);
   const scale = interpolate(entrance, [0, 1], [0.5, 1]);
-  const y = interpolate(entrance, [0, 1], [20, 0]);
+  const y = interpolate(entrance, [0, 1], [s(20), 0]);
 
-  // Position logos around the edges (5 on top, 5 on bottom)
+  // Position logos around the edges using percentages (5 on top, 5 on bottom)
+  // Original values were for 1280x720, now using percentages
   const positions = [
-    // Top row (5 logos)
-    { x: 80, y: 60 },
-    { x: 280, y: 40 },
-    { x: 480, y: 55 },
-    { x: 680, y: 35 },
-    { x: 880, y: 50 },
-    // Bottom row (5 logos)
-    { x: 100, y: 480 },
-    { x: 300, y: 500 },
-    { x: 500, y: 485 },
-    { x: 700, y: 510 },
-    { x: 900, y: 490 },
+    // Top row (5 logos) - y was ~5-8% from top
+    { x: "6%", y: "8%" },
+    { x: "22%", y: "5.5%" },
+    { x: "37.5%", y: "7.5%" },
+    { x: "53%", y: "5%" },
+    { x: "69%", y: "7%" },
+    // Bottom row (5 logos) - y was ~67-71% from top (near bottom)
+    { x: "8%", y: "67%" },
+    { x: "23%", y: "69%" },
+    { x: "39%", y: "67%" },
+    { x: "55%", y: "71%" },
+    { x: "70%", y: "68%" },
   ];
 
-  const pos = positions[index] || { x: 100, y: 100 };
+  const pos = positions[index] || { x: "10%", y: "10%" };
 
   return (
     <div style={{
@@ -236,20 +268,20 @@ const SoftwareLogoItem = ({
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      gap: 6,
+      gap: s(6),
     }}>
       <div style={{
-        padding: 14,
+        padding: s(14),
         backgroundColor: "#ffffff",
-        borderRadius: 12,
-        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+        borderRadius: s(12),
+        boxShadow: `0 ${s(4)}px ${s(20)}px rgba(0,0,0,0.08)`,
         border: "1px solid rgba(0,0,0,0.06)",
       }}>
         <Logo />
       </div>
       <span style={{
         fontFamily: "system-ui",
-        fontSize: 11,
+        fontSize: s(11),
         color: "#6b7280",
         fontWeight: 500,
       }}>
@@ -355,6 +387,7 @@ export const RebyteIntro = () => {
 // Script: "Previously, only programmers could code. Everyone else had to use predefined software
 // or, if you really needed customized software, ask a programmer for help."
 const ProblemScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const { s } = useScale();
   const textOpacity = interpolate(frame, [fps * 0.3, fps * 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
@@ -397,23 +430,23 @@ const ProblemScene = ({ frame, fps, sceneDuration }: { frame: number; fps: numbe
       }}>
         <h1 style={{
           fontFamily: "system-ui",
-          fontSize: 44,
+          fontSize: s(44),
           fontWeight: 600,
           color: "#6b7280",
           margin: 0,
           textAlign: "center",
-          maxWidth: 800,
+          maxWidth: s(800),
           lineHeight: 1.4,
         }}>
           Previously, only <span style={{ color: "#1f2937" }}>programmers</span> could code.
         </h1>
         <p style={{
           fontFamily: "system-ui",
-          fontSize: 24,
+          fontSize: s(24),
           color: "#9ca3af",
-          marginTop: 24,
+          marginTop: s(24),
           textAlign: "center",
-          maxWidth: 600,
+          maxWidth: s(600),
           opacity: interpolate(frame, [fps * 0.8, fps * 1.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
         }}>
           Everyone else had to use predefined software<br />or ask a programmer friend for help.
@@ -427,6 +460,7 @@ const ProblemScene = ({ frame, fps, sceneDuration }: { frame: number; fps: numbe
 // Script: "Everything changed with code agents. Initially, it sounds like it's for programmers,
 // but it's actually for everyone."
 const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const { s } = useScale();
   const entrance = spring({ frame, fps, config: { damping: 14, stiffness: 80 } });
   const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
@@ -451,22 +485,22 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: 30,
+        gap: s(30),
       }}>
         <h1 style={{
           fontFamily: "system-ui",
-          fontSize: 48,
+          fontSize: s(48),
           fontWeight: 700,
           color: "#1f2937",
           margin: 0,
           textAlign: "center",
           opacity: interpolate(entrance, [0, 1], [0, 1]),
-          transform: `translateY(${interpolate(entrance, [0, 1], [20, 0])}px)`,
+          transform: `translateY(${interpolate(entrance, [0, 1], [s(20), 0])}px)`,
         }}>
           Everything changed with <span style={{ color: "#374151" }}>Code Agents</span>
         </h1>
 
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 28, marginTop: 20, maxWidth: 850 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: s(28), marginTop: s(20), maxWidth: s(850) }}>
           {logos.map(({ Logo, name, delay }) => {
             const logoEntrance = spring({ frame: frame - fps * delay, fps, config: { damping: 12 } });
             return (
@@ -476,14 +510,14 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: 8,
-                  width: 100,
+                  gap: s(8),
+                  width: s(100),
                   opacity: interpolate(logoEntrance, [0, 1], [0, 1]),
                   transform: `scale(${interpolate(logoEntrance, [0, 1], [0.5, 1])})`,
                 }}
               >
-                <Logo size={44} />
-                <span style={{ fontFamily: "system-ui", fontSize: 12, color: "#6b7280", textAlign: "center" }}>{name}</span>
+                <Logo size={s(44)} />
+                <span style={{ fontFamily: "system-ui", fontSize: s(12), color: "#6b7280", textAlign: "center" }}>{name}</span>
               </div>
             );
           })}
@@ -492,9 +526,9 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
         {/* "Actually for everyone" message */}
         <p style={{
           fontFamily: "system-ui",
-          fontSize: 24,
+          fontSize: s(24),
           color: "#6b7280",
-          marginTop: 30,
+          marginTop: s(30),
           textAlign: "center",
           opacity: interpolate(frame, [fps * 3, fps * 3.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
         }}>
@@ -510,6 +544,7 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
 // and run them in the cloud, equipped those agents with highly specialized skills.
 // Those code agents actually become generic problem solvers for every task."
   const RebyteMissionScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+    const { s } = useScale();
     const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
     const animFrame = frame * 0.5;
 
@@ -519,7 +554,7 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
   const packProgress = interpolate(animFrame, [fps * 4.4, fps * 5.2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const packFade = interpolate(packProgress, [0, 1], [1, 0.35]);
   const packScale = interpolate(packProgress, [0, 1], [1, 0.7]);
-  const packShift = interpolate(packProgress, [0, 1], [0, 110]);
+  const packShift = interpolate(packProgress, [0, 1], [0, s(110)]);
 
   // Skills to show
   const skills = [
@@ -546,19 +581,19 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
       {/* Title: Rebyte was born to bridge the gap */}
       <div style={{
         position: "absolute",
-        top: 24,
+        top: "3.3%",
         left: 0,
         right: 0,
         textAlign: "center",
         opacity: interpolate(animFrame, [fps * 0.2, fps * 0.7], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
       }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginBottom: 12 }}>
-          <RebyteLogo size={56} color="#000000" innerColor="#ffffff" />
-          <span style={{ fontFamily: "system-ui", fontSize: 40, fontWeight: 700, color: "#000000" }}>Rebyte</span>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: s(16), marginBottom: s(12) }}>
+          <RebyteLogo size={s(56)} color="#000000" innerColor="#ffffff" />
+          <span style={{ fontFamily: "system-ui", fontSize: s(40), fontWeight: 700, color: "#000000" }}>Rebyte</span>
         </div>
         <h1 style={{
           fontFamily: "system-ui",
-          fontSize: 34,
+          fontSize: s(34),
           fontWeight: 600,
           color: "#1f2937",
           margin: 0,
@@ -570,15 +605,15 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
       {/* Main visualization: Agents + Skills + Cloud */}
       <div style={{
         position: "absolute",
-        top: 170,
+        top: "23.6%",
         left: 0,
         right: 0,
-        bottom: 140,
+        bottom: "19.4%",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        gap: 60,
-        padding: "0 60px",
+        gap: s(60),
+        padding: `0 ${s(60)}px`,
         transform: "scale(1.08)",
         transformOrigin: "center top",
       }}>
@@ -587,20 +622,20 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 16,
+          gap: s(16),
           opacity: interpolate(leftEnter, [0, 1], [0, 1]) * packFade,
-          transform: `translateX(${interpolate(leftEnter, [0, 1], [-160, 0]) + packShift}px) translateY(${interpolate(leftEnter, [0, 1], [20, 0])}px) scale(${packScale})`,
+          transform: `translateX(${interpolate(leftEnter, [0, 1], [s(-160), 0]) + packShift}px) translateY(${interpolate(leftEnter, [0, 1], [s(20), 0])}px) scale(${packScale})`,
         }}>
           <span style={{
             fontFamily: "system-ui",
-            fontSize: 14,
+            fontSize: s(14),
             color: "#6b7280",
             textTransform: "uppercase",
-            letterSpacing: 1,
+            letterSpacing: s(1),
           }}>
             State-of-the-art Agents
           </span>
-          <div style={{ display: "flex", gap: 12 }}>
+          <div style={{ display: "flex", gap: s(12) }}>
             {agents.map(({ Logo, name, color }, i) => {
               const agentEntrance = spring({ frame: animFrame - fps * (1.5 + i * 0.15), fps, config: { damping: 12 } });
               return (
@@ -608,24 +643,24 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: 6,
+                  gap: s(6),
                   opacity: interpolate(agentEntrance, [0, 1], [0, 1]),
                   transform: `scale(${interpolate(agentEntrance, [0, 1], [0.8, 1])})`,
                 }}>
                   <div style={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: 14,
+                    width: s(56),
+                    height: s(56),
+                    borderRadius: s(14),
                     backgroundColor: "white",
                     border: `2px solid ${color}`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: `0 6px 16px ${color}30`,
+                    boxShadow: `0 ${s(6)}px ${s(16)}px ${color}30`,
                   }}>
-                    <Logo size={28} />
+                    <Logo size={s(28)} />
                   </div>
-                  <span style={{ fontFamily: "system-ui", fontSize: 11, color: "#374151", fontWeight: 500 }}>{name}</span>
+                  <span style={{ fontFamily: "system-ui", fontSize: s(11), color: "#374151", fontWeight: 500 }}>{name}</span>
                 </div>
               );
             })}
@@ -637,22 +672,22 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 12,
-          marginTop: 10,
+          gap: s(12),
+          marginTop: s(10),
           opacity: interpolate(runtimeEnter, [0, 1], [0, 1]),
-          transform: `translateY(${interpolate(runtimeEnter, [0, 1], [120, 0])}px) scale(${interpolate(runtimeEnter, [0, 1], [0.9, 1.02])})`,
+          transform: `translateY(${interpolate(runtimeEnter, [0, 1], [s(120), 0])}px) scale(${interpolate(runtimeEnter, [0, 1], [0.9, 1.02])})`,
           zIndex: 2,
         }}>
           <div style={{
-            width: 100,
-            height: 100,
+            width: s(100),
+            height: s(100),
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}>
             <svg
-              width="64"
-              height="64"
+              width={s(64)}
+              height={s(64)}
               viewBox="0 0 24 24"
               fill="none"
               stroke="#374151"
@@ -668,7 +703,7 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
           </div>
           <span style={{
             fontFamily: "system-ui",
-            fontSize: 14,
+            fontSize: s(14),
             color: "#374151",
             fontWeight: 600,
           }}>
@@ -681,36 +716,36 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 16,
+          gap: s(16),
           opacity: interpolate(rightEnter, [0, 1], [0, 1]) * packFade,
-          transform: `translateX(${interpolate(rightEnter, [0, 1], [160, 0]) - packShift}px) translateY(${interpolate(rightEnter, [0, 1], [20, 0])}px) scale(${packScale})`,
+          transform: `translateX(${interpolate(rightEnter, [0, 1], [s(160), 0]) - packShift}px) translateY(${interpolate(rightEnter, [0, 1], [s(20), 0])}px) scale(${packScale})`,
         }}>
           <span style={{
             fontFamily: "system-ui",
-            fontSize: 14,
+            fontSize: s(14),
             color: "#6b7280",
             textTransform: "uppercase",
-            letterSpacing: 1,
+            letterSpacing: s(1),
           }}>
             Specialized Skills
           </span>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", maxWidth: 360 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: s(10), justifyContent: "center", maxWidth: s(360) }}>
             {skills.map((skill, i) => {
               const skillEntrance = spring({ frame: animFrame - fps * (2.6 + i * 0.2), fps, config: { damping: 12 } });
               return (
                 <div key={skill} style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 10,
-                  padding: "10px 18px",
+                  gap: s(10),
+                  padding: `${s(10)}px ${s(18)}px`,
                   backgroundColor: "#f8fafc",
                   borderRadius: 999,
                   border: "1px solid #e5e7eb",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                  boxShadow: `0 ${s(1)}px ${s(2)}px rgba(0,0,0,0.05)`,
                   opacity: interpolate(skillEntrance, [0, 1], [0, 1]),
-                  transform: `translateX(${interpolate(skillEntrance, [0, 1], [20, 0])}px)`,
+                  transform: `translateX(${interpolate(skillEntrance, [0, 1], [s(20), 0])}px)`,
                 }}>
-                  <span style={{ fontFamily: "system-ui", fontSize: 14, color: "#6b7280", fontWeight: 600 }}>{skill}</span>
+                  <span style={{ fontFamily: "system-ui", fontSize: s(14), color: "#6b7280", fontWeight: 600 }}>{skill}</span>
                 </div>
               );
             })}
@@ -721,7 +756,7 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
       {/* Bottom tagline */}
       <div style={{
         position: "absolute",
-        bottom: 60,
+        bottom: "8.3%",
         left: 0,
         right: 0,
         textAlign: "center",
@@ -729,7 +764,7 @@ const ChangeScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
       }}>
         <p style={{
           fontFamily: "system-ui",
-          fontSize: 22,
+          fontSize: s(22),
           color: "#1f2937",
           fontWeight: 500,
           margin: 0,
@@ -1052,6 +1087,7 @@ const TaskScene = ({
 
 // ============ SCENE 3: SURVEY INTRO (10-14s) ============
 const SurveyIntroScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const { s } = useScale();
   const entrance = spring({ frame, fps, config: { damping: 14, stiffness: 80 } });
   const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
@@ -1064,28 +1100,28 @@ const SurveyIntroScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: 30,
+        gap: s(30),
         opacity: interpolate(entrance, [0, 1], [0, 1]),
-        transform: `translateY(${interpolate(entrance, [0, 1], [30, 0])}px)`,
+        transform: `translateY(${interpolate(entrance, [0, 1], [s(30), 0])}px)`,
       }}>
         <div style={{
-          padding: "12px 24px",
+          padding: `${s(12)}px ${s(24)}px`,
           backgroundColor: "#ecfdf5",
-          borderRadius: 8,
+          borderRadius: s(8),
           border: "1px solid #a7f3d0",
         }}>
-          <span style={{ fontFamily: "system-ui", fontSize: 14, color: "#059669", fontWeight: 600 }}>
+          <span style={{ fontFamily: "system-ui", fontSize: s(14), color: "#059669", fontWeight: 600 }}>
             Let me show you
           </span>
         </div>
         <h1 style={{
           fontFamily: "system-ui",
-          fontSize: 48,
+          fontSize: s(48),
           fontWeight: 700,
           color: "#1f2937",
           margin: 0,
           textAlign: "center",
-          maxWidth: 900,
+          maxWidth: s(900),
           lineHeight: 1.3,
         }}>
           Say your marketing team needs<br />
@@ -1093,7 +1129,7 @@ const SurveyIntroScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
         </h1>
         <p style={{
           fontFamily: "system-ui",
-          fontSize: 22,
+          fontSize: s(22),
           color: "#6b7280",
           margin: 0,
           textAlign: "center",
@@ -1108,6 +1144,7 @@ const SurveyIntroScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
 
 // ============ SCENE 4: SURVEY OLD WAY (14-22s) ============
 const SurveyOldWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const { s } = useScale();
   const exitOpacity = interpolate(frame, [sceneDuration - fps * 0.5, sceneDuration], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
   const saasProducts = [
@@ -1122,7 +1159,7 @@ const SurveyOldWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
       {/* "The old way" title */}
       <div style={{
         position: "absolute",
-        top: 40,
+        top: "5.5%",
         left: 0,
         right: 0,
         textAlign: "center",
@@ -1130,10 +1167,10 @@ const SurveyOldWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
       }}>
         <span style={{
           fontFamily: "system-ui",
-          fontSize: 16,
+          fontSize: s(16),
           color: "#9ca3af",
           textTransform: "uppercase",
-          letterSpacing: 2,
+          letterSpacing: s(2),
         }}>
           The Old Way
         </span>
@@ -1142,15 +1179,15 @@ const SurveyOldWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
       {/* Google Search Box */}
       <div style={{
         position: "absolute",
-        top: 100,
+        top: "13.9%",
         left: "50%",
         transform: "translateX(-50%)",
-        width: 600,
+        width: s(600),
         opacity: interpolate(frame, [fps * 0.3, fps * 0.8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
       }}>
         {/* Google Logo */}
-        <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <span style={{ fontFamily: "system-ui", fontSize: 48, fontWeight: 400 }}>
+        <div style={{ textAlign: "center", marginBottom: s(24) }}>
+          <span style={{ fontFamily: "system-ui", fontSize: s(48), fontWeight: 400 }}>
             <span style={{ color: "#4285F4" }}>G</span>
             <span style={{ color: "#EA4335" }}>o</span>
             <span style={{ color: "#FBBC05" }}>o</span>
@@ -1162,18 +1199,18 @@ const SurveyOldWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
         {/* Search Bar */}
         <div style={{
           backgroundColor: "white",
-          borderRadius: 24,
-          padding: "14px 24px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          borderRadius: s(24),
+          padding: `${s(14)}px ${s(24)}px`,
+          boxShadow: `0 ${s(2)}px ${s(8)}px rgba(0,0,0,0.1)`,
           border: "1px solid #dfe1e5",
           display: "flex",
           alignItems: "center",
-          gap: 12,
+          gap: s(12),
         }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#9aa0a6">
+          <svg width={s(20)} height={s(20)} viewBox="0 0 24 24" fill="#9aa0a6">
             <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
           </svg>
-          <span style={{ fontFamily: "system-ui", fontSize: 16, color: "#202124" }}>
+          <span style={{ fontFamily: "system-ui", fontSize: s(16), color: "#202124" }}>
             {"best survey builder tool".slice(0, Math.floor(interpolate(frame, [fps * 1, fps * 2.5], [0, 25], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })))}
             <span style={{ opacity: Math.sin(frame / 4) > 0 ? 1 : 0, color: "#202124" }}>|</span>
           </span>
@@ -1183,12 +1220,12 @@ const SurveyOldWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
       {/* SaaS Products Grid */}
       <div style={{
         position: "absolute",
-        top: 280,
+        top: "38.9%",
         left: 0,
         right: 0,
         display: "flex",
         justifyContent: "center",
-        gap: 24,
+        gap: s(24),
         opacity: interpolate(frame, [fps * 3, fps * 3.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
       }}>
         {saasProducts.map((product, i) => {
@@ -1197,32 +1234,32 @@ const SurveyOldWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
           return (
             <div key={product.name} style={{
               backgroundColor: "white",
-              borderRadius: 16,
-              padding: 24,
-              width: 180,
-              boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+              borderRadius: s(16),
+              padding: s(24),
+              width: s(180),
+              boxShadow: `0 ${s(4)}px ${s(20)}px rgba(0,0,0,0.08)`,
               border: "1px solid #e5e7eb",
               opacity: interpolate(productEntrance, [0, 1], [0, 1]),
-              transform: `translateY(${interpolate(productEntrance, [0, 1], [20, 0])}px)`,
+              transform: `translateY(${interpolate(productEntrance, [0, 1], [s(20), 0])}px)`,
             }}>
               <div style={{
-                width: 48,
-                height: 48,
-                borderRadius: 12,
+                width: s(48),
+                height: s(48),
+                borderRadius: s(12),
                 backgroundColor: product.color,
-                marginBottom: 16,
+                marginBottom: s(16),
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}>
-                <span style={{ color: "white", fontWeight: 700, fontSize: 18 }}>{product.name[0]}</span>
+                <span style={{ color: "white", fontWeight: 700, fontSize: s(18) }}>{product.name[0]}</span>
               </div>
-              <div style={{ fontFamily: "system-ui", fontSize: 16, fontWeight: 600, color: "#1f2937", marginBottom: 8 }}>
+              <div style={{ fontFamily: "system-ui", fontSize: s(16), fontWeight: 600, color: "#1f2937", marginBottom: s(8) }}>
                 {product.name}
               </div>
               <div style={{
                 fontFamily: "system-ui",
-                fontSize: 20,
+                fontSize: s(20),
                 fontWeight: 700,
                 color: "#ef4444",
               }}>
@@ -1236,7 +1273,7 @@ const SurveyOldWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
       {/* Pain point text */}
       <div style={{
         position: "absolute",
-        bottom: 80,
+        bottom: "11.1%",
         left: 0,
         right: 0,
         textAlign: "center",
@@ -1244,7 +1281,7 @@ const SurveyOldWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
       }}>
         <p style={{
           fontFamily: "system-ui",
-          fontSize: 20,
+          fontSize: s(20),
           color: "#6b7280",
         }}>
           Sign up, learn the tool, pay monthly fees...
@@ -1260,6 +1297,7 @@ const SurveyOldWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
 // to happen. The code agent will actually do research, build, deploy, and leverage the most
 // expertise—and you get exactly what you needed. If it's not, ask the code agent to fix it."
 const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const { s } = useScale();
   // Phase timings within the 22-second scene
   const phases = {
     transition: { start: 0, end: fps * 1.5 },            // 0-1.5s: "The new way?"
@@ -1295,7 +1333,7 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
           }}>
             <h1 style={{
               fontFamily: "system-ui",
-              fontSize: 52,
+              fontSize: s(52),
               fontWeight: 700,
               color: "#1f2937",
               textAlign: "center",
@@ -1326,16 +1364,16 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
           {/* Step indicator */}
           <div style={{
             position: "absolute",
-            top: 20,
-            left: 20,
-            padding: "10px 20px",
+            top: "2.8%",
+            left: "1.6%",
+            padding: `${s(10)}px ${s(20)}px`,
             backgroundColor: "rgba(255, 255, 255, 0.95)",
-            borderRadius: 8,
+            borderRadius: s(8),
             border: "1px solid #e5e7eb",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            boxShadow: `0 ${s(4)}px ${s(12)}px rgba(0,0,0,0.1)`,
             opacity: interpolate(frame, [phases.combineSkill.start + fps * 0.3, phases.combineSkill.start + fps * 0.6], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
-            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#1f2937" }}>
+            <span style={{ fontFamily: "system-ui", fontSize: s(14), fontWeight: 600, color: "#1f2937" }}>
               Combine Agent + Skill
             </span>
           </div>
@@ -1358,30 +1396,30 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
           {/* Step indicator */}
           <div style={{
             position: "absolute",
-            top: 20,
-            left: 20,
-            padding: "10px 20px",
+            top: "2.8%",
+            left: "1.6%",
+            padding: `${s(10)}px ${s(20)}px`,
             backgroundColor: "rgba(255, 255, 255, 0.95)",
-            borderRadius: 8,
+            borderRadius: s(8),
             border: "1px solid #e5e7eb",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            boxShadow: `0 ${s(4)}px ${s(12)}px rgba(0,0,0,0.1)`,
           }}>
-            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#1f2937" }}>
+            <span style={{ fontFamily: "system-ui", fontSize: s(14), fontWeight: 600, color: "#1f2937" }}>
               Tell the agent what you want
             </span>
           </div>
           <div style={{
             position: "absolute",
-            bottom: 60,
+            bottom: "8.3%",
             left: "50%",
             transform: "translateX(-50%)",
-            padding: "16px 28px",
+            padding: `${s(16)}px ${s(28)}px`,
             backgroundColor: "rgba(255, 255, 255, 0.95)",
-            borderRadius: 12,
+            borderRadius: s(12),
             border: "1px solid #e5e7eb",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+            boxShadow: `0 ${s(8)}px ${s(24)}px rgba(0,0,0,0.12)`,
           }}>
-            <span style={{ fontFamily: "system-ui", fontSize: 16, color: "#374151" }}>
+            <span style={{ fontFamily: "system-ui", fontSize: s(16), color: "#374151" }}>
               Describe what you need in plain English...
             </span>
           </div>
@@ -1404,17 +1442,17 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
           {/* Agent Working Panel */}
           <div style={{
             position: "absolute",
-            bottom: 40,
+            bottom: "5.5%",
             left: "50%",
             transform: "translateX(-50%)",
-            width: 500,
-            padding: 24,
+            width: s(500),
+            padding: s(24),
             backgroundColor: "rgba(255, 255, 255, 0.98)",
-            borderRadius: 16,
+            borderRadius: s(16),
             border: "1px solid #e5e7eb",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+            boxShadow: `0 ${s(20)}px ${s(60)}px rgba(0,0,0,0.15)`,
           }}>
-            <div style={{ fontFamily: "system-ui", fontSize: 16, color: "#1f2937", marginBottom: 16, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ fontFamily: "system-ui", fontSize: s(16), color: "#1f2937", marginBottom: s(16), fontWeight: 600, display: "flex", alignItems: "center", gap: s(8) }}>
               <span>⚙️</span>
               Agent Working...
             </div>
@@ -1426,16 +1464,16 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
                 <div key={i} style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 12,
-                  marginBottom: 10,
+                  gap: s(12),
+                  marginBottom: s(10),
                   opacity: isActive ? actionProgress : 0.3,
                 }}>
-                  <span style={{ fontSize: 18 }}>{action.icon}</span>
-                  <span style={{ fontFamily: "system-ui", fontSize: 14, color: isActive ? "#1f2937" : "#9ca3af" }}>
+                  <span style={{ fontSize: s(18) }}>{action.icon}</span>
+                  <span style={{ fontFamily: "system-ui", fontSize: s(14), color: isActive ? "#1f2937" : "#9ca3af" }}>
                     {action.text}
                   </span>
                   {isActive && actionProgress >= 1 && (
-                    <span style={{ color: "#10b981", marginLeft: "auto", fontSize: 16 }}>✓</span>
+                    <span style={{ color: "#10b981", marginLeft: "auto", fontSize: s(16) }}>✓</span>
                   )}
                 </div>
               );
@@ -1476,6 +1514,7 @@ const SurveyNewWayScene = ({ frame, fps, sceneDuration }: { frame: number; fps: 
 // skill with the code agent, let it build world-class collaborative spreadsheets for you.
 // You and the agent can collaborate on the spreadsheet together to make work done much faster than ever before."
 const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const { s } = useScale();
   // Phase timings for ~16.75 seconds
   // Script: "Tired of spreadsheets? Let the code agent help you. Equip a spreadsheet builder skill
   // with the code agent, let it build world-class collaborative spreadsheets for you. You and the
@@ -1538,16 +1577,16 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
           {/* Phase indicator overlay */}
           <div style={{
             position: "absolute",
-            top: 20,
-            left: 20,
-            padding: "10px 20px",
+            top: "2.8%",
+            left: "1.6%",
+            padding: `${s(10)}px ${s(20)}px`,
             backgroundColor: "rgba(255, 255, 255, 0.95)",
-            borderRadius: 8,
+            borderRadius: s(8),
             border: "1px solid #e5e7eb",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            boxShadow: `0 ${s(4)}px ${s(12)}px rgba(0,0,0,0.1)`,
             opacity: interpolate(frame, [fps * 0.5, fps * 1], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
-            <span style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#1f2937" }}>
+            <span style={{ fontFamily: "system-ui", fontSize: s(14), fontWeight: 600, color: "#1f2937" }}>
               {frame < phases.agentWorking.start ? "📝 User Request" : "⚙️ Agent Working..."}
             </span>
           </div>
@@ -1556,37 +1595,37 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
 
       {/* Phase 3: Show final spreadsheet result */}
       {frame >= phases.result.start && (
-        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", padding: 30 }}>
+        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", padding: s(30) }}>
           <div style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 16,
+            gap: s(16),
             width: "100%",
           }}>
             {/* Success message */}
             <div style={{
               display: "flex",
               alignItems: "center",
-              gap: 12,
-              padding: "12px 24px",
+              gap: s(12),
+              padding: `${s(12)}px ${s(24)}px`,
               backgroundColor: "#ecfdf5",
               borderRadius: 999,
               border: "1px solid #a7f3d0",
               opacity: interpolate(frame, [phases.result.start, phases.result.start + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
             }}>
-              <span style={{ fontSize: 20 }}>✅</span>
-              <span style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 600, color: "#059669" }}>
+              <span style={{ fontSize: s(20) }}>✅</span>
+              <span style={{ fontFamily: "system-ui", fontSize: s(18), fontWeight: 600, color: "#059669" }}>
                 Done in seconds!
               </span>
             </div>
             {/* Full spreadsheet screenshot */}
             <div style={{
-              borderRadius: 12,
+              borderRadius: s(12),
               overflow: "hidden",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+              boxShadow: `0 ${s(20)}px ${s(60)}px rgba(0,0,0,0.15)`,
               border: "2px solid #e5e7eb",
-              maxWidth: 1100,
+              maxWidth: s(1100),
               opacity: interpolate(frame, [phases.result.start + fps * 0.3, phases.result.start + fps * 0.8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
               transform: `scale(${interpolate(frame, [phases.result.start + fps * 0.3, phases.result.start + fps * 0.8], [0.95, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })})`,
             }}>
@@ -1608,6 +1647,7 @@ const SpreadsheetScene = ({ frame, fps, sceneDuration }: { frame: number; fps: n
 // new features, or resolve GitHub issues. You can also assign a single coding task to
 // different agents and pick whichever you think is best."
 const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const { s } = useScale();
   // Two-part narrative: ~17.2 seconds total
   // Part 1 (0-9s): The Problem - Local machine limitations
   // Part 2 (9-17s): The Solution - Cloud isolation
@@ -1685,7 +1725,7 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
           }}>
             <h1 style={{
               fontFamily: "system-ui",
-              fontSize: 56,
+              fontSize: s(56),
               fontWeight: 700,
               color: "#1f2937",
               textAlign: "center",
@@ -1699,17 +1739,17 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
 
       {/* Local Setup: Show laptop with multiple agents */}
       {frame >= phases.localSetup.start && frame < phases.transition.start && (
-        <AbsoluteFill style={{ padding: 50 }}>
+        <AbsoluteFill style={{ padding: s(50) }}>
           {/* Header */}
           <div style={{
             textAlign: "center",
-            marginBottom: 30,
+            marginBottom: s(30),
             opacity: interpolate(frame, [phases.localSetup.start, phases.localSetup.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
-            <h2 style={{ fontFamily: "system-ui", fontSize: 32, fontWeight: 700, color: "#1f2937", margin: 0 }}>
+            <h2 style={{ fontFamily: "system-ui", fontSize: s(32), fontWeight: 700, color: "#1f2937", margin: 0 }}>
               On your local machine...
             </h2>
-            <p style={{ fontFamily: "system-ui", fontSize: 18, color: "#6b7280", marginTop: 8 }}>
+            <p style={{ fontFamily: "system-ui", fontSize: s(18), color: "#6b7280", marginTop: s(8) }}>
               Running multiple agents on the same repo
             </p>
           </div>
@@ -1719,35 +1759,35 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
             display: "flex",
             justifyContent: "center",
             alignItems: "flex-start",
-            gap: 40,
+            gap: s(40),
           }}>
             {/* Laptop illustration */}
             <div style={{
-              width: 700,
+              width: s(700),
               backgroundColor: "#1e293b",
-              borderRadius: 12,
-              padding: 20,
-              boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+              borderRadius: s(12),
+              padding: s(20),
+              boxShadow: `0 ${s(20)}px ${s(60)}px rgba(0,0,0,0.3)`,
               opacity: interpolate(frame, [phases.localSetup.start, phases.localSetup.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
             }}>
               {/* Terminal header */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#ef4444" }} />
-                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#eab308" }} />
-                <div style={{ width: 12, height: 12, borderRadius: "50%", backgroundColor: "#22c55e" }} />
-                <span style={{ marginLeft: 12, fontFamily: "monospace", fontSize: 12, color: "#94a3b8" }}>Terminal — ~/my-project</span>
+              <div style={{ display: "flex", gap: s(8), marginBottom: s(16) }}>
+                <div style={{ width: s(12), height: s(12), borderRadius: "50%", backgroundColor: "#ef4444" }} />
+                <div style={{ width: s(12), height: s(12), borderRadius: "50%", backgroundColor: "#eab308" }} />
+                <div style={{ width: s(12), height: s(12), borderRadius: "50%", backgroundColor: "#22c55e" }} />
+                <span style={{ marginLeft: s(12), fontFamily: "monospace", fontSize: s(12), color: "#94a3b8" }}>Terminal — ~/my-project</span>
               </div>
 
               {/* Terminal content - agents trying to run */}
-              <div style={{ fontFamily: "monospace", fontSize: 14, lineHeight: 1.8 }}>
+              <div style={{ fontFamily: "monospace", fontSize: s(14), lineHeight: 1.8 }}>
                 {localAgents.map((agent, i) => {
                   const agentDelay = phases.localSetup.start + fps * 0.3 * i;
                   const agentOpacity = interpolate(frame, [agentDelay, agentDelay + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
                   return (
-                    <div key={agent.name} style={{ opacity: agentOpacity, marginBottom: 8 }}>
+                    <div key={agent.name} style={{ opacity: agentOpacity, marginBottom: s(8) }}>
                       <span style={{ color: "#22c55e" }}>$</span>
-                      <span style={{ color: "#e2e8f0", marginLeft: 8 }}>{agent.task}</span>
-                      <span style={{ color: "#64748b", marginLeft: 16 }}>  # {agent.name}</span>
+                      <span style={{ color: "#e2e8f0", marginLeft: s(8) }}>{agent.task}</span>
+                      <span style={{ color: "#64748b", marginLeft: s(16) }}>  # {agent.name}</span>
                     </div>
                   );
                 })}
@@ -1757,16 +1797,16 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                   const errorDelay = phases.conflicts.start + conflict.delay;
                   const errorOpacity = interpolate(frame, [errorDelay, errorDelay + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
                   const shake = frame >= errorDelay && frame < errorDelay + fps * 0.5
-                    ? Math.sin((frame - errorDelay) * 0.5) * 3
+                    ? Math.sin((frame - errorDelay) * 0.5) * s(3)
                     : 0;
                   return (
                     <div key={conflict.error} style={{
                       opacity: errorOpacity,
-                      marginTop: i === 0 ? 20 : 8,
+                      marginTop: i === 0 ? s(20) : s(8),
                       transform: `translateX(${shake}px)`,
-                      padding: "8px 12px",
+                      padding: `${s(8)}px ${s(12)}px`,
                       backgroundColor: "rgba(239, 68, 68, 0.15)",
-                      borderRadius: 6,
+                      borderRadius: s(6),
                       border: "1px solid rgba(239, 68, 68, 0.3)",
                     }}>
                       <span style={{ color: "#ef4444" }}>{conflict.icon} {conflict.error}</span>
@@ -1779,21 +1819,21 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
             {/* Side explanation */}
             {frame >= phases.conflicts.start && (
               <div style={{
-                width: 320,
+                width: s(320),
                 opacity: interpolate(frame, [phases.conflicts.start, phases.conflicts.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
               }}>
                 <div style={{
                   backgroundColor: "#fef2f2",
-                  borderRadius: 12,
-                  padding: 24,
+                  borderRadius: s(12),
+                  padding: s(24),
                   border: "2px solid #fecaca",
                 }}>
-                  <h3 style={{ fontFamily: "system-ui", fontSize: 18, fontWeight: 700, color: "#991b1b", margin: "0 0 16px 0" }}>
+                  <h3 style={{ fontFamily: "system-ui", fontSize: s(18), fontWeight: 700, color: "#991b1b", margin: `0 0 ${s(16)}px 0` }}>
                     The Problem
                   </h3>
-                  <div style={{ fontFamily: "system-ui", fontSize: 14, color: "#7f1d1d", lineHeight: 1.6 }}>
-                    <p style={{ margin: "0 0 12px 0" }}>• Same port conflicts</p>
-                    <p style={{ margin: "0 0 12px 0" }}>• Test runner locks</p>
+                  <div style={{ fontFamily: "system-ui", fontSize: s(14), color: "#7f1d1d", lineHeight: 1.6 }}>
+                    <p style={{ margin: `0 0 ${s(12)}px 0` }}>• Same port conflicts</p>
+                    <p style={{ margin: `0 0 ${s(12)}px 0` }}>• Test runner locks</p>
                     <p style={{ margin: 0 }}>• Resource contention</p>
                   </div>
                 </div>
@@ -1807,74 +1847,74 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
 
       {/* Cloud Isolation */}
       {frame >= phases.transition.start && (
-        <AbsoluteFill style={{ padding: "30px 50px" }}>
+        <AbsoluteFill style={{ padding: `${s(30)}px ${s(50)}px` }}>
           {/* Header */}
           <div style={{
             textAlign: "center",
-            marginBottom: 24,
+            marginBottom: s(24),
             opacity: interpolate(frame, [phases.transition.start, phases.transition.start + fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
-            <h2 style={{ fontFamily: "system-ui", fontSize: 32, fontWeight: 700, color: "#1f2937", margin: 0 }}>
+            <h2 style={{ fontFamily: "system-ui", fontSize: s(32), fontWeight: 700, color: "#1f2937", margin: 0 }}>
               The new way? <span style={{ color: "#0ea5e9" }}>Cloud isolation</span>
             </h2>
-            <p style={{ fontFamily: "system-ui", fontSize: 18, color: "#6b7280", marginTop: 8 }}>
+            <p style={{ fontFamily: "system-ui", fontSize: s(18), color: "#6b7280", marginTop: s(8) }}>
               Each task runs in complete isolation — <span style={{ color: "#0ea5e9", fontWeight: 600 }}>Code Agent + Skill</span>
             </p>
           </div>
 
           {/* Cloud VMs with Skills */}
-          <div style={{ display: "flex", justifyContent: "center", gap: 24 }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: s(24) }}>
             {cloudVMs.map((vm, i) => {
               const vmDelay = phases.cloudIsolation.start + fps * 0.4 * i;
               const vmEntrance = spring({ frame: frame - vmDelay, fps, config: { damping: 12 } });
               return (
                 <div key={vm.name} style={{
-                  width: 320,
+                  width: s(320),
                   backgroundColor: "white",
-                  borderRadius: 16,
+                  borderRadius: s(16),
                   border: "2px solid #e5e7eb",
                   overflow: "hidden",
-                  boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
+                  boxShadow: `0 ${s(10)}px ${s(40)}px rgba(0,0,0,0.08)`,
                   opacity: interpolate(vmEntrance, [0, 1], [0, 1]),
-                  transform: `translateY(${interpolate(vmEntrance, [0, 1], [30, 0])}px)`,
+                  transform: `translateY(${interpolate(vmEntrance, [0, 1], [s(30), 0])}px)`,
                 }}>
                   {/* VM Header with Skill */}
                   <div style={{
                     backgroundColor: "#0ea5e9",
-                    padding: "10px 16px",
+                    padding: `${s(10)}px ${s(16)}px`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
                   }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                    <div style={{ display: "flex", alignItems: "center", gap: s(8) }}>
+                      <svg width={s(18)} height={s(18)} viewBox="0 0 24 24" fill="white">
                         <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
                       </svg>
-                      <span style={{ fontFamily: "system-ui", fontSize: 13, fontWeight: 600, color: "white" }}>
+                      <span style={{ fontFamily: "system-ui", fontSize: s(13), fontWeight: 600, color: "white" }}>
                         Isolated {vm.name}
                       </span>
                     </div>
                   </div>
 
                   {/* VM Content */}
-                  <div style={{ padding: 16 }}>
+                  <div style={{ padding: s(16) }}>
                     {/* Skill badge */}
                     <div style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 10,
-                      marginBottom: 12,
-                      padding: "8px 12px",
+                      gap: s(10),
+                      marginBottom: s(12),
+                      padding: `${s(8)}px ${s(12)}px`,
                       backgroundColor: "#f0f9ff",
-                      borderRadius: 8,
+                      borderRadius: s(8),
                       border: "1px solid #bae6fd",
                     }}>
-                      <span style={{ fontSize: 20 }}>{vm.icon}</span>
+                      <span style={{ fontSize: s(20) }}>{vm.icon}</span>
                       <div>
-                        <div style={{ fontFamily: "system-ui", fontSize: 11, color: "#0369a1", fontWeight: 500 }}>
+                        <div style={{ fontFamily: "system-ui", fontSize: s(11), color: "#0369a1", fontWeight: 500 }}>
                           Code Agent + Skill
                         </div>
-                        <div style={{ fontFamily: "system-ui", fontSize: 14, fontWeight: 600, color: "#0c4a6e" }}>
+                        <div style={{ fontFamily: "system-ui", fontSize: s(14), fontWeight: 600, color: "#0c4a6e" }}>
                           {vm.skill}
                         </div>
                       </div>
@@ -1883,11 +1923,11 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                     {/* Terminal mini */}
                     <div style={{
                       backgroundColor: "#1e293b",
-                      borderRadius: 8,
-                      padding: 12,
-                      marginBottom: 12,
+                      borderRadius: s(8),
+                      padding: s(12),
+                      marginBottom: s(12),
                     }}>
-                      <div style={{ fontFamily: "monospace", fontSize: 12, color: "#94a3b8" }}>
+                      <div style={{ fontFamily: "monospace", fontSize: s(12), color: "#94a3b8" }}>
                         {vm.command}
                       </div>
                     </div>
@@ -1896,14 +1936,14 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                     <div style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 8,
-                      padding: "8px 12px",
+                      gap: s(8),
+                      padding: `${s(8)}px ${s(12)}px`,
                       backgroundColor: "#ecfdf5",
-                      borderRadius: 8,
+                      borderRadius: s(8),
                       border: "1px solid #a7f3d0",
                     }}>
-                      <span style={{ fontSize: 14 }}>✅</span>
-                      <span style={{ fontFamily: "system-ui", fontSize: 13, fontWeight: 500, color: "#059669" }}>
+                      <span style={{ fontSize: s(14) }}>✅</span>
+                      <span style={{ fontFamily: "system-ui", fontSize: s(13), fontWeight: 500, color: "#059669" }}>
                         {vm.status}
                       </span>
                     </div>
@@ -1915,18 +1955,18 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
 
           {/* Skills Grid */}
           <div style={{
-            marginTop: 28,
+            marginTop: s(28),
             opacity: interpolate(frame, [phases.cloudIsolation.start + fps * 1.5, phases.cloudIsolation.start + fps * 2], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
           }}>
             <div style={{
               textAlign: "center",
-              marginBottom: 16,
+              marginBottom: s(16),
             }}>
-              <span style={{ fontFamily: "system-ui", fontSize: 14, color: "#6b7280" }}>
+              <span style={{ fontFamily: "system-ui", fontSize: s(14), color: "#6b7280" }}>
                 Available coding skills:
               </span>
             </div>
-            <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: s(12), flexWrap: "wrap" }}>
               {codingSkills.map((skill, i) => {
                 const skillDelay = phases.cloudIsolation.start + fps * 2 + i * fps * 0.15;
                 const skillOpacity = interpolate(frame, [skillDelay, skillDelay + fps * 0.3], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
@@ -1934,16 +1974,16 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
                   <div key={skill.name} style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 8,
-                    padding: "8px 16px",
+                    gap: s(8),
+                    padding: `${s(8)}px ${s(16)}px`,
                     backgroundColor: "white",
                     borderRadius: 999,
                     border: "1px solid #e5e7eb",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                    boxShadow: `0 ${s(2)}px ${s(8)}px rgba(0,0,0,0.04)`,
                     opacity: skillOpacity,
                   }}>
-                    <span style={{ fontSize: 16 }}>{skill.icon}</span>
-                    <span style={{ fontFamily: "system-ui", fontSize: 13, fontWeight: 500, color: "#374151" }}>
+                    <span style={{ fontSize: s(16) }}>{skill.icon}</span>
+                    <span style={{ fontFamily: "system-ui", fontSize: s(13), fontWeight: 500, color: "#374151" }}>
                       {skill.name}
                     </span>
                   </div>
@@ -1960,6 +2000,7 @@ const CodingScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number
 // ============ SCENE 9: OUTRO (100-112s) ============
 // Script: "See what's possible. Real results from real users. Rebyte. Vibe working with skilled code agents."
 const OutroScene = ({ frame, fps }: { frame: number; fps: number }) => {
+  const { s } = useScale();
   // All capability chips from the Rebyte platform
   const capabilities = [
     // Row 1
@@ -1992,32 +2033,32 @@ const OutroScene = ({ frame, fps }: { frame: number; fps: number }) => {
     const chipEntrance = spring({ frame: frame - delay, fps, config: { damping: 14, stiffness: 120 } });
     const chipOpacity = interpolate(chipEntrance, [0, 1], [0, 1]);
     const chipScale = interpolate(chipEntrance, [0, 1], [0.8, 1]);
-    const chipY = interpolate(chipEntrance, [0, 1], [15, 0]);
+    const chipY = interpolate(chipEntrance, [0, 1], [s(15), 0]);
 
     return (
       <div style={{
         display: "flex",
         alignItems: "center",
-        gap: 10,
-        padding: "12px 20px",
+        gap: s(10),
+        padding: `${s(12)}px ${s(20)}px`,
         backgroundColor: "white",
         borderRadius: 999,
         border: "1px solid #e5e7eb",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+        boxShadow: `0 ${s(2)}px ${s(8)}px rgba(0,0,0,0.04)`,
         opacity: chipOpacity,
         transform: `scale(${chipScale}) translateY(${chipY}px)`,
       }}>
-        <span style={{ fontSize: 18 }}>{icon}</span>
-        <span style={{ fontFamily: "system-ui", fontSize: 15, fontWeight: 500, color: "#374151" }}>
+        <span style={{ fontSize: s(18) }}>{icon}</span>
+        <span style={{ fontFamily: "system-ui", fontSize: s(15), fontWeight: 500, color: "#374151" }}>
           {label}
         </span>
         {isPro && (
           <span style={{
             display: "flex",
             alignItems: "center",
-            gap: 4,
+            gap: s(4),
             fontFamily: "system-ui",
-            fontSize: 12,
+            fontSize: s(12),
             fontWeight: 600,
             color: "#f59e0b",
           }}>
@@ -2033,13 +2074,13 @@ const OutroScene = ({ frame, fps }: { frame: number; fps: number }) => {
       {/* Header */}
       <div style={{
         textAlign: "center",
-        paddingTop: 50,
+        paddingTop: "6.9%",
         opacity: interpolate(frame, [0, fps * 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-        transform: `translateY(${interpolate(frame, [0, fps * 0.5], [20, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
+        transform: `translateY(${interpolate(frame, [0, fps * 0.5], [s(20), 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })}px)`,
       }}>
         <h1 style={{
           fontFamily: "system-ui",
-          fontSize: 44,
+          fontSize: s(44),
           fontWeight: 700,
           color: "#1f2937",
           margin: 0,
@@ -2048,9 +2089,9 @@ const OutroScene = ({ frame, fps }: { frame: number; fps: number }) => {
         </h1>
         <p style={{
           fontFamily: "system-ui",
-          fontSize: 18,
+          fontSize: s(18),
           color: "#6b7280",
-          marginTop: 10,
+          marginTop: s(10),
         }}>
           Unleash your imagination with Rebyte
         </p>
@@ -2061,35 +2102,35 @@ const OutroScene = ({ frame, fps }: { frame: number; fps: number }) => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 16,
-        padding: "30px 60px",
+        gap: s(16),
+        padding: `${s(30)}px ${s(60)}px`,
       }}>
         {/* Row 1 */}
-        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: s(14), flexWrap: "wrap", justifyContent: "center" }}>
           {capabilities.slice(0, 4).map((cap, i) => (
             <Chip key={cap.label} {...cap} index={i} />
           ))}
         </div>
         {/* Row 2 */}
-        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: s(14), flexWrap: "wrap", justifyContent: "center" }}>
           {capabilities.slice(4, 8).map((cap, i) => (
             <Chip key={cap.label} {...cap} index={i + 4} />
           ))}
         </div>
         {/* Row 3 */}
-        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: s(14), flexWrap: "wrap", justifyContent: "center" }}>
           {capabilities.slice(8, 10).map((cap, i) => (
             <Chip key={cap.label} {...cap} index={i + 8} />
           ))}
         </div>
         {/* Row 4 */}
-        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: s(14), flexWrap: "wrap", justifyContent: "center" }}>
           {capabilities.slice(10, 14).map((cap, i) => (
             <Chip key={cap.label} {...cap} index={i + 10} />
           ))}
         </div>
         {/* Row 5 */}
-        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: s(14), flexWrap: "wrap", justifyContent: "center" }}>
           {capabilities.slice(14, 17).map((cap, i) => (
             <Chip key={cap.label} {...cap} index={i + 14} />
           ))}
@@ -2099,7 +2140,7 @@ const OutroScene = ({ frame, fps }: { frame: number; fps: number }) => {
       {/* Bottom tagline */}
       <div style={{
         position: "absolute",
-        bottom: 40,
+        bottom: "5.5%",
         left: 0,
         right: 0,
         textAlign: "center",
@@ -2107,7 +2148,7 @@ const OutroScene = ({ frame, fps }: { frame: number; fps: number }) => {
       }}>
         <p style={{
           fontFamily: "system-ui",
-          fontSize: 20,
+          fontSize: s(20),
           fontWeight: 600,
           color: "#0ea5e9",
           margin: 0,
@@ -2153,6 +2194,7 @@ const CTAScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; s
 // ============ SCENE 10: TAGLINE ============
 // Script: "Rebyte. Vibe working with skilled code agents."
 const TaglineScene = ({ frame, fps, sceneDuration }: { frame: number; fps: number; sceneDuration: number }) => {
+  const { s } = useScale();
   const logoScale = spring({ frame, fps, config: { damping: 12, stiffness: 100 } });
   const textOpacity = interpolate(frame, [fps * 0.3, fps * 0.8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
@@ -2163,18 +2205,18 @@ const TaglineScene = ({ frame, fps, sceneDuration }: { frame: number; fps: numbe
       flexDirection: "column",
       justifyContent: "center",
       alignItems: "center",
-      gap: 24,
+      gap: s(24),
     }}>
       <div style={{
         display: "flex",
         alignItems: "center",
-        gap: 20,
+        gap: s(20),
         transform: `scale(${logoScale})`,
       }}>
-        <RebyteLogo size={80} color="#1f2937" innerColor="#ffffff" />
+        <RebyteLogo size={s(80)} color="#1f2937" innerColor="#ffffff" />
         <span style={{
           fontFamily: "system-ui",
-          fontSize: 64,
+          fontSize: s(64),
           fontWeight: 700,
           color: "#1f2937",
         }}>
@@ -2183,7 +2225,7 @@ const TaglineScene = ({ frame, fps, sceneDuration }: { frame: number; fps: numbe
       </div>
       <p style={{
         fontFamily: "system-ui",
-        fontSize: 28,
+        fontSize: s(28),
         color: "#6b7280",
         margin: 0,
         opacity: textOpacity,
@@ -2196,6 +2238,7 @@ const TaglineScene = ({ frame, fps, sceneDuration }: { frame: number; fps: numbe
 
 // ============ PROGRESS BAR ============
 const ProgressBar = ({ frame, durationInFrames }: { frame: number; durationInFrames: number }) => {
+  const { s } = useScale();
   const progress = (frame / durationInFrames) * 100;
 
   return (
@@ -2204,7 +2247,7 @@ const ProgressBar = ({ frame, durationInFrames }: { frame: number; durationInFra
       bottom: 0,
       left: 0,
       right: 0,
-      height: 4,
+      height: s(4),
       backgroundColor: "rgba(0,0,0,0.08)",
     }}>
       <div style={{
