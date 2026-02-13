@@ -30,3 +30,9 @@ OPENAI_API_KEY=<key> node .claude/skills/tts/generate.js "Your script text" --ou
 ```bash
 OPENAI_API_KEY=<key> node .claude/skills/tts/generate.js "Say you need a spreadsheet to track your project timeline." --voice alloy --output ./my-remotion-demo/public/sections/07-spreadsheet/audio.mp3
 ```
+
+## Postmark API Key
+
+```
+c1179392-d95b-444a-bcab-f76c3ab99eae
+```
