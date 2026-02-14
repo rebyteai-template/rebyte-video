@@ -11,6 +11,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
   }
 
+  if (config.channel === "sms") {
+    return NextResponse.json({ html: "", message: config.message });
+  }
+
   const html = await render(
     createElement(config.component, config.sampleProps)
   );

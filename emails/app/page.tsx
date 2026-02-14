@@ -4,24 +4,70 @@ import { useState, useEffect, useCallback } from "react";
 
 interface Campaign {
   name: string;
+  channel: "email" | "sms";
   description: string;
-  subject: string;
+  subject?: string;
+  message?: string;
 }
 
 interface Group {
   id: number;
   name: string;
+  type: "static" | "dynamic";
+  channel: "email" | "sms";
+  preset: string | null;
+  last_synced_at: string | null;
   member_count: number;
 }
 
 interface Member {
   id: number;
   email: string;
+  phone: string;
   name: string;
+}
+
+interface ClerkPreset {
+  id: string;
+  label: string;
+  description: string;
 }
 
 type Tab = "preview" | "send";
 type SidebarView = "campaign" | "group";
+
+function ChannelBadge({
+  channel,
+  inverted,
+}: {
+  channel: "email" | "sms";
+  inverted?: boolean;
+}) {
+  if (channel === "sms") {
+    return (
+      <span
+        className={`text-[10px] px-1.5 py-0.5 rounded font-normal ${
+          inverted
+            ? "bg-gray-700 text-green-300"
+            : "bg-green-100 text-green-700"
+        }`}
+      >
+        sms
+      </span>
+    );
+  }
+  return (
+    <span
+      className={`text-[10px] px-1.5 py-0.5 rounded font-normal ${
+        inverted
+          ? "bg-gray-700 text-gray-300"
+          : "bg-gray-100 text-gray-600"
+      }`}
+    >
+      email
+    </span>
+  );
+}
 
 export default function Console() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -37,14 +83,28 @@ export default function Console() {
   const [loading, setLoading] = useState(false);
   const [sendTo, setSendTo] = useState<"group" | "single">("group");
   const [singleEmail, setSingleEmail] = useState("");
+  const [singlePhone, setSinglePhone] = useState("");
   const [sendGroupId, setSendGroupId] = useState<number | "">("");
 
   // Group management state
   const [members, setMembers] = useState<Member[]>([]);
   const [newEmail, setNewEmail] = useState("");
+  const [newPhone, setNewPhone] = useState("");
   const [newName, setNewName] = useState("");
   const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupChannel, setNewGroupChannel] = useState<"email" | "sms">(
+    "email"
+  );
   const [groupStatus, setGroupStatus] = useState<string | null>(null);
+
+  // Dynamic group state
+  const [clerkPresets, setClerkPresets] = useState<ClerkPreset[]>([]);
+  const [showPresetPicker, setShowPresetPicker] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+
+  const selectedCampaign = campaigns.find((c) => c.name === selected) ?? null;
+  const isSmsGroup = selectedGroup?.channel === "sms";
+  const isSmsCampaign = selectedCampaign?.channel === "sms";
 
   const loadGroups = useCallback(async () => {
     const res = await fetch("/api/groups");
@@ -57,6 +117,9 @@ export default function Console() {
       .then((r) => r.json())
       .then(setCampaigns);
     loadGroups();
+    fetch("/api/clerk-presets")
+      .then((r) => r.json())
+      .then(setClerkPresets);
   }, [loadGroups]);
 
   const loadPreview = useCallback(async (name: string) => {
@@ -76,9 +139,12 @@ export default function Console() {
       setSelectedGroup(null);
       setSendResult(null);
       setTab("preview");
+      setSendGroupId("");
       const campaign = campaigns.find((c) => c.name === name);
-      if (campaign) setSubject(campaign.subject);
-      loadPreview(name);
+      if (campaign?.channel === "email" && campaign.subject) {
+        setSubject(campaign.subject);
+        loadPreview(name);
+      }
     },
     [campaigns, loadPreview]
   );
@@ -105,10 +171,69 @@ export default function Console() {
     const res = await fetch("/api/groups", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newGroupName.trim() }),
+      body: JSON.stringify({
+        name: newGroupName.trim(),
+        channel: newGroupChannel,
+      }),
     });
     if (res.ok) {
       setNewGroupName("");
+      loadGroups();
+    } else {
+      const data = await res.json();
+      setGroupStatus(`Error: ${data.error}`);
+    }
+  };
+
+  const handleCreateDynamicGroup = async (presetId: string) => {
+    const preset = clerkPresets.find((p) => p.id === presetId);
+    if (!preset) return;
+    setShowPresetPicker(false);
+    setSyncing(true);
+    setGroupStatus(null);
+    const res = await fetch("/api/groups", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: preset.label, preset: presetId }),
+    });
+    setSyncing(false);
+    if (res.ok) {
+      const group = await res.json();
+      await loadGroups();
+      selectGroup({
+        id: group.id,
+        name: group.name,
+        type: "dynamic",
+        channel: group.channel || "email",
+        preset: presetId,
+        last_synced_at: group.last_synced_at,
+        member_count: 0,
+      });
+    } else {
+      const data = await res.json();
+      setGroupStatus(`Error: ${data.error}`);
+    }
+  };
+
+  const handleSyncGroup = async () => {
+    if (!selectedGroup || selectedGroup.type !== "dynamic") return;
+    setSyncing(true);
+    setGroupStatus(null);
+    const res = await fetch(`/api/groups/${selectedGroup.id}/sync`, {
+      method: "POST",
+    });
+    setSyncing(false);
+    if (res.ok) {
+      const data = await res.json();
+      setGroupStatus(
+        `Synced ${data.member_count} members from Clerk`
+      );
+      setSelectedGroup({
+        ...selectedGroup,
+        last_synced_at: data.last_synced_at,
+        member_count: data.member_count,
+      });
+      loadMembers(selectedGroup.id);
       loadGroups();
     } else {
       const data = await res.json();
@@ -125,29 +250,49 @@ export default function Console() {
   };
 
   const handleAddMember = async () => {
-    if (!selectedGroup || !newEmail.includes("@")) return;
-    const res = await fetch(`/api/groups/${selectedGroup.id}/members`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: newEmail, name: newName }),
-    });
-    if (res.ok) {
-      setNewEmail("");
-      setNewName("");
-      loadMembers(selectedGroup.id);
-      loadGroups();
+    if (!selectedGroup) return;
+    if (isSmsGroup) {
+      if (!newPhone.trim()) return;
+      const res = await fetch(`/api/groups/${selectedGroup.id}/members`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: newPhone, name: newName }),
+      });
+      if (res.ok) {
+        setNewPhone("");
+        setNewName("");
+        loadMembers(selectedGroup.id);
+        loadGroups();
+      } else {
+        const data = await res.json();
+        setGroupStatus(`Error: ${data.error}`);
+      }
     } else {
-      const data = await res.json();
-      setGroupStatus(`Error: ${data.error}`);
+      if (!newEmail.includes("@")) return;
+      const res = await fetch(`/api/groups/${selectedGroup.id}/members`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newEmail, name: newName }),
+      });
+      if (res.ok) {
+        setNewEmail("");
+        setNewName("");
+        loadMembers(selectedGroup.id);
+        loadGroups();
+      } else {
+        const data = await res.json();
+        setGroupStatus(`Error: ${data.error}`);
+      }
     }
   };
 
-  const handleRemoveMember = async (email: string) => {
+  const handleRemoveMember = async (member: Member) => {
     if (!selectedGroup) return;
+    const body = isSmsGroup ? { phone: member.phone } : { email: member.email };
     await fetch(`/api/groups/${selectedGroup.id}/members`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify(body),
     });
     loadMembers(selectedGroup.id);
     loadGroups();
@@ -174,7 +319,7 @@ export default function Console() {
   };
 
   const handleSend = async (dryRun: boolean) => {
-    if (!selected) return;
+    if (!selected || !selectedCampaign) return;
     const isSingle = sendTo === "single";
     const group = groups.find((g) => g.id === sendGroupId);
     const targetCount = isSingle ? 1 : group?.member_count || 0;
@@ -183,7 +328,9 @@ export default function Console() {
       !dryRun &&
       !window.confirm(
         isSingle
-          ? `Send to ${singleEmail}? This cannot be undone.`
+          ? isSmsCampaign
+            ? `Send SMS to ${singlePhone}? This cannot be undone.`
+            : `Send to ${singleEmail}? This cannot be undone.`
           : `Send to ${targetCount} recipients in "${group?.name}"? This cannot be undone.`
       )
     )
@@ -199,7 +346,11 @@ export default function Console() {
         from: fromAddress,
         subject,
         dryRun,
-        ...(isSingle ? { email: singleEmail } : { groupId: sendGroupId }),
+        ...(isSingle
+          ? isSmsCampaign
+            ? { phone: singlePhone }
+            : { email: singleEmail }
+          : { groupId: sendGroupId }),
       }),
     });
     const data = await res.json();
@@ -208,18 +359,31 @@ export default function Console() {
     if (data.error) {
       setSendResult(`Error: ${data.error}`);
     } else if (dryRun) {
-      setSendResult(
-        `Dry run: ${data.total} emails would be sent.\n\nPreview recipients:\n${(data.previews || []).map((p: { email: string }) => `  ${p.email}`).join("\n")}`
-      );
+      if (isSmsCampaign) {
+        setSendResult(
+          `Dry run: ${data.total} SMS would be sent.\n\nPreview recipients:\n${(data.previews || []).map((p: { phone: string; message: string }) => `  ${p.phone}: "${p.message}"`).join("\n")}`
+        );
+      } else {
+        setSendResult(
+          `Dry run: ${data.total} emails would be sent.\n\nPreview recipients:\n${(data.previews || []).map((p: { email: string }) => `  ${p.email}`).join("\n")}`
+        );
+      }
     } else {
       setSendResult(`Sent: ${data.sent}, Failed: ${data.failed}`);
     }
   };
 
+  // Filter groups to match campaign channel in send tab
+  const matchingGroups = selectedCampaign
+    ? groups.filter((g) => g.channel === selectedCampaign.channel)
+    : groups;
+
   const tabs: { id: Tab; label: string }[] = [
     { id: "preview", label: "Preview" },
     { id: "send", label: "Send" },
   ];
+
+  const isDynamic = selectedGroup?.type === "dynamic";
 
   return (
     <div className="flex h-screen">
@@ -237,7 +401,13 @@ export default function Console() {
                   : "hover:bg-gray-100"
               }`}
             >
-              <div className="font-medium">{c.name}</div>
+              <div className="font-medium flex items-center gap-1.5">
+                {c.name}
+                <ChannelBadge
+                  channel={c.channel}
+                  inverted={selected === c.name}
+                />
+              </div>
               <div
                 className={`text-xs ${selected === c.name ? "text-gray-300" : "text-gray-500"}`}
               >
@@ -260,7 +430,24 @@ export default function Console() {
                     : "hover:bg-gray-100"
                 }`}
               >
-                <div className="font-medium">{g.name}</div>
+                <div className="font-medium flex items-center gap-1.5">
+                  {g.name}
+                  <ChannelBadge
+                    channel={g.channel}
+                    inverted={selectedGroup?.id === g.id}
+                  />
+                  {g.type === "dynamic" && (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded font-normal ${
+                        selectedGroup?.id === g.id
+                          ? "bg-gray-700 text-gray-300"
+                          : "bg-blue-100 text-blue-700"
+                      }`}
+                    >
+                      sync
+                    </span>
+                  )}
+                </div>
                 <div
                   className={`text-xs ${selectedGroup?.id === g.id ? "text-gray-300" : "text-gray-500"}`}
                 >
@@ -269,7 +456,7 @@ export default function Console() {
               </button>
             ))}
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 mb-1">
             <input
               type="text"
               placeholder="New group name"
@@ -286,12 +473,57 @@ export default function Console() {
               +
             </button>
           </div>
+          <div className="flex gap-2 mb-2 px-1">
+            <label className="flex items-center gap-1 text-xs text-gray-500">
+              <input
+                type="radio"
+                name="newGroupChannel"
+                checked={newGroupChannel === "email"}
+                onChange={() => setNewGroupChannel("email")}
+                className="w-3 h-3"
+              />
+              email
+            </label>
+            <label className="flex items-center gap-1 text-xs text-gray-500">
+              <input
+                type="radio"
+                name="newGroupChannel"
+                checked={newGroupChannel === "sms"}
+                onChange={() => setNewGroupChannel("sms")}
+                className="w-3 h-3"
+              />
+              sms
+            </label>
+          </div>
+          <div className="relative">
+            <button
+              onClick={() => setShowPresetPicker(!showPresetPicker)}
+              disabled={syncing}
+              className="w-full px-2 py-1 text-sm text-blue-700 border border-blue-200 rounded hover:bg-blue-50 disabled:opacity-50"
+            >
+              {syncing ? "Syncing..." : "+ Dynamic group from Clerk"}
+            </button>
+            {showPresetPicker && (
+              <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded shadow-lg z-10">
+                {clerkPresets.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => handleCreateDynamicGroup(p.id)}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 border-b border-gray-100 last:border-0"
+                  >
+                    <div className="font-medium">{p.label}</div>
+                    <div className="text-xs text-gray-500">{p.description}</div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Main */}
       <div className="flex-1 flex flex-col">
-        {sidebarView === "campaign" && selected ? (
+        {sidebarView === "campaign" && selected && selectedCampaign ? (
           <>
             {/* Tabs */}
             <div className="border-b border-gray-200 bg-white px-6">
@@ -316,12 +548,25 @@ export default function Console() {
             <div className="flex-1 overflow-auto p-6">
               {tab === "preview" && (
                 <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                  <iframe
-                    srcDoc={previewHtml}
-                    className="w-full h-[700px] border-0"
-                    title="Email preview"
-                    sandbox=""
-                  />
+                  {isSmsCampaign ? (
+                    <div className="p-6">
+                      <div className="text-xs text-gray-500 uppercase tracking-wide mb-3">
+                        SMS Message Preview
+                      </div>
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md">
+                        <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                          {selectedCampaign.message}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <iframe
+                      srcDoc={previewHtml}
+                      className="w-full h-[700px] border-0"
+                      title="Email preview"
+                      sandbox=""
+                    />
+                  )}
                 </div>
               )}
 
@@ -348,7 +593,7 @@ export default function Console() {
                           checked={sendTo === "single"}
                           onChange={() => setSendTo("single")}
                         />
-                        Single email
+                        {isSmsCampaign ? "Single phone" : "Single email"}
                       </label>
                     </div>
                     {sendTo === "group" && (
@@ -362,14 +607,23 @@ export default function Console() {
                         className="w-full mt-2 px-3 py-2 border border-gray-300 rounded text-sm"
                       >
                         <option value="">Select a group...</option>
-                        {groups.map((g) => (
+                        {matchingGroups.map((g) => (
                           <option key={g.id} value={g.id}>
                             {g.name} ({g.member_count} members)
                           </option>
                         ))}
                       </select>
                     )}
-                    {sendTo === "single" && (
+                    {sendTo === "single" && isSmsCampaign && (
+                      <input
+                        type="tel"
+                        placeholder="+1234567890"
+                        value={singlePhone}
+                        onChange={(e) => setSinglePhone(e.target.value)}
+                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                    )}
+                    {sendTo === "single" && !isSmsCampaign && (
                       <input
                         type="email"
                         placeholder="recipient@example.com"
@@ -379,35 +633,44 @@ export default function Console() {
                       />
                     )}
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      From
-                    </label>
-                    <input
-                      type="email"
-                      value={fromAddress}
-                      onChange={(e) => setFromAddress(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Subject
-                    </label>
-                    <input
-                      type="text"
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                    />
-                  </div>
+                  {!isSmsCampaign && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          From
+                        </label>
+                        <input
+                          type="email"
+                          value={fromAddress}
+                          onChange={(e) => setFromAddress(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Subject
+                        </label>
+                        <input
+                          type="text"
+                          value={subject}
+                          onChange={(e) => setSubject(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        />
+                      </div>
+                    </>
+                  )}
                   <div className="flex gap-3 pt-2">
                     <button
                       onClick={() => handleSend(true)}
                       disabled={
                         loading ||
                         (sendTo === "group" && !sendGroupId) ||
-                        (sendTo === "single" && !singleEmail.includes("@"))
+                        (sendTo === "single" &&
+                          !isSmsCampaign &&
+                          !singleEmail.includes("@")) ||
+                        (sendTo === "single" &&
+                          isSmsCampaign &&
+                          !singlePhone.trim())
                       }
                       className="px-4 py-2 bg-gray-100 border border-gray-300 rounded text-sm font-medium hover:bg-gray-200 disabled:opacity-50"
                     >
@@ -418,7 +681,12 @@ export default function Console() {
                       disabled={
                         loading ||
                         (sendTo === "group" && !sendGroupId) ||
-                        (sendTo === "single" && !singleEmail.includes("@"))
+                        (sendTo === "single" &&
+                          !isSmsCampaign &&
+                          !singleEmail.includes("@")) ||
+                        (sendTo === "single" &&
+                          isSmsCampaign &&
+                          !singlePhone.trim())
                       }
                       className="px-4 py-2 bg-gray-900 text-white rounded text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
                     >
@@ -437,14 +705,39 @@ export default function Console() {
         ) : sidebarView === "group" && selectedGroup ? (
           <div className="flex-1 overflow-auto p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">{selectedGroup.name}</h2>
-              <button
-                onClick={() => handleDeleteGroup(selectedGroup.id)}
-                className="px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded hover:bg-red-50"
-              >
-                Delete Group
-              </button>
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-semibold">{selectedGroup.name}</h2>
+                <ChannelBadge channel={selectedGroup.channel} />
+                {isDynamic && (
+                  <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+                    dynamic
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {isDynamic && (
+                  <button
+                    onClick={handleSyncGroup}
+                    disabled={syncing}
+                    className="px-3 py-1.5 text-sm text-blue-700 border border-blue-200 rounded hover:bg-blue-50 disabled:opacity-50"
+                  >
+                    {syncing ? "Syncing..." : "Refresh from Clerk"}
+                  </button>
+                )}
+                <button
+                  onClick={() => handleDeleteGroup(selectedGroup.id)}
+                  className="px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded hover:bg-red-50"
+                >
+                  Delete Group
+                </button>
+              </div>
             </div>
+
+            {isDynamic && selectedGroup.last_synced_at && (
+              <div className="mb-4 text-xs text-gray-500">
+                Last synced: {new Date(selectedGroup.last_synced_at + "Z").toLocaleString()}
+              </div>
+            )}
 
             {groupStatus && (
               <div className="mb-4 text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded px-3 py-2">
@@ -452,41 +745,56 @@ export default function Console() {
               </div>
             )}
 
-            {/* Add member row */}
-            <div className="flex gap-2 mb-4">
-              <input
-                type="email"
-                placeholder="email@example.com"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-              />
-              <input
-                type="text"
-                placeholder="Name (optional)"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
-                className="w-48 px-3 py-2 border border-gray-300 rounded text-sm"
-              />
-              <button
-                onClick={handleAddMember}
-                disabled={!newEmail.includes("@")}
-                className="px-4 py-2 bg-gray-900 text-white rounded text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
-              >
-                Add
-              </button>
-              <label className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded text-sm font-medium cursor-pointer hover:bg-gray-50">
-                Import CSV
+            {/* Add member row — only for static groups */}
+            {!isDynamic && (
+              <div className="flex gap-2 mb-4">
+                {isSmsGroup ? (
+                  <input
+                    type="tel"
+                    placeholder="+1234567890"
+                    value={newPhone}
+                    onChange={(e) => setNewPhone(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                  />
+                ) : (
+                  <input
+                    type="email"
+                    placeholder="email@example.com"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                  />
+                )}
                 <input
-                  type="file"
-                  accept=".csv,.json"
-                  onChange={handleCsvImport}
-                  className="hidden"
+                  type="text"
+                  placeholder="Name (optional)"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
+                  className="w-48 px-3 py-2 border border-gray-300 rounded text-sm"
                 />
-              </label>
-            </div>
+                <button
+                  onClick={handleAddMember}
+                  disabled={
+                    isSmsGroup ? !newPhone.trim() : !newEmail.includes("@")
+                  }
+                  className="px-4 py-2 bg-gray-900 text-white rounded text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+                >
+                  Add
+                </button>
+                <label className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded text-sm font-medium cursor-pointer hover:bg-gray-50">
+                  Import CSV
+                  <input
+                    type="file"
+                    accept=".csv,.json"
+                    onChange={handleCsvImport}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            )}
 
             {/* Members table */}
             {members.length > 0 ? (
@@ -498,12 +806,12 @@ export default function Console() {
                         #
                       </th>
                       <th className="text-left px-4 py-2 font-medium text-gray-600">
-                        Email
+                        {isSmsGroup ? "Phone" : "Email"}
                       </th>
                       <th className="text-left px-4 py-2 font-medium text-gray-600">
                         Name
                       </th>
-                      <th className="w-10"></th>
+                      {!isDynamic && <th className="w-10"></th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -513,18 +821,22 @@ export default function Console() {
                         className="border-b border-gray-100 last:border-0"
                       >
                         <td className="px-4 py-2 text-gray-400">{i + 1}</td>
-                        <td className="px-4 py-2">{m.email}</td>
+                        <td className="px-4 py-2">
+                          {isSmsGroup ? m.phone : m.email}
+                        </td>
                         <td className="px-4 py-2 text-gray-600">
                           {m.name || "\u2014"}
                         </td>
-                        <td className="px-4 py-2">
-                          <button
-                            onClick={() => handleRemoveMember(m.email)}
-                            className="text-gray-400 hover:text-red-500 text-sm"
-                          >
-                            \u00d7
-                          </button>
-                        </td>
+                        {!isDynamic && (
+                          <td className="px-4 py-2">
+                            <button
+                              onClick={() => handleRemoveMember(m)}
+                              className="text-gray-400 hover:text-red-500 text-sm"
+                            >
+                              {"\u00d7"}
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
@@ -535,7 +847,11 @@ export default function Console() {
               </div>
             ) : (
               <p className="text-sm text-gray-500">
-                No members yet. Add emails manually or import a CSV.
+                {isDynamic
+                  ? "No members. Click \"Refresh from Clerk\" to sync."
+                  : isSmsGroup
+                    ? "No members yet. Add phone numbers manually or import a CSV."
+                    : "No members yet. Add emails manually or import a CSV."}
               </p>
             )}
           </div>

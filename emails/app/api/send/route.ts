@@ -6,7 +6,7 @@ import { createElement } from "react";
 import { getDb } from "../../../lib/db";
 
 export async function POST(req: Request) {
-  const { campaign, from, subject, dryRun = true, email, groupId } =
+  const { campaign, from, subject, dryRun = true, email, phone, groupId } =
     await req.json();
 
   const config = campaigns[campaign];
@@ -14,7 +14,51 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
   }
 
+  const isSms = config.channel === "sms";
+
   // Build recipients list
+  if (isSms) {
+    let recipients: { phone: string; name: string }[];
+    if (phone) {
+      recipients = [{ phone, name: "" }];
+    } else if (groupId) {
+      recipients = getDb()
+        .prepare("SELECT phone, name FROM members WHERE group_id = ?")
+        .all(groupId) as { phone: string; name: string }[];
+      if (recipients.length === 0) {
+        return NextResponse.json(
+          { error: "Group has no members" },
+          { status: 400 }
+        );
+      }
+    } else {
+      return NextResponse.json(
+        { error: "Provide phone or groupId" },
+        { status: 400 }
+      );
+    }
+
+    if (dryRun) {
+      const previews = recipients.slice(0, 3).map((r) => ({
+        phone: r.phone,
+        name: r.name || "",
+        message: config.message.replace("{name}", r.name || "there"),
+      }));
+      return NextResponse.json({
+        dryRun: true,
+        total: recipients.length,
+        previews,
+      });
+    }
+
+    // Real SMS send — stubbed
+    return NextResponse.json(
+      { error: "SMS sending not yet configured" },
+      { status: 501 }
+    );
+  }
+
+  // Email campaign path
   let recipients: { email: string; name: string }[];
   if (email) {
     recipients = [{ email, name: "" }];
