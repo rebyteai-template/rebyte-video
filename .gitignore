@@ -5,6 +5,7 @@ node_modules/
 dist/
 out/
 build/
+.next/
 
 # Cache
 .cache/
@@ -26,6 +27,11 @@ npm-debug.log*
 # Environment (keep API keys private)
 .env
 .env.local
+
+# SQLite
+data.db
+data.db-shm
+data.db-wal
 
 # Claude
 .claude/

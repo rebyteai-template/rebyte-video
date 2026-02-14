@@ -34,5 +34,5 @@ OPENAI_API_KEY=<key> node .claude/skills/tts/generate.js "Say you need a spreads
 ## Postmark API Key
 
 ```
-c1179392-d95b-444a-bcab-f76c3ab99eae
+ceca9197-3d7e-4c94-a50b-3156faa6ab8c
 ```
