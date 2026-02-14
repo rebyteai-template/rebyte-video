@@ -35,3 +35,7 @@ data.db-wal
 
 # Claude
 .claude/
+
+# Build artifacts
+.open-next/
+.rebyte/

@@ -1,4 +1,4 @@
-import { Section, Text, Hr } from "@react-email/components";
+import { Section, Text, Hr, Img, Row, Column } from "@react-email/components";
 import * as React from "react";
 import { Wrapper } from "../../components/wrapper";
 import { Footer } from "../../components/footer";
@@ -36,26 +36,63 @@ export default function Reengagement({ name }: ReengagementProps) {
         <Text style={paragraph}>
           Rebyte has changed a lot since you last visited. We rebuilt it from the ground up as a cloud workspace for AI coding agents.
         </Text>
+        
+        <Img
+          src="https://rebyte.ai/assets/rebyte-task-full.png"
+          width="480"
+          alt="Rebyte Task Interface"
+          style={productImage}
+        />
+
         <Text style={paragraph}>
-          Here&apos;s the idea: every task is a software task. You describe what you need, and a code agent builds it — a full-stack app, a data pipeline, a research report, whatever. Each task runs in its own cloud VM. No local setup. No conflicts. True parallelism.
+          Here&apos;s the idea: every task is a software task. You describe what you need, and a code agent builds it — a full-stack app, a data pipeline, a research report, whatever.
         </Text>
 
         <Hr style={hr} />
 
         <Text style={subheading}>What&apos;s new</Text>
 
-        <Text style={paragraph}>
-          <strong>Cloud sandboxes that persist.</strong> Each agent gets its own isolated VM that lives forever. Close your laptop, come back tomorrow — everything is exactly where you left it.
-        </Text>
-        <Text style={paragraph}>
-          <strong>Run agents in parallel.</strong> Kick off 5 tasks at once across Claude Code, Gemini CLI, Codex, or Amp. They all run independently in separate VMs.
-        </Text>
-        <Text style={paragraph}>
-          <strong>From prompt to live URL.</strong> Agents don&apos;t just write code — they deploy it. You get a working app with a URL, not a pull request to review.
-        </Text>
-        <Text style={paragraph}>
-          <strong>Skills make agents domain experts.</strong> Reusable prompts that encode your team&apos;s workflows, conventions, and best practices. No code to maintain.
-        </Text>
+        <Section style={featureSection}>
+          <Row>
+            <Column style={featureIconColumn}>
+              <div style={featureIcon}>☁️</div>
+            </Column>
+            <Column>
+              <Text style={featureTitle}>Cloud sandboxes that persist</Text>
+              <Text style={featureDescription}>
+                Each agent gets its own isolated VM that lives forever. Close your laptop, come back tomorrow — everything is exactly where you left it.
+              </Text>
+            </Column>
+          </Row>
+        </Section>
+
+        <Section style={featureSection}>
+          <Row>
+            <Column style={featureIconColumn}>
+              <div style={featureIcon}>⚡</div>
+            </Column>
+            <Column>
+              <Text style={featureTitle}>Run agents in parallel</Text>
+              <Text style={featureDescription}>
+                Kick off 5 tasks at once across Claude Code, Gemini CLI, Codex, or Amp. They all run independently in separate VMs.
+              </Text>
+            </Column>
+          </Row>
+        </Section>
+
+        <Section style={featureSection}>
+          <Row>
+            <Column style={featureIconColumn}>
+              <div style={featureIcon}>🚀</div>
+            </Column>
+            <Column>
+              <Text style={featureTitle}>From prompt to live URL</Text>
+              <Text style={featureDescription}>
+                Agents don&apos;t just write code — they deploy it. You get a working app with a URL, not a pull request to review.
+              </Text>
+            </Column>
+          </Row>
+        </Section>
 
         <Button href="https://rebyte.ai">Open Rebyte</Button>
       </Section>
@@ -113,19 +150,54 @@ const section: React.CSSProperties = {
 };
 
 const subheading: React.CSSProperties = {
-  fontSize: "18px",
+  fontSize: "20px",
   fontWeight: "bold",
   color: "#1a1a1a",
-  margin: "0 0 16px",
+  margin: "0 0 24px",
 };
 
 const paragraph: React.CSSProperties = {
   fontSize: "16px",
   lineHeight: "26px",
   color: "#484848",
+  margin: "16px 0",
+};
+
+const productImage: React.CSSProperties = {
+  borderRadius: "8px",
+  border: "1px solid #e0e0e0",
+  margin: "24px 0",
+};
+
+const featureSection: React.CSSProperties = {
+  marginBottom: "24px",
+};
+
+const featureIconColumn: React.CSSProperties = {
+  width: "48px",
+  verticalAlign: "top",
+};
+
+const featureIcon: React.CSSProperties = {
+  fontSize: "24px",
+  marginTop: "4px",
+};
+
+const featureTitle: React.CSSProperties = {
+  fontSize: "16px",
+  fontWeight: "bold",
+  color: "#1a1a1a",
+  margin: "0 0 4px",
+};
+
+const featureDescription: React.CSSProperties = {
+  fontSize: "14px",
+  lineHeight: "22px",
+  color: "#666",
+  margin: "0",
 };
 
 const hr: React.CSSProperties = {
   borderColor: "#e6ebf1",
-  margin: "24px 0",
+  margin: "32px 0",
 };

@@ -3,9 +3,10 @@ import { render } from "@react-email/render";
 import { campaigns } from "../../../campaigns";
 import * as postmark from "postmark";
 import { createElement } from "react";
-import { getDb } from "../../../lib/db";
+import { getDb, ensureTables } from "../../../lib/db";
 
 export async function POST(req: Request) {
+  await ensureTables();
   const { campaign, from, subject, dryRun = true, email, phone, groupId } =
     await req.json();
 
@@ -22,9 +23,11 @@ export async function POST(req: Request) {
     if (phone) {
       recipients = [{ phone, name: "" }];
     } else if (groupId) {
-      recipients = getDb()
-        .prepare("SELECT phone, name FROM members WHERE group_id = ?")
-        .all(groupId) as { phone: string; name: string }[];
+      const result = await getDb().execute({
+        sql: "SELECT phone, name FROM members WHERE group_id = ?",
+        args: [groupId]
+      });
+      recipients = result.rows as unknown as { phone: string; name: string }[];
       if (recipients.length === 0) {
         return NextResponse.json(
           { error: "Group has no members" },
@@ -63,9 +66,11 @@ export async function POST(req: Request) {
   if (email) {
     recipients = [{ email, name: "" }];
   } else if (groupId) {
-    recipients = getDb()
-      .prepare("SELECT email, name FROM members WHERE group_id = ?")
-      .all(groupId) as { email: string; name: string }[];
+    const result = await getDb().execute({
+      sql: "SELECT email, name FROM members WHERE group_id = ?",
+      args: [groupId]
+    });
+    recipients = result.rows as unknown as { email: string; name: string }[];
     if (recipients.length === 0) {
       return NextResponse.json(
         { error: "Group has no members" },
@@ -118,6 +123,9 @@ export async function POST(req: Request) {
           Subject: subject || "Hello from Rebyte",
           HtmlBody: html,
           MessageStream: "broadcast",
+          TrackOpens: true,
+          // @ts-ignore
+          TrackLinks: "HtmlAndText",
         });
       })
     );
@@ -133,3 +141,4 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ sent, failed });
 }
+

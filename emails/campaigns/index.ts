@@ -1,5 +1,6 @@
 import Welcome from "./welcome/template";
 import Reengagement from "./reengagement/template";
+import Onboarding from "./onboarding/template";
 
 interface EmailCampaign {
   channel: "email";
@@ -24,6 +25,13 @@ export const campaigns: Record<string, Campaign> = {
     sampleProps: { name: "Jane", email: "jane@example.com" },
     description: "Welcome email for new workspace members",
     subject: "Welcome to Rebyte",
+  },
+  onboarding: {
+    channel: "email",
+    component: Onboarding,
+    sampleProps: { name: "Jane", email: "jane@example.com" },
+    description: "Pro tips for new users after registration",
+    subject: "3 Pro Tips for your new Rebyte Workspace",
   },
   reengagement: {
     channel: "email",

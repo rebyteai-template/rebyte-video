@@ -85,6 +85,7 @@ export default function Console() {
   const [singleEmail, setSingleEmail] = useState("");
   const [singlePhone, setSinglePhone] = useState("");
   const [sendGroupId, setSendGroupId] = useState<number | "">("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Group management state
   const [members, setMembers] = useState<Member[]>([]);
@@ -140,6 +141,7 @@ export default function Console() {
       setSendResult(null);
       setTab("preview");
       setSendGroupId("");
+      setIsSidebarOpen(false);
       const campaign = campaigns.find((c) => c.name === name);
       if (campaign?.channel === "email" && campaign.subject) {
         setSubject(campaign.subject);
@@ -161,6 +163,7 @@ export default function Console() {
       setSelectedGroup(group);
       setSelected(null);
       setGroupStatus(null);
+      setIsSidebarOpen(false);
       loadMembers(group.id);
     },
     [loadMembers]
@@ -386,22 +389,56 @@ export default function Console() {
   const isDynamic = selectedGroup?.type === "dynamic";
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-20">
+        <h1 className="text-lg font-bold">Rebyte Emails</h1>
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="p-2 -mr-2 text-gray-600"
+        >
+          {isSidebarOpen ? (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className="w-64 border-r border-gray-200 bg-white p-4 flex flex-col overflow-auto">
-        <h1 className="text-lg font-semibold mb-4">Campaigns</h1>
-        <div className="space-y-1 mb-6">
+      <div className={`
+        fixed lg:static inset-y-0 left-0 w-64 border-r border-gray-200 bg-white p-4 flex flex-col overflow-auto transition-transform duration-300 z-40
+        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+      `}>
+        <div className="hidden lg:block mb-6">
+          <h1 className="text-xl font-bold">Rebyte Emails</h1>
+        </div>
+        
+        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Campaigns</h2>
+        <div className="space-y-1 mb-8">
           {campaigns.map((c) => (
             <button
               key={c.name}
               onClick={() => selectCampaign(c.name)}
-              className={`w-full text-left px-3 py-2 rounded text-sm ${
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                 selected === c.name
-                  ? "bg-gray-900 text-white"
-                  : "hover:bg-gray-100"
+                  ? "bg-gray-900 text-white shadow-sm"
+                  : "text-gray-600 hover:bg-gray-100"
               }`}
             >
-              <div className="font-medium flex items-center gap-1.5">
+              <div className="font-medium flex items-center justify-between gap-1.5">
                 {c.name}
                 <ChannelBadge
                   channel={c.channel}
@@ -409,7 +446,7 @@ export default function Console() {
                 />
               </div>
               <div
-                className={`text-xs ${selected === c.name ? "text-gray-300" : "text-gray-500"}`}
+                className={`text-xs mt-0.5 line-clamp-1 ${selected === c.name ? "text-gray-300" : "text-gray-500"}`}
               >
                 {c.description}
               </div>
@@ -417,125 +454,122 @@ export default function Console() {
           ))}
         </div>
 
-        <div className="border-t border-gray-200 pt-4">
-          <h2 className="text-lg font-semibold mb-3">Groups</h2>
-          <div className="space-y-1 mb-3">
+        <div className="mt-auto pt-4 border-t border-gray-100">
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Groups</h2>
+          <div className="space-y-1 mb-4 max-h-[40vh] overflow-y-auto pr-1">
             {groups.map((g) => (
               <button
                 key={g.id}
                 onClick={() => selectGroup(g)}
-                className={`w-full text-left px-3 py-2 rounded text-sm ${
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                   selectedGroup?.id === g.id
-                    ? "bg-gray-900 text-white"
-                    : "hover:bg-gray-100"
+                    ? "bg-gray-900 text-white shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
-                <div className="font-medium flex items-center gap-1.5">
-                  {g.name}
-                  <ChannelBadge
-                    channel={g.channel}
-                    inverted={selectedGroup?.id === g.id}
-                  />
-                  {g.type === "dynamic" && (
-                    <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded font-normal ${
-                        selectedGroup?.id === g.id
-                          ? "bg-gray-700 text-gray-300"
-                          : "bg-blue-100 text-blue-700"
-                      }`}
-                    >
-                      sync
-                    </span>
-                  )}
+                <div className="font-medium flex items-center justify-between gap-1.5">
+                  <span className="truncate">{g.name}</span>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <ChannelBadge
+                      channel={g.channel}
+                      inverted={selectedGroup?.id === g.id}
+                    />
+                    {g.type === "dynamic" && (
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-normal ${
+                        selectedGroup?.id === g.id ? "bg-gray-700 text-gray-300" : "bg-blue-50 text-blue-600"
+                      }`}>sync</span>
+                    )}
+                  </div>
                 </div>
-                <div
-                  className={`text-xs ${selectedGroup?.id === g.id ? "text-gray-300" : "text-gray-500"}`}
-                >
+                <div className={`text-xs mt-0.5 ${selectedGroup?.id === g.id ? "text-gray-300" : "text-gray-500"}`}>
                   {g.member_count} members
                 </div>
               </button>
             ))}
           </div>
-          <div className="flex gap-1 mb-1">
-            <input
-              type="text"
-              placeholder="New group name"
-              value={newGroupName}
-              onChange={(e) => setNewGroupName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleCreateGroup()}
-              className="flex-1 min-w-0 px-2 py-1 border border-gray-300 rounded text-sm"
-            />
-            <button
-              onClick={handleCreateGroup}
-              disabled={!newGroupName.trim()}
-              className="px-2 py-1 bg-gray-900 text-white rounded text-sm font-medium hover:bg-gray-800 disabled:opacity-50 shrink-0"
-            >
-              +
-            </button>
-          </div>
-          <div className="flex gap-2 mb-2 px-1">
-            <label className="flex items-center gap-1 text-xs text-gray-500">
+          
+          <div className="space-y-2">
+            <div className="flex gap-1">
               <input
-                type="radio"
-                name="newGroupChannel"
-                checked={newGroupChannel === "email"}
-                onChange={() => setNewGroupChannel("email")}
-                className="w-3 h-3"
+                type="text"
+                placeholder="New group..."
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCreateGroup()}
+                className="flex-1 min-w-0 px-2 py-1.5 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
               />
-              email
-            </label>
-            <label className="flex items-center gap-1 text-xs text-gray-500">
-              <input
-                type="radio"
-                name="newGroupChannel"
-                checked={newGroupChannel === "sms"}
-                onChange={() => setNewGroupChannel("sms")}
-                className="w-3 h-3"
-              />
-              sms
-            </label>
-          </div>
-          <div className="relative">
-            <button
-              onClick={() => setShowPresetPicker(!showPresetPicker)}
-              disabled={syncing}
-              className="w-full px-2 py-1 text-sm text-blue-700 border border-blue-200 rounded hover:bg-blue-50 disabled:opacity-50"
-            >
-              {syncing ? "Syncing..." : "+ Dynamic group from Clerk"}
-            </button>
-            {showPresetPicker && (
-              <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded shadow-lg z-10">
-                {clerkPresets.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => handleCreateDynamicGroup(p.id)}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 border-b border-gray-100 last:border-0"
-                  >
-                    <div className="font-medium">{p.label}</div>
-                    <div className="text-xs text-gray-500">{p.description}</div>
-                  </button>
-                ))}
-              </div>
-            )}
+              <button
+                onClick={handleCreateGroup}
+                disabled={!newGroupName.trim()}
+                className="px-3 py-1.5 bg-gray-900 text-white rounded text-sm font-medium hover:bg-gray-800 disabled:opacity-50 shrink-0"
+              >
+                +
+              </button>
+            </div>
+            <div className="flex gap-3 px-1">
+              <label className="flex items-center gap-1.5 text-[11px] text-gray-500 cursor-pointer">
+                <input
+                  type="radio"
+                  name="newGroupChannel"
+                  checked={newGroupChannel === "email"}
+                  onChange={() => setNewGroupChannel("email")}
+                  className="w-3 h-3 accent-gray-900"
+                />
+                email
+              </label>
+              <label className="flex items-center gap-1.5 text-[11px] text-gray-500 cursor-pointer">
+                <input
+                  type="radio"
+                  name="newGroupChannel"
+                  checked={newGroupChannel === "sms"}
+                  onChange={() => setNewGroupChannel("sms")}
+                  className="w-3 h-3 accent-gray-900"
+                />
+                sms
+              </label>
+            </div>
+            <div className="relative">
+              <button
+                onClick={() => setShowPresetPicker(!showPresetPicker)}
+                disabled={syncing}
+                className="w-full px-2 py-1.5 text-xs text-blue-600 border border-blue-100 rounded-lg hover:bg-blue-50 disabled:opacity-50 transition-colors"
+              >
+                {syncing ? "Syncing..." : "+ Dynamic group"}
+              </button>
+              {showPresetPicker && (
+                <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
+                  {clerkPresets.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => handleCreateDynamicGroup(p.id)}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 border-b border-gray-100 last:border-0"
+                    >
+                      <div className="font-medium text-gray-900">{p.label}</div>
+                      <div className="text-gray-500 text-[10px]">{p.description}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main */}
-      <div className="flex-1 flex flex-col">
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0 pt-14 lg:pt-0 overflow-hidden">
         {sidebarView === "campaign" && selected && selectedCampaign ? (
           <>
             {/* Tabs */}
-            <div className="border-b border-gray-200 bg-white px-6">
+            <div className="border-b border-gray-200 bg-white px-4 lg:px-8">
               <div className="flex gap-6">
                 {tabs.map((t) => (
                   <button
                     key={t.id}
                     onClick={() => setTab(t.id)}
-                    className={`py-3 text-sm font-medium border-b-2 ${
+                    className={`py-4 text-sm font-semibold border-b-2 transition-all ${
                       tab === t.id
                         ? "border-gray-900 text-gray-900"
-                        : "border-transparent text-gray-500 hover:text-gray-700"
+                        : "border-transparent text-gray-400 hover:text-gray-600"
                     }`}
                   >
                     {t.label}
@@ -545,319 +579,291 @@ export default function Console() {
             </div>
 
             {/* Tab content */}
-            <div className="flex-1 overflow-auto p-6">
+            <div className="flex-1 overflow-auto p-4 lg:p-8">
               {tab === "preview" && (
-                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                  {isSmsCampaign ? (
-                    <div className="p-6">
-                      <div className="text-xs text-gray-500 uppercase tracking-wide mb-3">
-                        SMS Message Preview
+                <div className="max-w-4xl mx-auto h-full">
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden h-full flex flex-col">
+                    {isSmsCampaign ? (
+                      <div className="p-6">
+                        <div className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-4">
+                          SMS Message Preview
+                        </div>
+                        <div className="bg-green-50 border border-green-100 rounded-2xl p-5 max-w-sm ml-auto mr-auto lg:ml-0 relative">
+                          <p className="text-sm text-gray-800 leading-relaxed">
+                            {selectedCampaign.message}
+                          </p>
+                          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-50 rounded-full border-r border-b border-green-100"></div>
+                        </div>
                       </div>
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md">
-                        <p className="text-sm text-gray-800 whitespace-pre-wrap">
-                          {selectedCampaign.message}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <iframe
-                      srcDoc={previewHtml}
-                      className="w-full h-[700px] border-0"
-                      title="Email preview"
-                      sandbox=""
-                    />
-                  )}
+                    ) : (
+                      <iframe
+                        srcDoc={previewHtml}
+                        className="w-full flex-1 border-0"
+                        title="Email preview"
+                        sandbox=""
+                      />
+                    )}
+                  </div>
                 </div>
               )}
 
               {tab === "send" && (
-                <div className="max-w-lg space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Send to
-                    </label>
-                    <div className="flex gap-4">
-                      <label className="flex items-center gap-2 text-sm">
-                        <input
-                          type="radio"
-                          name="sendTo"
-                          checked={sendTo === "group"}
-                          onChange={() => setSendTo("group")}
-                        />
-                        Group
-                      </label>
-                      <label className="flex items-center gap-2 text-sm">
-                        <input
-                          type="radio"
-                          name="sendTo"
-                          checked={sendTo === "single"}
-                          onChange={() => setSendTo("single")}
-                        />
-                        {isSmsCampaign ? "Single phone" : "Single email"}
-                      </label>
+                <div className="max-w-xl mx-auto">
+                  <div className="bg-white p-6 lg:p-8 rounded-2xl border border-gray-200 shadow-sm space-y-6">
+                    <h3 className="text-lg font-bold">Campaign Settings</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                          Recipient Type
+                        </label>
+                        <div className="flex gap-1 bg-gray-50 p-1 rounded-xl">
+                          <button
+                            onClick={() => setSendTo("group")}
+                            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
+                              sendTo === "group" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                            }`}
+                          >Group</button>
+                          <button
+                            onClick={() => setSendTo("single")}
+                            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
+                              sendTo === "single" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                            }`}
+                          >Single</button>
+                        </div>
+                      </div>
+
+                      {sendTo === "group" ? (
+                        <div>
+                          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Target Group</label>
+                          <select
+                            value={sendGroupId}
+                            onChange={(e) => setSendGroupId(e.target.value ? Number(e.target.value) : "")}
+                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-gray-900 transition-all"
+                          >
+                            <option value="">Select a group...</option>
+                            {matchingGroups.map((g) => (
+                              <option key={g.id} value={g.id}>
+                                {g.name} ({g.member_count} members)
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      ) : (
+                        <div>
+                          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                            {isSmsCampaign ? "Phone Number" : "Email Address"}
+                          </label>
+                          <input
+                            type={isSmsCampaign ? "tel" : "email"}
+                            placeholder={isSmsCampaign ? "+1234567890" : "recipient@example.com"}
+                            value={isSmsCampaign ? singlePhone : singleEmail}
+                            onChange={(e) => isSmsCampaign ? setSinglePhone(e.target.value) : setSingleEmail(e.target.value)}
+                            className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-gray-900 transition-all"
+                          />
+                        </div>
+                      )}
+
+                      {!isSmsCampaign && (
+                        <>
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">From</label>
+                              <input
+                                type="email"
+                                value={fromAddress}
+                                onChange={(e) => setFromAddress(e.target.value)}
+                                className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-gray-900 transition-all"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Subject</label>
+                              <input
+                                type="text"
+                                value={subject}
+                                onChange={(e) => setSubject(e.target.value)}
+                                className="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-gray-900 transition-all"
+                              />
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
-                    {sendTo === "group" && (
-                      <select
-                        value={sendGroupId}
-                        onChange={(e) =>
-                          setSendGroupId(
-                            e.target.value ? Number(e.target.value) : ""
-                          )
-                        }
-                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded text-sm"
+
+                    <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                      <button
+                        onClick={() => handleSend(true)}
+                        disabled={loading || (sendTo === "group" && !sendGroupId)}
+                        className="flex-1 px-6 py-3 bg-gray-100 text-gray-900 rounded-xl text-sm font-bold hover:bg-gray-200 disabled:opacity-50 transition-all"
                       >
-                        <option value="">Select a group...</option>
-                        {matchingGroups.map((g) => (
-                          <option key={g.id} value={g.id}>
-                            {g.name} ({g.member_count} members)
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                    {sendTo === "single" && isSmsCampaign && (
-                      <input
-                        type="tel"
-                        placeholder="+1234567890"
-                        value={singlePhone}
-                        onChange={(e) => setSinglePhone(e.target.value)}
-                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded text-sm"
-                      />
-                    )}
-                    {sendTo === "single" && !isSmsCampaign && (
-                      <input
-                        type="email"
-                        placeholder="recipient@example.com"
-                        value={singleEmail}
-                        onChange={(e) => setSingleEmail(e.target.value)}
-                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded text-sm"
-                      />
+                        {loading ? "Processing..." : "Dry Run"}
+                      </button>
+                      <button
+                        onClick={() => handleSend(false)}
+                        disabled={loading || (sendTo === "group" && !sendGroupId)}
+                        className="flex-1 px-6 py-3 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-gray-800 shadow-lg shadow-gray-200 disabled:opacity-50 transition-all"
+                      >
+                        {loading ? "Sending..." : "Send Campaign"}
+                      </button>
+                    </div>
+
+                    {sendResult && (
+                      <div className="mt-6">
+                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Result</label>
+                        <pre className="p-4 bg-gray-50 rounded-xl text-xs text-gray-600 whitespace-pre-wrap border border-gray-100 font-mono">
+                          {sendResult}
+                        </pre>
+                      </div>
                     )}
                   </div>
-                  {!isSmsCampaign && (
-                    <>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          From
-                        </label>
-                        <input
-                          type="email"
-                          value={fromAddress}
-                          onChange={(e) => setFromAddress(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Subject
-                        </label>
-                        <input
-                          type="text"
-                          value={subject}
-                          onChange={(e) => setSubject(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                        />
-                      </div>
-                    </>
-                  )}
-                  <div className="flex gap-3 pt-2">
-                    <button
-                      onClick={() => handleSend(true)}
-                      disabled={
-                        loading ||
-                        (sendTo === "group" && !sendGroupId) ||
-                        (sendTo === "single" &&
-                          !isSmsCampaign &&
-                          !singleEmail.includes("@")) ||
-                        (sendTo === "single" &&
-                          isSmsCampaign &&
-                          !singlePhone.trim())
-                      }
-                      className="px-4 py-2 bg-gray-100 border border-gray-300 rounded text-sm font-medium hover:bg-gray-200 disabled:opacity-50"
-                    >
-                      {loading ? "Running..." : "Dry Run"}
-                    </button>
-                    <button
-                      onClick={() => handleSend(false)}
-                      disabled={
-                        loading ||
-                        (sendTo === "group" && !sendGroupId) ||
-                        (sendTo === "single" &&
-                          !isSmsCampaign &&
-                          !singleEmail.includes("@")) ||
-                        (sendTo === "single" &&
-                          isSmsCampaign &&
-                          !singlePhone.trim())
-                      }
-                      className="px-4 py-2 bg-gray-900 text-white rounded text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
-                    >
-                      {loading ? "Sending..." : "Send"}
-                    </button>
-                  </div>
-                  {sendResult && (
-                    <pre className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded text-sm whitespace-pre-wrap">
-                      {sendResult}
-                    </pre>
-                  )}
                 </div>
               )}
             </div>
           </>
         ) : sidebarView === "group" && selectedGroup ? (
-          <div className="flex-1 overflow-auto p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <h2 className="text-xl font-semibold">{selectedGroup.name}</h2>
-                <ChannelBadge channel={selectedGroup.channel} />
-                {isDynamic && (
-                  <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">
-                    dynamic
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                {isDynamic && (
+          <div className="flex-1 overflow-auto p-4 lg:p-8">
+            <div className="max-w-5xl mx-auto space-y-6">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-bold">{selectedGroup.name}</h2>
+                  <ChannelBadge channel={selectedGroup.channel} />
+                  {isDynamic && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 uppercase tracking-wider">dynamic</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {isDynamic && (
+                    <button
+                      onClick={handleSyncGroup}
+                      disabled={syncing}
+                      className="flex-1 lg:flex-none px-4 py-2 text-sm font-bold text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-50 disabled:opacity-50 transition-all"
+                    >
+                      {syncing ? "Syncing..." : "Sync from Clerk"}
+                    </button>
+                  )}
                   <button
-                    onClick={handleSyncGroup}
-                    disabled={syncing}
-                    className="px-3 py-1.5 text-sm text-blue-700 border border-blue-200 rounded hover:bg-blue-50 disabled:opacity-50"
+                    onClick={() => handleDeleteGroup(selectedGroup.id)}
+                    className="flex-1 lg:flex-none px-4 py-2 text-sm font-bold text-red-600 border border-red-100 rounded-xl hover:bg-red-50 transition-all"
                   >
-                    {syncing ? "Syncing..." : "Refresh from Clerk"}
+                    Delete
                   </button>
-                )}
-                <button
-                  onClick={() => handleDeleteGroup(selectedGroup.id)}
-                  className="px-3 py-1.5 text-sm text-red-600 border border-red-200 rounded hover:bg-red-50"
-                >
-                  Delete Group
-                </button>
-              </div>
-            </div>
-
-            {isDynamic && selectedGroup.last_synced_at && (
-              <div className="mb-4 text-xs text-gray-500">
-                Last synced: {new Date(selectedGroup.last_synced_at + "Z").toLocaleString()}
-              </div>
-            )}
-
-            {groupStatus && (
-              <div className="mb-4 text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded px-3 py-2">
-                {groupStatus}
-              </div>
-            )}
-
-            {/* Add member row — only for static groups */}
-            {!isDynamic && (
-              <div className="flex gap-2 mb-4">
-                {isSmsGroup ? (
-                  <input
-                    type="tel"
-                    placeholder="+1234567890"
-                    value={newPhone}
-                    onChange={(e) => setNewPhone(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                ) : (
-                  <input
-                    type="email"
-                    placeholder="email@example.com"
-                    value={newEmail}
-                    onChange={(e) => setNewEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                )}
-                <input
-                  type="text"
-                  placeholder="Name (optional)"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
-                  className="w-48 px-3 py-2 border border-gray-300 rounded text-sm"
-                />
-                <button
-                  onClick={handleAddMember}
-                  disabled={
-                    isSmsGroup ? !newPhone.trim() : !newEmail.includes("@")
-                  }
-                  className="px-4 py-2 bg-gray-900 text-white rounded text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
-                >
-                  Add
-                </button>
-                <label className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded text-sm font-medium cursor-pointer hover:bg-gray-50">
-                  Import CSV
-                  <input
-                    type="file"
-                    accept=".csv,.json"
-                    onChange={handleCsvImport}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-            )}
-
-            {/* Members table */}
-            {members.length > 0 ? (
-              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      <th className="text-left px-4 py-2 font-medium text-gray-600">
-                        #
-                      </th>
-                      <th className="text-left px-4 py-2 font-medium text-gray-600">
-                        {isSmsGroup ? "Phone" : "Email"}
-                      </th>
-                      <th className="text-left px-4 py-2 font-medium text-gray-600">
-                        Name
-                      </th>
-                      {!isDynamic && <th className="w-10"></th>}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {members.map((m, i) => (
-                      <tr
-                        key={m.id}
-                        className="border-b border-gray-100 last:border-0"
-                      >
-                        <td className="px-4 py-2 text-gray-400">{i + 1}</td>
-                        <td className="px-4 py-2">
-                          {isSmsGroup ? m.phone : m.email}
-                        </td>
-                        <td className="px-4 py-2 text-gray-600">
-                          {m.name || "\u2014"}
-                        </td>
-                        {!isDynamic && (
-                          <td className="px-4 py-2">
-                            <button
-                              onClick={() => handleRemoveMember(m)}
-                              className="text-gray-400 hover:text-red-500 text-sm"
-                            >
-                              {"\u00d7"}
-                            </button>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div className="px-4 py-2 bg-gray-50 text-xs text-gray-500 border-t border-gray-200">
-                  {members.length} members
                 </div>
               </div>
-            ) : (
-              <p className="text-sm text-gray-500">
-                {isDynamic
-                  ? "No members. Click \"Refresh from Clerk\" to sync."
-                  : isSmsGroup
-                    ? "No members yet. Add phone numbers manually or import a CSV."
-                    : "No members yet. Add emails manually or import a CSV."}
-              </p>
-            )}
+
+              {isDynamic && selectedGroup.last_synced_at && (
+                <div className="text-xs text-gray-400 flex items-center gap-1.5">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Last synced: {new Date(selectedGroup.last_synced_at + "Z").toLocaleString()}
+                </div>
+              )}
+
+              {groupStatus && (
+                <div className={`p-4 rounded-xl text-sm border ${
+                  groupStatus.startsWith('Error') ? 'bg-red-50 border-red-100 text-red-600' : 'bg-green-50 border-green-100 text-green-600'
+                }`}>
+                  {groupStatus}
+                </div>
+              )}
+
+              {!isDynamic && (
+                <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+                  <div className="flex flex-col lg:flex-row gap-3">
+                    <input
+                      type={isSmsGroup ? "tel" : "email"}
+                      placeholder={isSmsGroup ? "+1234567890" : "email@example.com"}
+                      value={isSmsGroup ? newPhone : newEmail}
+                      onChange={(e) => isSmsGroup ? setNewPhone(e.target.value) : setNewEmail(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
+                      className="flex-1 px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-gray-900 transition-all"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Name"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
+                      className="flex-1 lg:w-48 px-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-gray-900 transition-all"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleAddMember}
+                        disabled={isSmsGroup ? !newPhone.trim() : !newEmail.includes("@")}
+                        className="flex-1 lg:flex-none px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-gray-800 disabled:opacity-50 transition-all"
+                      >Add</button>
+                      <label className="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold cursor-pointer hover:bg-gray-50 transition-all">
+                        <span>CSV</span>
+                        <input type="file" accept=".csv,.json" onChange={handleCsvImport} className="hidden" />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50/50 text-gray-400 text-left">
+                        <th className="px-6 py-4 font-bold uppercase tracking-wider text-[10px]">#</th>
+                        <th className="px-6 py-4 font-bold uppercase tracking-wider text-[10px]">{isSmsGroup ? "Phone" : "Email"}</th>
+                        <th className="px-6 py-4 font-bold uppercase tracking-wider text-[10px]">Name</th>
+                        {!isDynamic && <th className="px-6 py-4 w-10"></th>}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {members.map((m, i) => (
+                        <tr key={m.id} className="hover:bg-gray-50 transition-colors group">
+                          <td className="px-6 py-4 text-gray-400 font-mono">{i + 1}</td>
+                          <td className="px-6 py-4 font-medium text-gray-900">
+                            {isSmsGroup ? m.phone : m.email}
+                          </td>
+                          <td className="px-6 py-4 text-gray-500">
+                            {m.name || "\u2014"}
+                          </td>
+                          {!isDynamic && (
+                            <td className="px-6 py-4">
+                              <button
+                                onClick={() => handleRemoveMember(m)}
+                                className="text-gray-300 hover:text-red-500 transition-colors"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                      {members.length === 0 && (
+                        <tr>
+                          <td colSpan={4} className="px-6 py-12 text-center text-gray-400 italic">
+                            {isDynamic ? 'Click "Sync from Clerk" to fetch members' : 'No members yet'}
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                {members.length > 0 && (
+                  <div className="px-6 py-4 bg-gray-50/50 text-[10px] font-bold text-gray-400 uppercase tracking-widest border-t border-gray-100">
+                    Total: {members.length} recipients
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
-            Select a campaign or group to get started
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <div className="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center mb-6">
+              <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Welcome to Rebyte Emails</h3>
+            <p className="text-sm text-gray-500 max-w-xs mx-auto">
+              Select a campaign to send or manage your recipient groups to get started.
+            </p>
           </div>
         )}
       </div>

@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { parse } from "csv-parse/sync";
-import { getDb } from "../../../../../lib/db";
+import { getDb, ensureTables } from "../../../../../lib/db";
 
-function getGroup(groupId: string) {
-  return getDb()
-    .prepare("SELECT * FROM groups WHERE id = ?")
-    .get(groupId) as { id: number; channel: string } | undefined;
+async function getGroup(groupId: string) {
+  const result = await getDb().execute({
+    sql: "SELECT * FROM groups WHERE id = ?",
+    args: [groupId]
+  });
+  return result.rows[0] as unknown as { id: number; channel: string } | undefined;
 }
 
 export async function GET(
@@ -13,19 +15,20 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const members = getDb()
-    .prepare(
-      `SELECT id, email, phone, name FROM members WHERE group_id = ? ORDER BY id`
-    )
-    .all(id);
+  await ensureTables();
+  const members = await getDb().execute({
+    sql: `SELECT id, email, phone, name FROM members WHERE group_id = ? ORDER BY id`,
+    args: [id]
+  });
 
-  return NextResponse.json(members);
+  return NextResponse.json(members.rows);
 }
 
 export async function POST(req: Request) {
+  await ensureTables();
   const url = new URL(req.url);
   const groupId = url.pathname.split("/").at(-2)!;
-  const group = getGroup(groupId);
+  const group = await getGroup(groupId);
   const isSms = group?.channel === "sms";
 
   const contentType = req.headers.get("content-type") || "";
@@ -54,21 +57,14 @@ export async function POST(req: Request) {
 
     if (isSms) {
       const valid = rows.filter((r) => r.phone && r.phone.trim());
-      const insert = db.prepare(
-        "INSERT OR IGNORE INTO members (group_id, email, phone, name) VALUES (?, ?, ?, ?)"
-      );
-      const insertAll = db.transaction(
-        (members: Record<string, string>[]) => {
-          let added = 0;
-          for (const m of members) {
-            const phone = m.phone.trim();
-            const result = insert.run(groupId, phone, phone, m.name || "");
-            if (result.changes > 0) added++;
-          }
-          return added;
-        }
-      );
-      const added = insertAll(valid);
+      const batch = valid.map(m => ({
+        sql: "INSERT OR IGNORE INTO members (group_id, phone, name) VALUES (?, ?, ?)",
+        args: [groupId, m.phone.trim(), m.name || ""]
+      }));
+      
+      const result = await db.batch(batch, "write");
+      const added = result.reduce((acc, r) => acc + (r.rowsAffected > 0 ? 1 : 0), 0);
+
       return NextResponse.json({
         total: rows.length,
         added,
@@ -78,20 +74,14 @@ export async function POST(req: Request) {
 
     // Email group CSV import
     const valid = rows.filter((r) => r.email && r.email.includes("@"));
-    const insert = db.prepare(
-      "INSERT OR IGNORE INTO members (group_id, email, name) VALUES (?, ?, ?)"
-    );
+    const batch = valid.map(m => ({
+      sql: "INSERT OR IGNORE INTO members (group_id, email, name) VALUES (?, ?, ?)",
+      args: [groupId, m.email, m.name || ""]
+    }));
 
-    const insertAll = db.transaction((members: Record<string, string>[]) => {
-      let added = 0;
-      for (const m of members) {
-        const result = insert.run(groupId, m.email, m.name || "");
-        if (result.changes > 0) added++;
-      }
-      return added;
-    });
+    const result = await db.batch(batch, "write");
+    const added = result.reduce((acc, r) => acc + (r.rowsAffected > 0 ? 1 : 0), 0);
 
-    const added = insertAll(valid);
     return NextResponse.json({
       total: rows.length,
       added,
@@ -110,14 +100,13 @@ export async function POST(req: Request) {
     }
     try {
       const p = phone.trim();
-      getDb()
-        .prepare(
-          "INSERT INTO members (group_id, email, phone, name) VALUES (?, ?, ?, ?)"
-        )
-        .run(groupId, p, p, name || "");
+      await getDb().execute({
+        sql: "INSERT INTO members (group_id, phone, name) VALUES (?, ?, ?)",
+        args: [groupId, p, name || ""]
+      });
       return NextResponse.json({ ok: true });
     } catch (e: any) {
-      if (e.code === "SQLITE_CONSTRAINT_UNIQUE") {
+      if (e.message && e.message.includes("UNIQUE constraint failed")) {
         return NextResponse.json(
           { error: "Phone already in group" },
           { status: 409 }
@@ -137,12 +126,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    getDb()
-      .prepare("INSERT INTO members (group_id, email, name) VALUES (?, ?, ?)")
-      .run(groupId, email, name || "");
+    await getDb().execute({
+      sql: "INSERT INTO members (group_id, email, name) VALUES (?, ?, ?)",
+      args: [groupId, email, name || ""]
+    });
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-    if (e.code === "SQLITE_CONSTRAINT_UNIQUE") {
+    if (e.message && e.message.includes("UNIQUE constraint failed")) {
       return NextResponse.json(
         { error: "Email already in group" },
         { status: 409 }
@@ -153,24 +143,27 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  await ensureTables();
   const url = new URL(req.url);
   const groupId = url.pathname.split("/").at(-2)!;
-  const group = getGroup(groupId);
+  const group = await getGroup(groupId);
   const isSms = group?.channel === "sms";
   const body = await req.json();
 
   let result;
   if (isSms) {
-    result = getDb()
-      .prepare("DELETE FROM members WHERE group_id = ? AND phone = ?")
-      .run(groupId, body.phone);
+    result = await getDb().execute({
+      sql: "DELETE FROM members WHERE group_id = ? AND phone = ?",
+      args: [groupId, body.phone]
+    });
   } else {
-    result = getDb()
-      .prepare("DELETE FROM members WHERE group_id = ? AND email = ?")
-      .run(groupId, body.email);
+    result = await getDb().execute({
+      sql: "DELETE FROM members WHERE group_id = ? AND email = ?",
+      args: [groupId, body.email]
+    });
   }
 
-  if (result.changes === 0) {
+  if (result.rowsAffected === 0) {
     return NextResponse.json({ error: "Member not found" }, { status: 404 });
   }
 

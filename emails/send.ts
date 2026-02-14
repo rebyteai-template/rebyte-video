@@ -119,6 +119,9 @@ async function main() {
           Subject: subject,
           HtmlBody: html,
           MessageStream: "broadcast",
+          TrackOpens: true,
+          // @ts-ignore
+          TrackLinks: "HtmlAndText",
         });
       })
     );

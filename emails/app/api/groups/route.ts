@@ -1,23 +1,23 @@
 import { NextResponse } from "next/server";
-import { getDb } from "../../../lib/db";
+import { getDb, ensureTables } from "../../../lib/db";
 import { getPreset, fetchClerkUsersForPreset } from "../../../lib/clerk-presets";
 
 export async function GET() {
+  await ensureTables();
   const db = getDb();
-  const groups = db
-    .prepare(
-      `SELECT g.id, g.name, g.type, g.channel, g.preset, g.last_synced_at, g.created_at, COUNT(m.id) as member_count
-       FROM groups g
-       LEFT JOIN members m ON m.group_id = g.id
-       GROUP BY g.id
-       ORDER BY g.name`
-    )
-    .all();
+  const result = await db.execute(
+    `SELECT g.id, g.name, g.type, g.channel, g.preset, g.last_synced_at, g.created_at, COUNT(m.id) as member_count
+     FROM groups g
+     LEFT JOIN members m ON m.group_id = g.id
+     GROUP BY g.id
+     ORDER BY g.name`
+  );
 
-  return NextResponse.json(groups);
+  return NextResponse.json(result.rows);
 }
 
 export async function POST(req: Request) {
+  await ensureTables();
   const { name, preset, channel = "email" } = await req.json();
 
   if (!name || !name.trim()) {
@@ -44,38 +44,38 @@ export async function POST(req: Request) {
 
   try {
     const db = getDb();
-    const result = db
-      .prepare(
-        "INSERT INTO groups (name, type, channel, preset) VALUES (?, ?, ?, ?)"
-      )
-      .run(name.trim(), isDynamic ? "dynamic" : "static", channel, isDynamic ? preset : null);
+    const result = await db.execute({
+      sql: "INSERT INTO groups (name, type, channel, preset) VALUES (?, ?, ?, ?)",
+      args: [name.trim(), isDynamic ? "dynamic" : "static", channel, isDynamic ? preset : null]
+    });
 
-    const groupId = result.lastInsertRowid as number;
+    const groupId = Number(result.lastInsertRowid);
 
     // If dynamic, sync immediately
     if (isDynamic) {
       const users = await fetchClerkUsersForPreset(preset);
-      const insert = db.prepare(
-        "INSERT OR IGNORE INTO members (group_id, email, name) VALUES (?, ?, ?)"
-      );
-      const tx = db.transaction(() => {
-        for (const u of users) {
-          insert.run(groupId, u.email, u.name);
-        }
-        db.prepare(
-          "UPDATE groups SET last_synced_at = datetime('now') WHERE id = ?"
-        ).run(groupId);
+      
+      const batch: any[] = users.map(u => ({
+        sql: "INSERT OR IGNORE INTO members (group_id, email, name) VALUES (?, ?, ?)",
+        args: [groupId, u.email, u.name]
+      }));
+
+      batch.push({
+        sql: "UPDATE groups SET last_synced_at = datetime('now') WHERE id = ?",
+        args: [groupId]
       });
-      tx();
+
+      await db.batch(batch, "write");
     }
 
-    const group = db
-      .prepare("SELECT * FROM groups WHERE id = ?")
-      .get(groupId);
+    const selectResult = await db.execute({
+      sql: "SELECT * FROM groups WHERE id = ?",
+      args: [groupId]
+    });
 
-    return NextResponse.json(group);
+    return NextResponse.json(selectResult.rows[0]);
   } catch (e: any) {
-    if (e.code === "SQLITE_CONSTRAINT_UNIQUE") {
+    if (e.message && e.message.includes("UNIQUE constraint failed")) {
       return NextResponse.json(
         { error: "Group name already exists" },
         { status: 409 }
