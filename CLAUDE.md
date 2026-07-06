@@ -76,8 +76,7 @@ node .claude/skills/elevenlabs/generate.js "Rebyte moves your agents to the clou
 
 - **Never use emojis** in email templates. Use real logos/icons (via `<Img>` tags) instead.
 
-## Postmark API Key
+## Postmark Tokens
 
-```
-ceca9197-3d7e-4c94-a50b-3156faa6ab8c
-```
+- Token status and send/test workflow live in `crm/POSTMARK.md`.
+- Do not add new plaintext Postmark tokens to this file.

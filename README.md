@@ -37,7 +37,8 @@ marketing/
 cd crm
 pnpm install
 pnpm dev      # http://localhost:10000
-pnpm send     # CLI 发送（参考 send.ts）
+pnpm send --campaign recent-signup-feedback --to cj@rebyte.ai --name CJ --dry-run
+pnpm send --campaign recent-signup-feedback --to cj@rebyte.ai --name CJ
 ```
 
 **线上跑在 mini 上（tailnet only）**：
@@ -55,7 +56,7 @@ cd crm && ./deploy.sh
 
 `deploy.sh` 只构建 + 部署当前工作区代码（worker `rebyte-emails`），不动 D1 数据 / secrets / Access 配置；需要 `~/cloudflare.env`。详见 memory `crm-cloudflare-deploy`。
 
-Postmark API key 在 `CLAUDE.md`（私仓 OK，但别对外）。
+Postmark token 状态见 [crm/POSTMARK.md](crm/POSTMARK.md)。不要再以 `CLAUDE.md` 里的历史 key 为准。
 
 ## Remotion 视频（顶层 + my-remotion-demo/）
 
@@ -96,4 +97,4 @@ cd marketing-diagrams && pnpm install && pnpm dev
 
 - **`users_dump.csv`** 在仓库根目录，1.2 MB，含真实用户邮箱/手机号。**这是私仓，但任何 fork / clone 都会带走它**——慎重。
 - **`data.db`** 已 gitignore，每台机本地状态独立。如果要共享 group 配置，得从 Clerk dynamic preset 重 sync，不要靠拷 db。
-- **Postmark key** 当前明文写在 `CLAUDE.md`，知道就行；要 rotate 找 founder。
+- **Postmark token** 状态见 [crm/POSTMARK.md](crm/POSTMARK.md)。不要提交新的明文 token；本地发送优先用 `crm/.env.local`。

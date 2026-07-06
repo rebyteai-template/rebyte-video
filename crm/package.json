@@ -6,6 +6,7 @@
     "build": "next build",
     "start": "next start --port 10000",
     "send": "tsx send.ts",
+    "postmark:check": "tsx check-postmark.ts",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"

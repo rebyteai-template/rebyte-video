@@ -16,6 +16,18 @@ interface ClerkUser {
 }
 
 const now = () => Date.now();
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function startOfLocalDay(timestamp = now()) {
+  const date = new Date(timestamp);
+  date.setHours(0, 0, 0, 0);
+  return date.getTime();
+}
+
+function isInPreviousLocalDay(timestamp: number) {
+  const end = startOfLocalDay();
+  return timestamp >= end - DAY_MS && timestamp < end;
+}
 
 /** Normalize Gmail dot-aliases and +tags so duplicates are caught */
 export function normalizeEmail(email: string): string {
@@ -29,6 +41,13 @@ export function normalizeEmail(email: string): string {
 }
 
 export const PRESETS: ClerkPreset[] = [
+  {
+    id: "registered_yesterday",
+    label: "Registered yesterday",
+    description: "Users who signed up during the previous local calendar day",
+    filter: (u) => isInPreviousLocalDay(u.created_at),
+    earlyTermination: true,
+  },
   {
     id: "registered_last_7_days",
     label: "Registered last 7 days",

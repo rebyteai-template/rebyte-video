@@ -12,6 +12,7 @@ import ProductUpdate20260421 from "./product-update-2026-04-21/template";
 import ProductUpdate20260504 from "./product-update-2026-05-04/template";
 import ProductUpdate20260616 from "./product-update-2026-06-16/template";
 import AgentManagementApi from "./agent-management-api/template";
+import RecentSignupFeedback from "./recent-signup-feedback/template";
 
 interface EmailCampaign {
   channel: "email";
@@ -127,6 +128,13 @@ export const campaigns: Record<string, Campaign> = {
     sampleProps: { name: "Jane", email: "jane@example.com" },
     description: "Launch — Agent Management API: one rbk_ key runs a fleet of agents (POST /v1/tasks), steer/monitor via prompts + workspace reuse + status, integrate via signed webhooks + Files API. A model-agnostic drop-in for Claude Code / single-vendor managed-agent APIs (run Claude Code, Codex, Gemini, opencode).",
     subject: "One API for Claude Code, Codex, and Any Agent",
+  },
+  "recent-signup-feedback": {
+    channel: "email",
+    component: RecentSignupFeedback,
+    sampleProps: { name: "Jane", email: "jane@example.com" },
+    description: "New user guide and feedback request for recently registered users",
+    subject: "A short guide to getting started with Rebyte",
   },
   "sms-welcome": {
     channel: "sms",
