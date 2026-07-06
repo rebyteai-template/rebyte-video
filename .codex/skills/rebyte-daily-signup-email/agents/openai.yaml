@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rebyte Daily Signup Email"
+  short_description: "Send onboarding email to new signups"
+  default_prompt: "Use $rebyte-daily-signup-email to send yesterday's Rebyte onboarding email and report the result."
