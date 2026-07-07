@@ -27,12 +27,6 @@ interface Member {
   name: string;
 }
 
-interface ClerkPreset {
-  id: string;
-  label: string;
-  description: string;
-}
-
 type Tab = "preview" | "send";
 type SidebarView = "campaign" | "group";
 
@@ -92,20 +86,17 @@ export default function Console() {
   const [newEmail, setNewEmail] = useState("");
   const [newPhone, setNewPhone] = useState("");
   const [newName, setNewName] = useState("");
-  const [newGroupName, setNewGroupName] = useState("");
-  const [newGroupChannel, setNewGroupChannel] = useState<"email" | "sms">(
-    "email"
-  );
   const [groupStatus, setGroupStatus] = useState<string | null>(null);
 
-  // Dynamic group state
-  const [clerkPresets, setClerkPresets] = useState<ClerkPreset[]>([]);
-  const [showPresetPicker, setShowPresetPicker] = useState(false);
   const [syncing, setSyncing] = useState(false);
 
   const selectedCampaign = campaigns.find((c) => c.name === selected) ?? null;
   const isSmsGroup = selectedGroup?.channel === "sms";
   const isSmsCampaign = selectedCampaign?.channel === "sms";
+  const isDynamic = selectedGroup?.type === "dynamic";
+  const isAllUsersGroup =
+    selectedGroup?.name === "All Users" && selectedGroup.channel === "email";
+  const isManagedGroup = isDynamic || isAllUsersGroup;
 
   const loadGroups = useCallback(async () => {
     const res = await fetch("/api/groups");
@@ -118,9 +109,6 @@ export default function Console() {
       .then((r) => r.json())
       .then(setCampaigns);
     loadGroups();
-    fetch("/api/clerk-presets")
-      .then((r) => r.json())
-      .then(setClerkPresets);
   }, [loadGroups]);
 
   const loadPreview = useCallback(async (name: string) => {
@@ -169,57 +157,8 @@ export default function Console() {
     [loadMembers]
   );
 
-  const handleCreateGroup = async () => {
-    if (!newGroupName.trim()) return;
-    const res = await fetch("/api/groups", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: newGroupName.trim(),
-        channel: newGroupChannel,
-      }),
-    });
-    if (res.ok) {
-      setNewGroupName("");
-      loadGroups();
-    } else {
-      const data = await res.json();
-      setGroupStatus(`Error: ${data.error}`);
-    }
-  };
-
-  const handleCreateDynamicGroup = async (presetId: string) => {
-    const preset = clerkPresets.find((p) => p.id === presetId);
-    if (!preset) return;
-    setShowPresetPicker(false);
-    setSyncing(true);
-    setGroupStatus(null);
-    const res = await fetch("/api/groups", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: preset.label, preset: presetId }),
-    });
-    setSyncing(false);
-    if (res.ok) {
-      const group = await res.json();
-      await loadGroups();
-      selectGroup({
-        id: group.id,
-        name: group.name,
-        type: "dynamic",
-        channel: group.channel || "email",
-        preset: presetId,
-        last_synced_at: group.last_synced_at,
-        member_count: 0,
-      });
-    } else {
-      const data = await res.json();
-      setGroupStatus(`Error: ${data.error}`);
-    }
-  };
-
   const handleSyncGroup = async () => {
-    if (!selectedGroup || selectedGroup.type !== "dynamic") return;
+    if (!selectedGroup || !isManagedGroup) return;
     setSyncing(true);
     setGroupStatus(null);
     const res = await fetch(`/api/groups/${selectedGroup.id}/sync`, {
@@ -229,7 +168,11 @@ export default function Console() {
     if (res.ok) {
       const data = await res.json();
       setGroupStatus(
-        `Synced ${data.member_count} members from Clerk`
+        isAllUsersGroup
+          ? `Rebuilt ${data.member_count} deduped members`
+          : data.all_users_member_count
+            ? `Synced ${data.member_count} members from Clerk. Rebuilt All Users to ${data.all_users_member_count} deduped members`
+            : `Synced ${data.member_count} members from Clerk`
       );
       setSelectedGroup({
         ...selectedGroup,
@@ -372,7 +315,13 @@ export default function Console() {
         );
       }
     } else {
-      setSendResult(`Sent: ${data.sent}, Failed: ${data.failed}`);
+      const failureDetails =
+        data.failureSamples?.length > 0
+          ? `\n\nFailure samples:\n${JSON.stringify(data.failureSamples, null, 2)}`
+          : "";
+      setSendResult(
+        `Total: ${data.total}\nSent: ${data.sent}\nFailed: ${data.failed}${failureDetails}`
+      );
     }
   };
 
@@ -385,8 +334,6 @@ export default function Console() {
     { id: "preview", label: "Preview" },
     { id: "send", label: "Send" },
   ];
-
-  const isDynamic = selectedGroup?.type === "dynamic";
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
@@ -488,70 +435,6 @@ export default function Console() {
             ))}
           </div>
           
-          <div className="space-y-2">
-            <div className="flex gap-1">
-              <input
-                type="text"
-                placeholder="New group..."
-                value={newGroupName}
-                onChange={(e) => setNewGroupName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleCreateGroup()}
-                className="flex-1 min-w-0 px-2 py-1.5 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
-              />
-              <button
-                onClick={handleCreateGroup}
-                disabled={!newGroupName.trim()}
-                className="px-3 py-1.5 bg-gray-900 text-white rounded text-sm font-medium hover:bg-gray-800 disabled:opacity-50 shrink-0"
-              >
-                +
-              </button>
-            </div>
-            <div className="flex gap-3 px-1">
-              <label className="flex items-center gap-1.5 text-[11px] text-gray-500 cursor-pointer">
-                <input
-                  type="radio"
-                  name="newGroupChannel"
-                  checked={newGroupChannel === "email"}
-                  onChange={() => setNewGroupChannel("email")}
-                  className="w-3 h-3 accent-gray-900"
-                />
-                email
-              </label>
-              <label className="flex items-center gap-1.5 text-[11px] text-gray-500 cursor-pointer">
-                <input
-                  type="radio"
-                  name="newGroupChannel"
-                  checked={newGroupChannel === "sms"}
-                  onChange={() => setNewGroupChannel("sms")}
-                  className="w-3 h-3 accent-gray-900"
-                />
-                sms
-              </label>
-            </div>
-            <div className="relative">
-              <button
-                onClick={() => setShowPresetPicker(!showPresetPicker)}
-                disabled={syncing}
-                className="w-full px-2 py-1.5 text-xs text-blue-600 border border-blue-100 rounded-lg hover:bg-blue-50 disabled:opacity-50 transition-colors"
-              >
-                {syncing ? "Syncing..." : "+ Dynamic group"}
-              </button>
-              {showPresetPicker && (
-                <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
-                  {clerkPresets.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => handleCreateDynamicGroup(p.id)}
-                      className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 border-b border-gray-100 last:border-0"
-                    >
-                      <div className="font-medium text-gray-900">{p.label}</div>
-                      <div className="text-gray-500 text-[10px]">{p.description}</div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       </div>
 
@@ -726,30 +609,39 @@ export default function Console() {
                 <div className="flex items-center gap-3">
                   <h2 className="text-2xl font-bold">{selectedGroup.name}</h2>
                   <ChannelBadge channel={selectedGroup.channel} />
-                  {isDynamic && (
+                  {isDynamic && !isAllUsersGroup && (
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 uppercase tracking-wider">dynamic</span>
+                  )}
+                  {isAllUsersGroup && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 uppercase tracking-wider">managed</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {isDynamic && (
+                  {isManagedGroup && (
                     <button
                       onClick={handleSyncGroup}
                       disabled={syncing}
                       className="flex-1 lg:flex-none px-4 py-2 text-sm font-bold text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-50 disabled:opacity-50 transition-all"
                     >
-                      {syncing ? "Syncing..." : "Sync from Clerk"}
+                      {syncing
+                        ? "Syncing..."
+                        : isAllUsersGroup
+                          ? "Rebuild list"
+                          : "Sync from Clerk"}
                     </button>
                   )}
-                  <button
-                    onClick={() => handleDeleteGroup(selectedGroup.id)}
-                    className="flex-1 lg:flex-none px-4 py-2 text-sm font-bold text-red-600 border border-red-100 rounded-xl hover:bg-red-50 transition-all"
-                  >
-                    Delete
-                  </button>
+                  {!isAllUsersGroup && (
+                    <button
+                      onClick={() => handleDeleteGroup(selectedGroup.id)}
+                      className="flex-1 lg:flex-none px-4 py-2 text-sm font-bold text-red-600 border border-red-100 rounded-xl hover:bg-red-50 transition-all"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {isDynamic && selectedGroup.last_synced_at && (
+              {isManagedGroup && selectedGroup.last_synced_at && (
                 <div className="text-xs text-gray-400 flex items-center gap-1.5">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -766,7 +658,7 @@ export default function Console() {
                 </div>
               )}
 
-              {!isDynamic && (
+              {!isManagedGroup && (
                 <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
                   <div className="flex flex-col lg:flex-row gap-3">
                     <input
@@ -808,7 +700,7 @@ export default function Console() {
                         <th className="px-6 py-4 font-bold uppercase tracking-wider text-[10px]">#</th>
                         <th className="px-6 py-4 font-bold uppercase tracking-wider text-[10px]">{isSmsGroup ? "Phone" : "Email"}</th>
                         <th className="px-6 py-4 font-bold uppercase tracking-wider text-[10px]">Name</th>
-                        {!isDynamic && <th className="px-6 py-4 w-10"></th>}
+                        {!isManagedGroup && <th className="px-6 py-4 w-10"></th>}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -821,7 +713,7 @@ export default function Console() {
                           <td className="px-6 py-4 text-gray-500">
                             {m.name || "\u2014"}
                           </td>
-                          {!isDynamic && (
+                          {!isManagedGroup && (
                             <td className="px-6 py-4">
                               <button
                                 onClick={() => handleRemoveMember(m)}
@@ -838,7 +730,11 @@ export default function Console() {
                       {members.length === 0 && (
                         <tr>
                           <td colSpan={4} className="px-6 py-12 text-center text-gray-400 italic">
-                            {isDynamic ? 'Click "Sync from Clerk" to fetch members' : 'No members yet'}
+                            {isManagedGroup
+                              ? isAllUsersGroup
+                                ? 'Click "Rebuild list" to refresh members'
+                                : 'Click "Sync from Clerk" to fetch members'
+                              : 'No members yet'}
                           </td>
                         </tr>
                       )}

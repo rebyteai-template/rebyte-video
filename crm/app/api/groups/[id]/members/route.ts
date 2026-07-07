@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { parse } from "csv-parse/sync";
 import { getDb, ensureTables } from "../../../../../lib/db";
+import { isAllUsersGroup } from "../../../../../lib/all-users";
 
 async function getGroup(groupId: string) {
   const result = await getDb().execute({
     sql: "SELECT * FROM groups WHERE id = ?",
     args: [groupId]
   });
-  return result.rows[0] as unknown as { id: number; channel: string } | undefined;
+  return result.rows[0] as unknown as
+    | { id: number; name: string; channel: string }
+    | undefined;
 }
 
 export async function GET(
@@ -29,6 +32,12 @@ export async function POST(req: Request) {
   const url = new URL(req.url);
   const groupId = url.pathname.split("/").at(-2)!;
   const group = await getGroup(groupId);
+  if (group && isAllUsersGroup(group)) {
+    return NextResponse.json(
+      { error: "All Users is managed; rebuild it instead of editing members" },
+      { status: 400 }
+    );
+  }
   const isSms = group?.channel === "sms";
 
   const contentType = req.headers.get("content-type") || "";
@@ -147,6 +156,12 @@ export async function DELETE(req: Request) {
   const url = new URL(req.url);
   const groupId = url.pathname.split("/").at(-2)!;
   const group = await getGroup(groupId);
+  if (group && isAllUsersGroup(group)) {
+    return NextResponse.json(
+      { error: "All Users is managed; rebuild it instead of editing members" },
+      { status: 400 }
+    );
+  }
   const isSms = group?.channel === "sms";
   const body = await req.json();
 

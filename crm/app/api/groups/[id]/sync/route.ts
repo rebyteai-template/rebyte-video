@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getDb } from "../../../../../lib/db";
-import { fetchClerkUsersForPreset } from "../../../../../lib/clerk-presets";
+import {
+  isAllUsersGroup,
+  rebuildAllUsersGroup,
+  syncClerkGroup,
+} from "../../../../../lib/all-users";
 
 export async function POST(
   _req: Request,
@@ -17,6 +21,17 @@ export async function POST(
   if (!group) {
     return NextResponse.json({ error: "Group not found" }, { status: 404 });
   }
+
+  if (isAllUsersGroup(group)) {
+    const result = await rebuildAllUsersGroup(db, { refreshClerk: true });
+    return NextResponse.json({
+      ok: true,
+      member_count: result.memberCount,
+      last_synced_at: result.lastSyncedAt,
+      source_group_ids: result.sourceGroupIds,
+    });
+  }
+
   if (group.type !== "dynamic") {
     return NextResponse.json(
       { error: "Only dynamic groups can be synced" },
@@ -24,37 +39,17 @@ export async function POST(
     );
   }
 
-  const users = await fetchClerkUsersForPreset(group.preset as string);
-
-  // Additive sync: INSERT OR IGNORE preserves seeded members and adds new
-  // Clerk users without duplicates (unique constraint on group_id + email)
-  const batch: any[] = [
-    ...users.map((u) => ({
-      sql: "INSERT OR IGNORE INTO members (group_id, email, name) VALUES (?, ?, ?)",
-      args: [id, u.email, u.name],
-    })),
-    {
-      sql: "UPDATE groups SET last_synced_at = datetime('now') WHERE id = ?",
-      args: [id],
-    },
-  ];
-
-  await db.batch(batch, "write");
-
-  const countResult = await db.execute({
-    sql: "SELECT COUNT(*) as count FROM members WHERE group_id = ?",
-    args: [id],
-  });
-  const memberCount = (countResult.rows[0] as any).count;
-
-  const syncedResult = await db.execute({
-    sql: "SELECT last_synced_at FROM groups WHERE id = ?",
-    args: [id],
-  });
+  const result = await syncClerkGroup(db, group);
+  const allUsersResult =
+    group.preset === "all_users"
+      ? await rebuildAllUsersGroup(db, { refreshClerk: false })
+      : null;
 
   return NextResponse.json({
     ok: true,
-    member_count: memberCount,
-    last_synced_at: (syncedResult.rows[0] as any).last_synced_at,
+    member_count: result.memberCount,
+    last_synced_at: result.lastSyncedAt,
+    all_users_member_count: allUsersResult?.memberCount,
+    all_users_last_synced_at: allUsersResult?.lastSyncedAt,
   });
 }
