@@ -87,3 +87,38 @@ Expected result for a good test send:
 - `Status: Sent`
 - `MessageEvents` contains `Delivered`
 - Gmail destination returns an SMTP `250 OK`
+
+## Temporal Hourly Signup Email
+
+The Temporal workflow and worker live in `crm/temporal`. They send the same
+`recent-signup-feedback` campaign to Clerk users who registered in the previous
+hour.
+
+Temporal connection config is env-driven. Put `TEMPORAL_ADDRESS`,
+`TEMPORAL_NAMESPACE`, and `TEMPORAL_API_KEY` in `crm/.env.local`, or leave them
+unset and the scripts will load the dev values from
+`../cctools/relay/.env.local`.
+
+Run a local worker:
+
+```bash
+pnpm temporal:worker
+```
+
+Run one previous-hour workflow for verification:
+
+```bash
+pnpm temporal:run-once --dry-run
+```
+
+Create or update the hourly schedule in the dev namespace:
+
+```bash
+pnpm temporal:schedule
+```
+
+The schedule runs at the top of every UTC hour and uses
+`overlap: ALLOW_ALL`, so every hourly tick creates its own workflow execution
+even if the local worker is offline. Those executions wait on the task queue
+until a worker is polling. The workflow computes the non-overlapping
+`[previousHourStart, scheduledTick)` window from its Temporal start time.
