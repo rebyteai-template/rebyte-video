@@ -4,13 +4,12 @@
   "description": "Remotion video demo",
   "scripts": {
     "start": "remotion studio",
-    "build": "remotion render AnimatedIntro out/intro.mp4",
+    "build": "remotion render UserScenarioTaskAssignment out/user-scenario-task-assignment.raw.mp4 --overwrite && ffmpeg -y -i out/user-scenario-task-assignment.raw.mp4 -c:v copy -an out/user-scenario-task-assignment.mp4 && rm out/user-scenario-task-assignment.raw.mp4",
+    "check": "tsc --noEmit",
     "render:all": "remotion render"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.407",
-    "@remotion/media": "4.0.407",
-    "@remotion/player": "^4.0.407",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "remotion": "^4.0.407"
