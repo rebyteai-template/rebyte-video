@@ -5,6 +5,7 @@
   "scripts": {
     "start": "remotion studio",
     "build": "remotion render UserScenarioTaskAssignment out/user-scenario-task-assignment.raw.mp4 --overwrite && ffmpeg -y -i out/user-scenario-task-assignment.raw.mp4 -c:v copy -an out/user-scenario-task-assignment.mp4 && rm out/user-scenario-task-assignment.raw.mp4",
+    "build:sites": "remotion render SitesLifecycle out/sites-lifecycle.raw.mp4 --overwrite && ffmpeg -y -i out/sites-lifecycle.raw.mp4 -c:v copy -an out/sites-lifecycle.mp4 && rm out/sites-lifecycle.raw.mp4",
     "check": "tsc --noEmit",
     "render:all": "remotion render"
   },
