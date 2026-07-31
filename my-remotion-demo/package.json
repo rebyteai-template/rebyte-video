@@ -6,6 +6,7 @@
     "start": "remotion studio",
     "build": "remotion render UserScenarioTaskAssignment out/user-scenario-task-assignment.raw.mp4 --overwrite && ffmpeg -y -i out/user-scenario-task-assignment.raw.mp4 -c:v copy -an out/user-scenario-task-assignment.mp4 && rm out/user-scenario-task-assignment.raw.mp4",
     "build:sites": "remotion render SitesLifecycle out/sites-lifecycle.raw.mp4 --overwrite && ffmpeg -y -i out/sites-lifecycle.raw.mp4 -c:v copy -an out/sites-lifecycle.mp4 && rm out/sites-lifecycle.raw.mp4",
+    "build:sites:x": "npm run build:sites && ffmpeg -y -i out/sites-lifecycle.mp4 -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 -shortest -vf scale=in_range=pc:out_range=tv,format=yuv420p -c:v libx264 -pix_fmt yuv420p -profile:v high -level 4.0 -preset veryfast -crf 20 -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709 -movflags +faststart -c:a aac -b:a 128k out/sites-lifecycle-x-compatible.mp4",
     "check": "tsc --noEmit",
     "render:all": "remotion render"
   },

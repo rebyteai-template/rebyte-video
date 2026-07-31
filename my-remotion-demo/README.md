@@ -68,6 +68,7 @@ npx remotion still UserScenarioTaskAssignment out/check.png --frame=900 --overwr
 npm run build
 ffprobe -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate,duration,nb_frames -show_entries format=duration,size -of default=noprint_wrappers=1 out/user-scenario-task-assignment.mp4
 npx remotion still SitesLifecycle out/sites-lifecycle-check-210.png --frame=210 --overwrite
-npm run build:sites
+npm run build:sites:x
 ffprobe -v error -show_entries stream=index,codec_type,codec_name,width,height,r_frame_rate,duration,nb_frames -show_entries format=duration,size -of default=noprint_wrappers=1 out/sites-lifecycle.mp4
+ffprobe -v error -show_entries stream=index,codec_type,codec_name,width,height,pix_fmt,color_range,r_frame_rate,duration,nb_frames -show_entries format=duration,size -of default=noprint_wrappers=1 out/sites-lifecycle-x-compatible.mp4
 ```

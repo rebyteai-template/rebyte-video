@@ -135,6 +135,53 @@ For `Sites`, the lifecycle to show is:
 5. Save a revision.
 6. Share with the team.
 
+## Strategy: Staging Product Videos On X
+
+Use this when staging a product post with an MP4 attachment.
+
+Hard lessons from the Sites post:
+
+- Do not rely on the home timeline inline composer for video posts. It can keep
+  stale media state and make upload debugging harder.
+- Open a clean composer at `https://x.com/compose/post`.
+- Fill text first, then re-snapshot before using refs. X invalidates element refs
+  aggressively after editor changes.
+- Prefer CSS selector upload for the file input:
+  - `agent-browser --cdp 9333 --session <session> upload 'input[type="file"]' <mp4>`
+- Before upload, convert Remotion output into an X-compatible MP4. Remotion's
+  stripped silent video can be locally playable but still sit in X processing for
+  too long, especially when encoded as full-range `yuvj420p` with no audio.
+- Preferred command from `my-remotion-demo`:
+
+```bash
+npm run build:sites:x
+```
+
+- Under the hood, produce a compatibility copy with:
+
+```bash
+ffmpeg -y \
+  -i my-remotion-demo/out/sites-lifecycle.mp4 \
+  -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 \
+  -shortest \
+  -vf "scale=in_range=pc:out_range=tv,format=yuv420p" \
+  -c:v libx264 -pix_fmt yuv420p -profile:v high -level 4.0 \
+  -preset veryfast -crf 20 \
+  -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709 \
+  -movflags +faststart \
+  -c:a aac -b:a 128k \
+  my-remotion-demo/out/sites-lifecycle-x-compatible.mp4
+```
+
+Ready check:
+
+- Wait until X shows `<filename>: Ready`.
+- Confirm the media preview has a play button and the composer has a `Remove
+  media` button.
+- Do not click `Post`; leave the final publish action to CJ unless he explicitly
+  approves exact account, text, and attachment.
+- Record the final staged asset path and whether CJ clicked the publish button.
+
 ## Strategy: Big-Account Reply Mining
 
 Use this for growth and relationship building.
