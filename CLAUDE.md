@@ -76,6 +76,10 @@ node .claude/skills/elevenlabs/generate.js "Rebyte moves your agents to the clou
 
 - **Never use emojis** in email templates. Use real logos/icons (via `<Img>` tags) instead.
 
+## Weekly / Product Updates — Exclusion List
+
+Opt-out emails for Weekly / Product Updates are hardcoded in the `EXCLUDE` list in `crm/scripts/weekly-sync.sh` (removed from the target groups after every sync).
+
 ## Postmark API Key
 
 ```

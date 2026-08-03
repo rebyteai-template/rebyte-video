@@ -17,6 +17,21 @@ function parseArgs(argv: string[]) {
   return args;
 }
 
+// Emails to always exclude from broadcasts (opted out of Weekly / Product
+// Updates). Compared using Gmail normalization so dot/+alias variants are caught.
+const EXCLUDED_EMAILS = ["ninghu@gmail.com", "ning.hu@gmail.com"];
+
+function normalizeEmail(email: string): string {
+  email = email.toLowerCase().trim();
+  const [local, domain] = email.split("@");
+  if (domain === "gmail.com" || domain === "googlemail.com") {
+    return `${local.split("+")[0].replace(/\./g, "")}@gmail.com`;
+  }
+  return email;
+}
+
+const EXCLUDED_SET = new Set(EXCLUDED_EMAILS.map(normalizeEmail));
+
 const args = parseArgs(process.argv);
 
 const templateName = args["template"];
@@ -80,8 +95,17 @@ async function main() {
   console.log("---");
 
   // Filter to rows that have an email
-  const validRecipients = recipients.filter((r) => r.email && r.email.includes("@"));
+  const withEmail = recipients.filter((r) => r.email && r.email.includes("@"));
+
+  // Drop opted-out addresses before anything is sent
+  const validRecipients = withEmail.filter(
+    (r) => !EXCLUDED_SET.has(normalizeEmail(r.email))
+  );
+  const excludedCount = withEmail.length - validRecipients.length;
   console.log(`Valid recipients (with email): ${validRecipients.length}`);
+  if (excludedCount > 0) {
+    console.log(`Excluded (opt-out list): ${excludedCount}`);
+  }
 
   if (dryRun) {
     // In dry-run mode, render the first 3 and print
